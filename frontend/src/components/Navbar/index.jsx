@@ -4,14 +4,14 @@ import { BiMenu, BiX } from 'react-icons/bi';
 import { NavContext } from '../../contexts/NavContext';
 import NavList from './NavList';
 import Logo from '../Navbar/Logo';
+import { getNavLinks } from '../../misc/data';
 
 const Navbar = () => {
-
+  const navLinks = getNavLinks();
   const {
           isMobileView,
           handleResize,
           isMobileMenuOpen,
-          navLinks,
           dispatch } = useContext(NavContext);
 
 
@@ -82,7 +82,7 @@ const Navbar = () => {
       { shouldShowMobileMenu() &&
           <NavList links={navLinks}  />
       }
-      <Box bg="orange.primary" mt="auto" w="100%" h="10px"></Box>
+      <Box bg="gray.primary" mt="auto" w="100%" h="5px"></Box>
     </Box>
   );
 }

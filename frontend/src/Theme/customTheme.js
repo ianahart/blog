@@ -1,13 +1,25 @@
 import { extendTheme } from '@chakra-ui/react'
+import Input from './input';
+import Button from './button';
+import FormLabel from './formLabel';
 
 const customTheme = extendTheme({
+    components: {
+        Link:  { baseStyle: { _focus: { boxShadow: 'none' } } },
+        Input,
+        Button,
+        FormLabel,
+    },
+    shadows: {
+        black: '0 3px 15px rgb(0 0 0 / 20%);'
+    },
     colors: {
         light: {
             primary: '#EEEEEE',
             hover: '#dedcdc',
         },
         dark: {
-            primary: '#1B262C',
+            primary: '#4c4b4b',
             secondary: '#686D76',
             primaryHover: '#2c2e33',
             secondaryHover: '#5a5e66',
@@ -15,6 +27,10 @@ const customTheme = extendTheme({
         main: {
             primary: '#0F4C75',
             primaryHover: '#0b3d5e',
+        },
+        gray: {
+            primary: '#544f47',
+            secondary: '#757676',
         },
         orange: {
             primary: '#FFA41B',
@@ -26,7 +42,8 @@ const customTheme = extendTheme({
         blue: {
             primary: '#005082',
             primaryHover: '#2583c2',
-            secondary: '#00A8CC',
+            light: '#00A8CC',
+            secondary: '#0680cc',
             secondaryHover: '#8eb7d1',
         }
 
