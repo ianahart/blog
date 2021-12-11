@@ -1,8 +1,9 @@
-import { useContext } from 'react';
+import { useContext, useState, useEffect } from 'react';
 import { BiUser, BiLockAlt } from 'react-icons/bi';
 import { Link as RouterLink } from 'react-router-dom';
 import debounce from 'lodash.debounce';
 import { findNeedle } from '../../misc/helpers';
+import apiRequest from '../../services/apiRequest';
 
 import {
         Box,
@@ -19,49 +20,102 @@ import {
 import  { AuthContext }  from '../../contexts/AuthContext';
 
 
-const LoginForm = () => {
 
+const LoginForm = () => {
+  const initialState = {
+    activeField: '',
+    userVerificationSent: false,
+  }
+
+  const [state, setState] = useState(initialState);
   const {
-          adminExists,
-          isTempVerified,
-          activeField,
-          setActiveField,
+          user,
+          setUser,
           credentials,
+          setCredentials,
           authenticate,
           validateForm,
+          userNameRule,
           handleInputChange,
           handleRetrySubmit }=  useContext(AuthContext);
 
-  const changeHandler = debounce(value => handleInputChange(value), 75);
-  const debouncedHandler = ({ target }) => changeHandler({name:target.name, value:target.value});
-
-  let passwordType = isTempVerified || adminExists ? 'password' : 'temp_password';
+  let passwordType = user.isTempVerified || user.adminExists ? 'password' : 'temp_password';
   let password = credentials[findNeedle(credentials, passwordType, 'name')]
   let username = credentials[findNeedle(credentials, 'username', 'name')];
 
   const roleText = (admin, verified, notVerified) => {
-    if (adminExists) {
+    if (user.adminExists) {
       return admin;
     }
-    return !adminExists && isTempVerified ? verified : notVerified;
+    return !user.adminExists && user.isTempVerified ? verified : notVerified;
   };
 
   const checkErrors = () => {
     return credentials.some((field) => field.error.length);
   }
 
+
   const handleOnSubmit = (e) => {
-    e.preventDefault();
-    handleRetrySubmit(credentials);
-    validateForm(credentials);
-    if (!checkErrors()) {
-      authenticate(credentials);
-    }
-  };
+
+      handleRetrySubmit(credentials);
+      validateForm(credentials);
+      if (checkErrors()) {
+        return;
+      }
+      console.log('Submitted.');
+
+        /** TODO TOMORROW */
+        // setup post endpoint
+
+        //verify submit is making actually apiRequest because authenticate() is commented out
+        authenticate(credentials);
+
+      // const response = apiRequest('/api/v1/admin/login', credentials, 'POST');
+  }
+
+
+  const handleClick = () => {
+        userNameRule();
+        if (!username.error.length) {
+
+
+
+           const response = apiRequest('/api/v1/admin/verify/username', credentials, 'POST');
+          //  const response = apiRequest('/api/v1/admin/verify/temp', credentials, 'POST');
+
+          // setState({ ...state, userVerificationSent: true })
+          // // const response = await axios({})
+          // // setUser({ ...user, ['adminExists']:true });
+          // setUser({ ...user, adminExists: false });
+            // setAdminExists(false)
+           //(response.data.adminExists)
+          // if (true) {
+           // setUser({ ...user, ['adminExists']:true });
+          // } else {
+          // setUser({ ...user, ['adminExists']:false });
+          // }
+       }
+
+  }
+
+  const onSubmitHandler = debounce(handleOnSubmit, 200);
+  const changeHandler = debounce(value => handleInputChange(value), 50);
+  const clickHandler = debounce(handleClick, 200);
+
+  const debouncedChangeHandler = ({ target }) => changeHandler({ name:target.name, value:target.value });
+  const debouncedClickHandler = () => clickHandler()
+  const debouncedOnSubmitHandler = (e) => {e.preventDefault(); onSubmitHandler(e)}
+
+  useEffect(() => {
+       return () => setCredentials(['username', 'temp_password', 'password']
+       .map(cred => ({ name: cred, value: '', error: '' })))
+  }, [setCredentials])
+
 
   return (
     <Box
-      onSubmit={handleOnSubmit}
+      onSubmit={debouncedOnSubmitHandler}
+      method="POST"
       display="flex"
       flexDirection="column"
       justifyContent="center"
@@ -98,13 +152,14 @@ const LoginForm = () => {
               left="12px"
               zIndex="1"
               fontSize="1.5rem"
-              color={activeField === 'username' ? 'blue.light': 'gray.secondary'}
+              color={state.activeField === 'username' ? 'blue.light': 'gray.secondary'}
               as={BiUser}
             />
+
             <Input
-              onFocus={(e) => setActiveField(e.target.name)}
-              onBlur={() => setActiveField('')}
-              onChange={debouncedHandler}
+              onFocus={(e) => setState({...state, activeField: e.target.name })}
+              onBlur={() => setState({...state, activeField: '' })}
+              onChange={debouncedChangeHandler}
               name="username"
               value={username.value}
               autoComplete="off"
@@ -122,8 +177,14 @@ const LoginForm = () => {
             </FormErrorMessage>
           </InputGroup>
         </FormControl>
+        {
+          !state.userVerificationSent &&
+          <Box my={5} textAlign="center">
+            <Button onClick={debouncedClickHandler} variant="main">Continue</Button>
+          </Box>
+         }
+         { state.userVerificationSent &&
           <FormControl
-            // isInvalid={tempPassword.error || password.error}
             isInvalid={password.error}
             my={8}
             id="password"
@@ -139,13 +200,13 @@ const LoginForm = () => {
                 left="12px"
                 zIndex="1"
                 fontSize="1.5rem"
-                color={activeField === 'password' || activeField === 'temp_password' ? 'blue.light': 'gray.secondary'}
+                color={state.activeField === 'password' || state.activeField === 'temp_password' ? 'blue.light': 'gray.secondary'}
                 as={BiLockAlt}
               />
               <Input
-                onFocus={(e) => setActiveField(e.target.name)}
-                onBlur={() => setActiveField('')}
-                onChange={debouncedHandler}
+                onFocus={(e) => setState({...state, activeField: e.target.name })}
+                onBlur={() => setState({...state, activeField: '' })}
+                onChange={debouncedChangeHandler}
                 name={roleText('password', 'password', 'temp_password')}
                 value={password.value}
                 autoComplete="off"
@@ -160,11 +221,11 @@ const LoginForm = () => {
               justifyContent="center"
               my={3}
             >
-              {/* { isTempVerified ? password.error : tempPassword.error } */}
               {password.error}
             </FormErrorMessage>
             </InputGroup>
           </FormControl>
+        }
       </Box>
         <Box mb="1rem" textAlign="right" mr="0.65rem">
           <Link
@@ -176,16 +237,14 @@ const LoginForm = () => {
             Forgot password?
           </Link>
         </Box>
-        <Box my={5} textAlign="center">
-          <Button type="submit" variant="main">{roleText('Login', 'Login', 'Verify')}</Button>
-        </Box>
+        {
+          state.userVerificationSent &&
+          <Box my={5} textAlign="center">
+            <Button type="submit" variant="main">{roleText('Login', 'Login', 'Verify')}</Button>
+          </Box>
+        }
     </Box>
   );
 }
 
 export default LoginForm;
-
-
-
-
-

@@ -1,29 +1,34 @@
+import { loginErrors } from "./data";
 
-export const applyRules = (form, field, formatted) => {
+export const userNameRules = (userName) => {
     let emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+    let error = '';
+    if (!userName.trim().length) {
+      error = loginErrors.userName.empty;
+    } else if (!emailPattern.test(userName)) {
+      error = loginErrors.userName.inValid;
+    }
+    return error;
+};
+
+export const applyRules = (form, field) => {
     let passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*(_|[^\w])).+$/;
     const map = Object.assign({},  ...form.map((field, index) => ({ [field.name]: index })));
 
     switch (field.name) {
       case 'username':
-              console.log(formatted)
-        if (!form[0].value.trim().length) {
-          form[map[field.name]].error = `${formatted} cannot be empty.`;
-        } else if (!emailPattern.test(form[map[field.name]].value)) {
-          form[map[field.name]].error =`${formatted} is not a valid email address.`;
-        }
-        console.log(form)
+        form[map[field.name]].error  =  userNameRules(form[map[field.name]].value);
         break;
       case 'temp_password':
           if (form[map[field.name]].value.trim().length === 0) {
-            form[map[field.name]].error = `${formatted} cannot be empty.`;
+            form[map[field.name]].error = loginErrors.temp_password.empty;
         }
         break;
       case 'password':
         if (form[map[field.name]].value.trim().length < 12) {
-          form[map[field.name]].error = `${formatted} must be a minimum of 12 characters.`
+          form[map[field.name]].error = loginErrors.password.min;
         } else if (!passwordPattern.test(form[map[field.name]].value)) {
-          form[map[field.name]].error =  `${formatted} must include 1 uppercase letter, 1 lowercase letter, 1 digit, and 1 special character.`;
+          form[map[field.name]].error =  loginErrors.password.regex;
         }
         break;
       default:
@@ -31,6 +36,5 @@ export const applyRules = (form, field, formatted) => {
     }
 }
 
-export const findNeedle = (haystack, needle, key) => {
-  return haystack.findIndex(item => item[key] === needle);
-}
+export const findNeedle = (haystack, needle, key) => haystack.findIndex(item => item[key] === needle);
+
