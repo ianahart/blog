@@ -6,12 +6,12 @@ const apiRequest = async (url, data, method, headers = { 'Content-Type': 'applic
       method,
       url,
       headers,
-      data,
+      data: { body: data }
     });
     console.log(response);
   } catch(e) {
     console.log(e);
-    // console.log(e.response);
+    console.log(e.response);
   }
 }
 export default apiRequest;

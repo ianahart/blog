@@ -62,13 +62,10 @@ const LoginForm = () => {
       if (checkErrors()) {
         return;
       }
-      console.log('Submitted.');
-
-        /** TODO TOMORROW */
-        // setup post endpoint
-
-        //verify submit is making actually apiRequest because authenticate() is commented out
-        authenticate(credentials);
+      if (credentials[findNeedle(credentials, 'password', 'name')].value.trim().length) {
+        const response = apiRequest('/api/v1/users/admin/', credentials, 'POST');
+      }
+      authenticate(credentials);
 
       // const response = apiRequest('/api/v1/admin/login', credentials, 'POST');
   }
@@ -77,23 +74,8 @@ const LoginForm = () => {
   const handleClick = () => {
         userNameRule();
         if (!username.error.length) {
-
-
-
-           const response = apiRequest('/api/v1/admin/verify/username', credentials, 'POST');
           //  const response = apiRequest('/api/v1/admin/verify/temp', credentials, 'POST');
-
-          // setState({ ...state, userVerificationSent: true })
-          // // const response = await axios({})
-          // // setUser({ ...user, ['adminExists']:true });
-          // setUser({ ...user, adminExists: false });
-            // setAdminExists(false)
-           //(response.data.adminExists)
-          // if (true) {
-           // setUser({ ...user, ['adminExists']:true });
-          // } else {
-          // setUser({ ...user, ['adminExists']:false });
-          // }
+          setState({ ...state, userVerificationSent: true })
        }
 
   }

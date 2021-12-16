@@ -5,7 +5,7 @@ import { userNameRules, findNeedle } from "../misc/helpers";
 export const AuthContext = createContext();
 
 const AuthContextProvider = (props) => {
-    const initialUserState = { adminExists: false, isTempVerified: false, token: null, curUser: null }
+   const initialUserState = { adminExists: false, isTempVerified: false, token: null, curUser: null }
    const initialCredState = {
     creds:  [
       {name: 'username', value: '', error: '' },
