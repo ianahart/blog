@@ -1,5 +1,5 @@
 from typing import Optional, List, Dict
-from pydantic import BaseModel
+from pydantic import BaseModel, ValidationError, validator
 import datetime
 # Shared properties
 
@@ -9,6 +9,7 @@ class UserBase(BaseModel):
     created_at: Optional[datetime.datetime]
     email: Optional[str] = None
     first_name: Optional[str] = None
+    role: Optional[str] = None
     last_name: Optional[str] = None
     is_logged_in: Optional[bool] = None
     temp_password: Optional[str] = None
@@ -21,7 +22,7 @@ class Credential(UserBase):
 
 
 class UserCreate(UserBase):
-    body: List[Credential]
+    credentials: List[Credential]
 
     class Config:
         orm_mode = True
@@ -29,6 +30,16 @@ class UserCreate(UserBase):
 
 class UserExists(UserBase):
     email: str
+
+    class Config:
+        orm_mode = True
+
+
+class UserVerify(UserBase):
+    temp_password: str
+
+    class Config:
+        orm_mode = True
 
 
 class UserInDBBase(UserBase):

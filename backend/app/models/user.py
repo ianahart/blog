@@ -8,6 +8,7 @@ class User(Base):
     __tablename__ = 'user'
     id = Column(Integer, primary_key=True, index=True)
     created_at = Column(DateTime, nullable=False)
+    role = Column(String(32), nullable=True)
     email = Column(String(128), nullable=False)
     hashed_password = Column(String, nullable=False)
     token = Column(String(256), nullable=True)
@@ -18,6 +19,9 @@ class User(Base):
     slug = Column(String(256), nullable=True)
     last_login = Column(DateTime, nullable=True)
     is_logged_in = Column(Boolean, nullable=True, default=0)
+    token = relationship(
+        'Token', cascade='all,delete-orphan',
+        back_populates='user')
     posts = relationship(
         'Post', cascade="all,delete-orphan",
         back_populates="author")

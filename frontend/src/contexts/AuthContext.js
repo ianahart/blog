@@ -1,6 +1,6 @@
 import { createContext, useState } from "react";
 import { applyRules } from "../misc/helpers";
-import { userNameRules, findNeedle } from "../misc/helpers";
+import { emailRules, findNeedle } from "../misc/helpers";
 
 export const AuthContext = createContext();
 
@@ -8,11 +8,10 @@ const AuthContextProvider = (props) => {
    const initialUserState = { adminExists: false, isTempVerified: false, token: null, curUser: null }
    const initialCredState = {
     creds:  [
-      {name: 'username', value: '', error: '' },
+      {name: 'email', value: '', error: '' },
       {name: 'temp_password', value: '', error: '' },
       {name: 'password', value: '', error: '' }
     ],
-
 }
   const [user, setUser] = useState(initialUserState);
   const [credentials, setCredentials] = useState(initialCredState.creds);
@@ -24,10 +23,10 @@ const AuthContextProvider = (props) => {
     setCredentials(updatedCreds);
   };
 
-  const userNameRule = () => {
+  const emailRule = () => {
     const updatedCreds = [...credentials];
-    const index = findNeedle(updatedCreds, 'username', 'name');
-    updatedCreds[index].error = userNameRules(updatedCreds[index].value);
+    const index = findNeedle(updatedCreds, 'email', 'name');
+    updatedCreds[index].error = emailRules(updatedCreds[index].value);
     setCredentials(updatedCreds);
   }
 
@@ -42,17 +41,18 @@ const AuthContextProvider = (props) => {
 
   const handleRetrySubmit = (form) => {
     const creds = [...form];
-    const updatedCreds = creds.map((cred) => Object.assign({},cred, { error: '' }))
+    const updatedCreds = creds.map((cred) => Object.assign({},cred, { error: '' }));
     setCredentials(updatedCreds);
   };
 
-  const authenticate = (e) => {
-    if (!user.adminExists && !user.isTempVerified) {
-       setUser({ ...user, isTempVerified: true });
-      return
-    }
-    console.log('AuthContext.js@authenticate(): Form has been submitted...');
-  };
+  const applyErrors = ({ data }) => {
+    const validated = [...credentials];
+    data.detail.forEach(({ loc, msg }) => {
+      const fieldIndex = validated.findIndex(({ name }) => name === loc[1])
+      validated[fieldIndex].error = msg
+    });
+    setCredentials(validated)
+  }
 
   return (
      <AuthContext.Provider value={
@@ -63,9 +63,9 @@ const AuthContextProvider = (props) => {
           setCredentials,
           handleInputChange,
           validateForm,
-          userNameRule,
-          authenticate,
+          emailRule,
           handleRetrySubmit,
+          applyErrors,
         }
       }
     >
@@ -75,27 +75,3 @@ const AuthContextProvider = (props) => {
 }
 
 export default AuthContextProvider;
-
-/** AUTH FLOW */
- // START
-  // post(checkUserNameExists)
-  // if (usernameExists && tempPasswordChanged) {
-  //   post(normalLogin)
-  // } else if (userNameExists && !tempPasswordChanged) {
-  //   /**  show temp password */
-  //    post(verify temp_password)
-  //   if (tempPasswordVerfied) {
-  //   //   /** show create password */
-  //   }
-  // }
-
-  //usernames will be manually added or added by an already verified administrator
-    // if (!username exists) {
-        // if (!noAdminsYet) {
-        //   // show temp password
-        // } else {
-        //   // do nothing show error
-        // }
-    // }
-
-// END
