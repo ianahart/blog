@@ -38,7 +38,8 @@ const LoginForm = () => {
           emailRule,
           handleInputChange,
           applyErrors,
-          handleRetrySubmit }=  useContext(AuthContext);
+          handleLoginSuccess,
+          clearForm }=  useContext(AuthContext);
 
   let passwordType = user.isTempVerified || user.adminExists ? 'password' : 'temp_password';
   let password = credentials[findNeedle(credentials, passwordType, 'name')]
@@ -51,29 +52,20 @@ const LoginForm = () => {
     return !user.adminExists && user.isTempVerified ? verified : notVerified;
   };
 
-  const checkErrors = () => {
-    return credentials.some((field) => field.error.length);
-  }
+  const checkErrors = () => credentials.some((field) => field.error.length);
 
   const verify = async (data) => {
     try {
       const response = await apiRequest('/api/v1/users/admin/verify', data, 'POST', null, applyErrors);
-      console.log('verify');
-        if (response.status === 200) {
-            if (!user.adminExists && !user.isTempVerified && response.data.is_user_verified) {
-              setUser({ ...user, isTempVerified: true });
-            }
-            return response.data.is_user_verified
-        }
+      setUser({ ...user, isTempVerified: response.data.is_user_verified });
     } catch(e) {
-        console.log(e)
-      console.log(`LoginForm.jsx@verify():`);
+        return false;
     }
   }
 
   const handleOnSubmit = async (e) => {
       try {
-        handleRetrySubmit(credentials);
+        clearForm(credentials);
         validateForm(credentials);
         if (checkErrors()) {
           return;
@@ -82,7 +74,6 @@ const LoginForm = () => {
               await verify({ temp_password: password.value })
              return
           }
-          console.log('create')
           setUser({...user, adminExists: true });
           const response = await apiRequest('/api/v1/users/admin/', { credentials }, 'POST', null, applyErrors);
       } catch(e) {
@@ -91,33 +82,31 @@ const LoginForm = () => {
   }
 
   const handleClick = async () => {
-        console.log('verify email')
-        handleRetrySubmit(credentials);
+    try {
+        clearForm(credentials);
         emailRule();
         if (email.error.length) {
           return;
         }
         const response =  await apiRequest('/api/v1/users/admin/exists',  { email: email.value }, 'POST',null, applyErrors);
-        if (!response) {
-          return
+        if (response.data.user_exists) {
+          setUser({ ...user, adminExists: true });
         }
-        if (!response.data.user_exists) {
-            setState({ ...state, isUserVerified: true });
-            return;
-        }
-        setUser({ ...user, adminExists: true });
         setState({ ...state, isUserVerified: true });
+    } catch(e) {
+        return;
+    }
   }
 
   const login = async () => {
     try {
-      handleRetrySubmit(credentials);
+      clearForm(credentials);
       validateForm(credentials);
       const response = await apiRequest('/api/v1/auth/login', { credentials }, 'POST', null , applyErrors);
-      console.log(response)
       if (!response) {
         return
       }
+      handleLoginSuccess(response.data.data, user)
       navigate('/')
     } catch(e) {
       console.log(e);

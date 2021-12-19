@@ -1,4 +1,5 @@
 import os
+import secrets
 from dotenv.main import load_dotenv
 from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
 from typing import Any, Dict, List, Optional, Union
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
     PROJECT_NAME: str
     PROJECT_VERSION: str
     API_V1_STR: str = '/api/v1'
-    JWT_SECRET: str
+    JWT_SECRET: str = secrets.token_urlsafe(32)
     ALGORITHM: str = 'HS256'
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 

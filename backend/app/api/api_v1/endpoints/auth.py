@@ -19,7 +19,6 @@ def logout():
 @router.post('/login')
 def login(*, db: Session = Depends(deps.get_db), credentials: schemas.auth.AuthLogin) -> Optional[Dict]:
     auth = services.auth.authenticate(db, credentials=credentials)
-    print(auth)
 
     if not isinstance(auth['error'], type(None)):
         raise HTTPException(400, auth['error'])

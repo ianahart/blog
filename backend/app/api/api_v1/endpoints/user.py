@@ -43,7 +43,7 @@ def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExis
 
     if len(msg):
         exception = utils.error.message(msg, 'email')
-        print(exception)
+
         raise HTTPException(400, detail=exception)
 
     user_exists = crud.user.exists(db, obj_in=user_in)

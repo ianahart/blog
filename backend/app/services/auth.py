@@ -1,9 +1,11 @@
 from typing import Optional, Dict
+from fastapi.param_functions import Depends
 from sqlalchemy.orm import Session
+
 
 from app.schemas.auth import AuthLogin
 from app import utils, models
-from app.core.security import verify_password
+from app.core import security, config
 
 
 class Auth:
@@ -12,7 +14,7 @@ class Auth:
         auth_creds = {}
         auth_status = {
             'error': None,
-            'data': {'authenticated': False, 'access_token': None}
+            'data': {'authenticated': False, 'accessToken': None, 'userId': None}
         }
 
         for row in credentials.dict()['credentials']:
@@ -27,15 +29,25 @@ class Auth:
 
         user = db.query(models.User).where(
             models.User.email == auth_creds['email']).first()
-        print(user)
+
         if not user:
             auth_status['error'] = utils.error.message(
                 'User not found.', 'password')
             return auth_status
 
-        if verify_password(auth_creds['password'], user.hashed_password):
+        if security.verify_password(auth_creds['password'], user.hashed_password):
             auth_status['data']['authenticated'] = True
-            auth_status['data']['access_token'] = 'access_token here'
+
+            access_token = security.create_access_token(
+                subject=user.id,
+                expires_delta=config.settings.ACCESS_TOKEN_EXPIRE_MINUTES)
+
+            security.save_access_token(db=db,
+                                       subject=user.id,
+                                       access_token=access_token)
+
+            auth_status['data']['accessToken'] = access_token
+            auth_status['data']['userId'] = user.id
             return auth_status
         else:
             auth_status['error'] = utils.error.message(

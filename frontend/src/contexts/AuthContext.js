@@ -5,7 +5,7 @@ import { emailRules, findNeedle } from "../misc/helpers";
 export const AuthContext = createContext();
 
 const AuthContextProvider = (props) => {
-   const initialUserState = { adminExists: false, isTempVerified: false, token: null, curUser: null }
+   const initialUserState = { adminExists: false, isTempVerified: false, accessToken: null, userId: null, authenticated: false }
    const initialCredState = {
     creds:  [
       {name: 'email', value: '', error: '' },
@@ -39,7 +39,7 @@ const AuthContextProvider = (props) => {
     setCredentials(validated);
   };
 
-  const handleRetrySubmit = (form) => {
+  const clearForm = (form) => {
     const creds = [...form];
     const updatedCreds = creds.map((cred) => Object.assign({},cred, { error: '' }));
     setCredentials(updatedCreds);
@@ -54,6 +54,11 @@ const AuthContextProvider = (props) => {
     setCredentials(validated)
   }
 
+  const handleLoginSuccess = (data, user) => {
+    const updatedUser = {...user, ...data}
+    setUser(updatedUser)
+  }
+
   return (
      <AuthContext.Provider value={
         {
@@ -64,8 +69,9 @@ const AuthContextProvider = (props) => {
           handleInputChange,
           validateForm,
           emailRule,
-          handleRetrySubmit,
+          clearForm,
           applyErrors,
+          handleLoginSuccess
         }
       }
     >
