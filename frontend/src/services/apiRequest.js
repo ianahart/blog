@@ -1,16 +1,22 @@
 import axios from 'axios';
 
-const apiRequest = async (url, data, method, headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' }, errorHandler) => {
+const apiRequest = async (url, data, method, errorHandler=null) => {
   try {
-    const response = await axios({ method, url, headers, data,  });
+    const noData = ['get', 'delete']
+    const headers = { 'Content-Type': 'application/json', 'Accept': 'application/json' }
+    const request = noData.includes(method.toLowerCase()) ? { method, url, headers } : { method, url, headers, data }
+
+    const response = await axios(request);
     return response
   } catch(e) {
     if (e) {
-      console.log('services/apiRequest.js: Error')
-      console.log(e);
-      console.log(e.response)
+      if (!e.response) {
+        return;
+      }
       const { data, status } = e.response
-      errorHandler({ data, status });
+      if (errorHandler) {
+        errorHandler({ data, status });
+      }
     }
   }
 }

@@ -10,3 +10,7 @@ def get_db() -> Generator:
         yield db
     finally:
         db.close()
+
+
+def authenticate_request():
+    pass

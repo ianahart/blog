@@ -38,3 +38,7 @@ export const applyRules = (form, field) => {
 
 export const findNeedle = (haystack, needle, key) => haystack.findIndex(item => item[key] === needle);
 
+export const getLocalUser = () => {
+  const user = localStorage.getItem('user')
+  return JSON.parse(user)
+}

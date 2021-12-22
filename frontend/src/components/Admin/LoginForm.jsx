@@ -56,7 +56,7 @@ const LoginForm = () => {
 
   const verify = async (data) => {
     try {
-      const response = await apiRequest('/api/v1/users/admin/verify', data, 'POST', null, applyErrors);
+      const response = await apiRequest('/api/v1/users/admin/verify', data, 'POST', applyErrors);
       setUser({ ...user, isTempVerified: response.data.is_user_verified });
     } catch(e) {
         return false;
@@ -75,9 +75,11 @@ const LoginForm = () => {
              return
           }
           setUser({...user, adminExists: true });
-          const response = await apiRequest('/api/v1/users/admin/', { credentials }, 'POST', null, applyErrors);
+          await apiRequest('/api/v1/users/admin/', { credentials }, 'POST', applyErrors);
       } catch(e) {
-        console.log('LoginForm.jsx@handleSubmit() Error:', e);
+        if (e) {
+          console.log('LoginForm.jsx@handleSubmit() Error:', e);
+        }
       }
   }
 
@@ -88,7 +90,7 @@ const LoginForm = () => {
         if (email.error.length) {
           return;
         }
-        const response =  await apiRequest('/api/v1/users/admin/exists',  { email: email.value }, 'POST',null, applyErrors);
+        const response =  await apiRequest('/api/v1/users/admin/exists',  { email: email.value }, 'POST', applyErrors);
         if (response.data.user_exists) {
           setUser({ ...user, adminExists: true });
         }
@@ -102,14 +104,17 @@ const LoginForm = () => {
     try {
       clearForm(credentials);
       validateForm(credentials);
-      const response = await apiRequest('/api/v1/auth/login', { credentials }, 'POST', null , applyErrors);
+      const response = await apiRequest('/api/v1/auth/login', { credentials }, 'POST', applyErrors);
       if (!response) {
         return
       }
-      handleLoginSuccess(response.data.data, user)
-      navigate('/')
+      handleLoginSuccess(response.data.data)
+
+        navigate('/')
     } catch(e) {
-      console.log(e);
+      if (e) {
+        console.log(e);
+      }
     }
   }
 

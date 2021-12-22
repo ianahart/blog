@@ -1,6 +1,5 @@
 import { createContext, useState } from "react";
-import { applyRules } from "../misc/helpers";
-import { emailRules, findNeedle } from "../misc/helpers";
+import { emailRules, applyRules, getLocalUser, findNeedle } from "../misc/helpers";
 
 export const AuthContext = createContext();
 
@@ -12,7 +11,7 @@ const AuthContextProvider = (props) => {
       {name: 'temp_password', value: '', error: '' },
       {name: 'password', value: '', error: '' }
     ],
-}
+};
   const [user, setUser] = useState(initialUserState);
   const [credentials, setCredentials] = useState(initialCredState.creds);
 
@@ -28,7 +27,7 @@ const AuthContextProvider = (props) => {
     const index = findNeedle(updatedCreds, 'email', 'name');
     updatedCreds[index].error = emailRules(updatedCreds[index].value);
     setCredentials(updatedCreds);
-  }
+  };
 
   const validateForm = (fields) => {
     const validated = [...fields];
@@ -52,12 +51,28 @@ const AuthContextProvider = (props) => {
       validated[fieldIndex].error = msg
     });
     setCredentials(validated)
-  }
+  };
 
-  const handleLoginSuccess = (data, user) => {
-    const updatedUser = {...user, ...data}
-    setUser(updatedUser)
-  }
+  const handleLoginSuccess = (data) => {
+    const userCopy = { ...user, ...data }
+    setUser(userCopy)
+    localStorage.setItem('user', JSON.stringify({...userCopy}))
+  };
+
+  const handleRefreshAuth = () => {
+    const localUser = getLocalUser();
+    if (localUser) {
+      if (user.accessToken !== localUser.accessToken) {
+        setUser({ ...user, ...localUser })
+      }
+    }
+  };
+
+  const handleRemoveLocUser = () => {
+    localStorage.removeItem('user');
+    const initUser = {...user, ...initialUserState};
+    setUser(initUser)
+  };
 
   return (
      <AuthContext.Provider value={
@@ -71,7 +86,9 @@ const AuthContextProvider = (props) => {
           emailRule,
           clearForm,
           applyErrors,
-          handleLoginSuccess
+          handleLoginSuccess,
+          handleRefreshAuth,
+          handleRemoveLocUser,
         }
       }
     >
