@@ -19,8 +19,7 @@ const AdminNavList = ({ isMobileMenuOpen }) => {
 
   const links = [
     { label: 'Dashboard', path: `/admin/${user.userId}/dashboard`, id: nanoid() },
-    { label: 'Your Posts', path: `/admin/${user.userId}/your-posts`, id: nanoid() },
-    { label: 'Editor', path: `/admin/${user.userId}/editor`, id: nanoid() }];
+  ];
   return (
        <List
         h="100%"

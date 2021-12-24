@@ -1,12 +1,14 @@
 import { useEffect, useContext, Fragment } from 'react';
-import { Box, Heading } from '@chakra-ui/react'
+import { Box, Heading, Text } from '@chakra-ui/react'
 import { nanoid } from 'nanoid';
 import { BiMenu, BiX } from 'react-icons/bi';
 import { NavContext } from '../../contexts/NavContext';
 import { AuthContext } from '../../contexts/AuthContext';
 import NavList from './NavList';
 import AdminNavList from './AdminNavList';
-import Logo from '../Navbar/Logo';
+import MainLogo from '../Logos/MainLogo';
+
+import '@fontsource/caveat-brush/400.css'
 
 const Navbar = () => {
   const { user } = useContext(AuthContext)
@@ -53,7 +55,6 @@ const Navbar = () => {
   const mobileView = () => {
     return (
       <Box>
-        <Logo />
         <Box
           as="div"
           display="flex"
@@ -62,15 +63,14 @@ const Navbar = () => {
           flexDirection="row">
           {isMobileMenuOpen ? (<Box
             onClick={() => dispatch({ type: 'MOBILE_MENU_CLOSE', isOpen: false }) }
-            color="orange.secondary"
+            color="blue.primary"
             as={BiX} cursor="pointer"
             fontSize="5xl"
            />):
            (<Box
             onClick={() => dispatch({ type: 'MOBILE_MENU_OPEN', isOpen: true }) }
-            color="orange.secondary" as={BiMenu}
+            color="blue.primary"as={BiMenu}
             cursor="pointer"
-            boxShadow="md"
             fontSize="5xl"
            />)
           }
@@ -104,10 +104,22 @@ const Navbar = () => {
       pb={0}
       minHeight="200px"
       h={['100%']}
-      bg="blue.primary" as="nav">
+      bg="green.primary" as="nav">
       { isMobileView ? ( mobileView() ) : (
         <Box>
-          <Logo />
+          <Box display="flex" mb={4} flexDirection="column" justifyContent="center">
+            <Box
+              display="flex"
+              justifyContent="center"
+              alignItems="center"
+              mb={4}
+              flexDirection="column"
+            >
+              <MainLogo width="90px" color="#EEEEEE" height="90px" />
+              <Heading size="xl" fontFamily="caveat brush" color="blue.primary">Ian Hart</Heading>
+              <Text color="blue.primary">A place to release the mind</Text>
+            </Box>
+          </Box>
            { user.authenticated && showAdminLinks() ? (showAdminLinks()) :
               (
                 <NavList isMobileMenuOpen={isMobileMenuOpen} links={navLinks(links)}/>
@@ -116,7 +128,6 @@ const Navbar = () => {
           </Box> )
       }
       {handleMobileMenu()}
-      <Box bg="gray.primary" mt="auto" w="100%" h="5px"></Box>
     </Box>
   );
 }

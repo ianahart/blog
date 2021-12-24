@@ -2,7 +2,7 @@ import { Box } from '@chakra-ui/react';
 import LoginForm from '../../components/Admin/LoginForm';
 
 const Login = () => {
-  const gradient = "linear-gradient(to left top, #ffa41b, #ff7652, #f0587d, #bc549a, #7757a0, #5268a9, #3574a5, #327c99, #619ca8, #93bcba, #c5dbd3, #f5faf6);"
+  const gradient = "linear-gradient(to left top, #16db93, #00cea6, #00bfb2, #00b0b7, #00a0b3, #00a4b2, #00a7b0, #00abad, #2cc1a2, #69d38c, #a9e270, #efea5a);"
   return (
     <Box
       minHeight="100vh"

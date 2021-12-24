@@ -24,26 +24,30 @@ const customTheme = extendTheme({
             primaryHover: '#2c2e33',
             secondaryHover: '#5a5e66',
         },
-        main: {
-            primary: '#0F4C75',
-            primaryHover: '#0b3d5e',
-        },
         gray: {
             primary: '#544f47',
-            secondary: '#757676',
+            secondary: '#8d8d8f',
+            outline: '#e3e2e2',
+            text: '#d3cece'
+        },
+
+        green: {
+            primary: '#16DB93'
+        },
+        pink: {
+            primary: "#A4036F"
         },
         orange: {
-            primary: '#FFA41B',
-            secondary: '#e3ab56',
+            primary: 'F29E4C',
         },
-        purple: {
-            primary: '#000839',
+        yellow: {
+            primary: '#EFEA5A',
         },
         blue: {
-            primary: '#005082',
+            primary: '#048BA8',
             primaryHover: '#2583c2',
             light: '#00A8CC',
-            secondary: '#0680cc',
+            secondary: '#05b4da',
             secondaryHover: '#8eb7d1',
         }
 

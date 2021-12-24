@@ -2,7 +2,7 @@ import { Fragment, } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Navbar from './components/Navbar';
-import RefreshCatcher from './components/misc/RefreshCatcher';
+import RefreshCatcher from './components/Mixed/RefreshCatcher';
 import Home from './pages/Home';
 import Posts from './pages/Posts';
 import Categories from './pages/Categories';

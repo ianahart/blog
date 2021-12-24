@@ -1,7 +1,7 @@
 const Button = {
   variants: {
     main: {
-       backgroundColor: '#0680cc',
+       backgroundColor: '#048BA8',
        minWidth: ['120px', '200px'],
        transition: 'all 0.5s ease-in-out',
        textTransform: 'uppercase',
