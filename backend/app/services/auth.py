@@ -14,7 +14,12 @@ class Auth:
         auth_creds = {}
         auth_status = {
             'error': None,
-            'data': {'authenticated': False, 'accessToken': None, 'userId': None}
+            'data': {
+                'authenticated': False,
+                'accessToken': None,
+                'userId': None,
+                'email': None
+            }
         }
 
         for row in credentials.dict()['credentials']:
@@ -48,6 +53,7 @@ class Auth:
 
             auth_status['data']['accessToken'] = access_token
             auth_status['data']['userId'] = user.id
+            auth_status['data']['email'] = user.email
             return auth_status
         else:
             auth_status['error'] = utils.error.message(
