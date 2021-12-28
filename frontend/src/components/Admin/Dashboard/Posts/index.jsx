@@ -1,8 +1,8 @@
 import {Box, Button, Heading, Text } from '@chakra-ui/react';
-import apiRequest from '../../services/apiRequest';
-import BackLink from '../../components/Admin/Dashboard/BackLink';
 import { useContext } from 'react';
-import { AuthContext } from '../../contexts/AuthContext';
+import apiRequest from '../../../../services/apiRequest';
+import BackLink from '../BackLink';
+import { AuthContext } from '../../../../contexts/AuthContext';
 
 const YourPosts = () => {
   const { user } = useContext(AuthContext);

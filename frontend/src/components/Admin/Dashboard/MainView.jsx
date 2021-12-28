@@ -16,7 +16,12 @@ const MainView = () => {
         backgroundColor="#FFF"
         borderRadius="6px"
       >
-        <Heading color="gray.outline">This is the main view</Heading>
+        <Heading
+          color="blue.primary"
+          size="sm"
+        >
+          Blog metrics will be displayed here.. stats, graphs, etc...
+        </Heading>
       </Box>
     </Box>
   );

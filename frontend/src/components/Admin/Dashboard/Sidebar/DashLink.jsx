@@ -1,29 +1,29 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Icon, Link } from '@chakra-ui/react';
 
-const DashLink = ({ to, label, icon }) => {
+const DashLink = ({ link, activeComp, handleActiveComp }) => {
+  const dynamicStyles = activeComp === link.comp ? { color: '#16DB93', fontWeight: 'bold', fontSize: '1rem' } : { color: '#686D76', fontWeight: '400', fontSize: '0.9rem' };
   return (
     <Box
       py={3}
       px={7}
-      _hover={{ backgroundColor: 'light.primary' }}
+      _hover={{  backgroundColor: 'rgba(22, 219, 147, 0.1)' }}
       cursor="pointer"
       display="flex"
       justifyContent="flex-start"
       margin="auto"
       alignItems="center">
       <Link
-        _active={{color: 'blue'}}
+        style={dynamicStyles}
+        onClick={() => handleActiveComp(link.comp)}
         width="70%"
         textAlign="left"
-        color="dark.secondary"
         as={RouterLink}
         _hover={{ textDecoration: 'none' }}
-        fontWeight="400"
-        to={to}>
-        { label }
+        to={link.to}>
+        { link.label }
       </Link>
-      <Icon width="30%" color="gray.secondary" as={icon}></Icon>
+      <Icon style={dynamicStyles} width="30%" as={link.icon}></Icon>
     </Box>
   );
 }

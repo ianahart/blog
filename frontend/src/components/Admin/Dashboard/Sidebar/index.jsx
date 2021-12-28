@@ -7,25 +7,28 @@ import { AuthContext } from '../../../../contexts/AuthContext';
 import DashLink from './DashLink';
 import { FiHome, FiEdit, FiFileText } from 'react-icons/fi';
 
-const Sidebar = ({ isSidebarVisible, curWindowWidth }) => {
+const Sidebar = ({ isSidebarVisible, curWindowWidth, handleActiveComp, activeComp }) => {
   const { user } = useContext(AuthContext);
-  const sidebarPos = isSidebarVisible && curWindowWidth <= 768 ? { position: 'absolute', top: 0, right: 0 } : {position: 'relative', top: 0, left: 0}
+  const isMobile = isSidebarVisible && curWindowWidth <= 768 ? true: false;
+  const sidebarPos = isMobile ? { position: 'absolute', top: 0, right: 0 } : {position: 'relative', top: 0, left: 0}
 
   const dashLinks = [
-    { to: `/admin/${user.userId}/dashboard`, label: 'Dashboard', icon: FiHome },
-    { to: `/admin/${user.userId}/your-posts`, label: 'Your Posts', icon: FiFileText },
-    { to: `/admin/${user.userId}/editor`, label: 'Editor', icon: FiEdit },
+    { to: `/admin/${user.userId}/dashboard`, label: 'Dashboard', icon: FiHome, comp: 'MainView' },
+    { to: `/admin/${user.userId}/your-posts`, label: 'Your Posts', icon: FiFileText, comp: 'YourPosts' },
+    { to: `/admin/${user.userId}/editor`, label: 'Editor', icon: FiEdit, comp: 'BlogEditor'},
   ];
+
+
 
   return (
     <Box position="relative">
       <Slide
-        style={{ position: 'relative', top: '0'}}
+        style={{ position: 'relative', top: '0', zIndex: 10}}
         position="relative"
-        direction={`${isSidebarVisible ? 'right' : 'left'}`}
+        direction={isSidebarVisible ? 'left' : 'right'}
         in={isSidebarVisible}
+        unmountOnExit="true"
       >
-
         <Box
           style={sidebarPos}
           minHeight="100vh"
@@ -62,9 +65,14 @@ const Sidebar = ({ isSidebarVisible, curWindowWidth }) => {
             <Icon fill="green.primary" color="green.primary" as={BsFillBookmarkCheckFill}></Icon>
           </Box>
           <Box mt={10}>
-            {dashLinks.map(({ to, label, icon }, index) => {
+            {dashLinks.map((link, index) => {
               return (
-                <DashLink key={index} to={to} label={label} icon={icon} />
+                <DashLink
+                  handleActiveComp={handleActiveComp}
+                  activeComp={activeComp}
+                  key={index}
+                  link={link}
+               />
               )
             })}
           </Box>

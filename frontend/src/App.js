@@ -10,8 +10,6 @@ import About from './pages/About';
 import Login from './pages/Admin/Login';
 import ForgotPassword from './pages/Admin/ForgotPassword';
 import Dashboard from './pages/Admin/Dashboard';
-import YourPosts from './pages/Admin/YourPosts';
-import Editor from './pages/Admin/Editor';
 import NotFound from './pages/NotFound';
 import Footer from './components/Footer';
 import NavContextProvider from './contexts/NavContext';
@@ -46,12 +44,12 @@ const App = () => {
               </RequireAuth>} />
               <Route path="/admin/:userId/your-posts" element={
               <RequireAuth>
-                <YourPosts />
+                <Dashboard />
               </RequireAuth>
               } />
               <Route path="/admin/:userId/editor" element={
                 <RequireAuth>
-                  <Editor />
+                  <Dashboard />
                 </RequireAuth>
                 } />
               <Route path="*" element={<NotFound />} />
