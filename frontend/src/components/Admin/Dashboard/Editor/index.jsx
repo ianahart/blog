@@ -4,15 +4,8 @@ import { useContext, useMemo, useCallback, useState } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { FaParagraph } from 'react-icons/fa';
-import { BiFullscreen, BiExitFullscreen } from 'react-icons/bi';
-import {
-    AiOutlineOrderedList,
-    AiOutlineUnorderedList,
-    AiOutlineBold,
-    AiOutlineUnderline,
-    AiOutlineItalic,
-    AiOutlineFileText,
-  } from 'react-icons/ai';
+import { BiFullscreen, BiExitFullscreen, BiCodeAlt, BiFontColor } from 'react-icons/bi';
+import { AiOutlineOrderedList, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import Toolbar from './Toolbar';
 import BlockButton from './BlockButton';
@@ -46,11 +39,12 @@ import ToolTip from './ToolTip';
         width:'24px'
   }
 
+
   /** Render Elements */
   const Element = ({ attributes, children, element }) => {
     switch (element.type) {
       case 'paragraph':
-        return <Text as="p" {...attributes}>{children}</Text>
+        return <Text as="p"  {...attributes}>{children}</Text>
       case 'heading-one':
        return <Heading as="h1" size="3xl" {...attributes}>{children}</Heading>
       case 'heading-two':
@@ -87,7 +81,10 @@ import ToolTip from './ToolTip';
     if (leaf.underline) {
       children = <u>{children}</u>
     }
-      return <Box as="span" {...attributes}>{children}</Box>
+    if (leaf.color) {
+      children = <span>{children}</span>
+    }
+      return <span style={{color: leaf.color}} {...attributes}>{children}</span>
   }
 
   const handleSetCount = (count) => {
@@ -160,6 +157,8 @@ import ToolTip from './ToolTip';
             <MarkButton  btnStyles={btnStyles} format="bold"          icon={AiOutlineBold} toolTip="Bold Text"/>
             <MarkButton  btnStyles={btnStyles} format="italic"        icon={AiOutlineItalic} toolTip="Italic Text"/>
             <MarkButton  btnStyles={btnStyles} format="underline"     icon={AiOutlineUnderline} toolTip="Underline Text"/>
+            <MarkButton  btnStyles={btnStyles} format="color"       icon={BiFontColor} toolTip="Font Color"/>
+            <MarkButton  btnStyles={btnStyles} format="code"        icon={BiCodeAlt} toolTip="Code Block"/>
             <WordCountButton count={count} handleSetCount={handleSetCount} icon={AiOutlineFileText} toolTip="Word Count" />
           </Toolbar>
           <Box pl={5}>
