@@ -1,5 +1,5 @@
 import { Button, Icon } from '@chakra-ui/react';
-import { ReactEditor, useSlate } from 'slate-react';
+import { useSlate } from 'slate-react';
 import { Editor, Transforms, Range  } from 'slate';
 import isUrl from 'is-url';
 import ToolTip from './ToolTip';
@@ -8,26 +8,18 @@ const InlineButton = ({ format, icon, toolTip }) => {
   const editor = useSlate();
   editor.isInline = (el) => ['link'].includes(el.type);
 
-  const isLinkAlreadySelected = (editor, parentNode) => {
-
-    return !!Editor.above(editor, {
-      at: editor.selection,
-      match: (n) => {
-        const nestedLink = parentNode?.children.find(node => node?.type === 'link')?.type;
-        const childNode = n.type === undefined ?  nestedLink : n.type;
-        return Editor.isEditor && childNode === 'link';
-      }
-    });
+  const isLinkAlreadySelected = (editor) => {
+      const [link] = Editor.nodes(editor, {
+        match: n =>
+          !Editor.isEditor(n) && n.type === 'link',
+      });
+      return !!link;
   }
 
   const handleInsertLink = (editor) => {
     if (!editor.selection) return;
-    const [parentNode, parentPath] = Editor.parent(
-      editor,
-      editor.selection.focus?.path
-    );
 
-    if (isLinkAlreadySelected(editor, parentNode)) {
+    if (isLinkAlreadySelected(editor)) {
       Transforms.unwrapNodes(editor, {
         at: editor.selection,
         match: (n) => Editor.isEditor && n.type === 'link',
