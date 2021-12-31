@@ -22,7 +22,7 @@ const InlineButton = ({ format, icon, toolTip }) => {
     if (isLinkAlreadySelected(editor)) {
       Transforms.unwrapNodes(editor, {
         at: editor.selection,
-        match: (n) => Editor.isEditor && n.type === 'link',
+        match: (n) => n.type === 'link',
       });
       return;
     }

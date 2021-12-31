@@ -1,21 +1,23 @@
 
 import {Box, Link, Heading, Icon, Text, ListItem, OrderedList, UnorderedList } from '@chakra-ui/react';
-import { useContext, useMemo, useCallback, useState } from 'react';
+import { /** useContext,  */ useMemo, useCallback, useState } from 'react';
 import { createEditor } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { FaParagraph } from 'react-icons/fa';
 import { BiFullscreen, BiExitFullscreen, BiCodeAlt, BiFontColor } from 'react-icons/bi';
-import { AiOutlineOrderedList, AiOutlineLink, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
-import { AuthContext } from '../../../../contexts/AuthContext';
+import { AiOutlineOrderedList, AiOutlinePicture, AiOutlineLink, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
+// import { AuthContext } from '../../../../contexts/AuthContext';
 import Toolbar from './Toolbar';
 import BlockButton from './BlockButton';
 import MarkButton from './MarkButton';
 import InlineButton from './InlineButton';
 import WordCountButton from './WordCountButton';
+import ImageButton from './ImageButton';
+import ImageElement from './ImageElement';
 import ToolTip from './ToolTip';
 
  const BlogEditor = () => {
-    const { user } = useContext(AuthContext);
+    // const { user } = useContext(AuthContext);
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderElement = useCallback(props => <Element {...props}/>,[]);
     const renderLeaf = useCallback(props => <Leaf {...props} />, []);
@@ -26,6 +28,17 @@ import ToolTip from './ToolTip';
       type: 'paragraph',
       children: [{ text: 'Start writing a new blog post.' }],
     },
+
+    {
+      type: 'image',
+      url: '/images/coding.jpeg',
+      // caption: 'coding',
+      children: [{ text: '' }],
+    },
+    {
+      type: 'paragraph',
+      children: [{text:'some text after the image to keep document flowing'}],
+    }
   ]);
 
   const btnStyles = {
@@ -67,6 +80,12 @@ import ToolTip from './ToolTip';
         return <OrderedList {...attributes}>{children}</OrderedList>
       case 'bulleted-list':
         return <UnorderedList {...attributes}>{children}</UnorderedList>
+      case 'image':
+        return <ImageElement
+              attributes={attributes}
+              children={children}
+              element={element}>
+          </ImageElement>
       default:
         return <Text as="p" {...attributes}>{children}</Text>
     }
@@ -164,7 +183,8 @@ import ToolTip from './ToolTip';
             <MarkButton  btnStyles={btnStyles} format="underline"     icon={AiOutlineUnderline} toolTip="Underline Text"/>
             <MarkButton  btnStyles={btnStyles} format="color"       icon={BiFontColor} toolTip="Font Color"/>
             <MarkButton  btnStyles={btnStyles} format="code"        icon={BiCodeAlt} toolTip="Code Block"/>
-            <InlineButton format="link" icon={AiOutlineLink}></InlineButton>
+            <InlineButton format="link" icon={AiOutlineLink} toolTip="Link"></InlineButton>
+            <ImageButton btnStyles={btnStyles} format="image" icon={AiOutlinePicture} toolTip="Image"></ImageButton>
             <WordCountButton count={count} handleSetCount={handleSetCount} icon={AiOutlineFileText} toolTip="Word Count" />
           </Toolbar>
           <Box pl={5}>
