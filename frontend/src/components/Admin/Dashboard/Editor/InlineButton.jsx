@@ -2,8 +2,9 @@ import { Button, Icon } from '@chakra-ui/react';
 import { ReactEditor, useSlate } from 'slate-react';
 import { Editor, Transforms, Range  } from 'slate';
 import isUrl from 'is-url';
+import ToolTip from './ToolTip';
 
-const InlineButton = ({ format, icon }) => {
+const InlineButton = ({ format, icon, toolTip }) => {
   const editor = useSlate();
   editor.isInline = (el) => ['link'].includes(el.type);
 
@@ -69,9 +70,11 @@ const InlineButton = ({ format, icon }) => {
  };
 
   return (
-    <Button m={2} onMouseDown={() => handleInsertLink(editor)}>
-      <Icon as={icon}></Icon>
-    </Button>
+    <ToolTip top={'-35px'} label={toolTip}>
+      <Button m={2} onMouseDown={() => handleInsertLink(editor)}>
+        <Icon as={icon}></Icon>
+      </Button>
+    </ToolTip>
   )
 }
 
