@@ -11,7 +11,7 @@ import ToolTip from './ToolTip';
 
       children.forEach((child) => {
           const counts = child.children.reduce((acc, cur)=> {
-          let text = child.type.includes('-list') ? cur.children[0].text : cur.text;
+          let text = child.type.includes('-list') || cur.type?.includes('link') ? cur.children[0].text : cur.text;
           acc.words += text.split(' ').filter((word) => word !== '').length;
           acc.chars += text.replace(' ', '').trim().length;
           return acc;
