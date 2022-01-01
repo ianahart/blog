@@ -1,45 +1,37 @@
 
-import {Box, Link, Heading, Icon, Text, ListItem, OrderedList, UnorderedList } from '@chakra-ui/react';
-import { /** useContext,  */ useMemo, useCallback, useState } from 'react';
-import { createEditor } from 'slate';
+import {Box, Icon } from '@chakra-ui/react';
+import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
+import { createEditor, Editor, Transforms } from 'slate';
 import { Slate, Editable, withReact } from 'slate-react';
 import { FaParagraph } from 'react-icons/fa';
 import { BiFullscreen, BiExitFullscreen, BiCodeAlt, BiFontColor } from 'react-icons/bi';
 import { AiOutlineOrderedList, AiOutlinePicture, AiOutlineLink, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
-// import { AuthContext } from '../../../../contexts/AuthContext';
+import { AuthContext } from '../../../../contexts/AuthContext';
 import Toolbar from './Toolbar';
 import BlockButton from './BlockButton';
 import MarkButton from './MarkButton';
 import InlineButton from './InlineButton';
 import WordCountButton from './WordCountButton';
 import ImageButton from './ImageButton';
-import ImageElement from './ImageElement';
+import Element from './Element';
 import ToolTip from './ToolTip';
+import EditorModal from './EditorModal';
 
  const BlogEditor = () => {
-    // const { user } = useContext(AuthContext);
+    const { user } = useContext(AuthContext);
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderElement = useCallback(props => <Element {...props}/>,[]);
     const renderLeaf = useCallback(props => <Leaf {...props} />, []);
     const [fullScreen, setFullScreen] = useState(false);
     const [count, setCount] = useState({ words: 0, chars: 0 });
-    const [value, setValue] = useState([
+    const [editorModalOpen, setEditorModalOpen] = useState(false);
+    const initialEditorState = [
     {
       type: 'paragraph',
-      children: [{ text: 'Start writing a new blog post.' }],
+      children: [{ text: ' ' }],
     },
-
-    {
-      type: 'image',
-      url: '/images/coding.jpeg',
-      // caption: 'coding',
-      children: [{ text: '' }],
-    },
-    {
-      type: 'paragraph',
-      children: [{text:'some text after the image to keep document flowing'}],
-    }
-  ]);
+  ];
+  const [value, setValue] = useState(JSON.parse(localStorage.getItem('editor')) || initialEditorState);
 
   const btnStyles = {
     active: { backgroundColor: '#048BA8', color: '#FFF' },
@@ -53,42 +45,8 @@ import ToolTip from './ToolTip';
         width:'24px'
   }
 
-
-  /** Render Elements */
-  const Element = ({ attributes, children, element }) => {
-
-    switch (element.type) {
-      case 'link':
-        return <Link as="a" onClick={() => { window.open(element.href, '_blank') }} color="blue" textDecoration="underline" href={element.href}  {...attributes}>{children}</Link>
-      case 'paragraph':
-        return <Text as="p"  {...attributes}>{children}</Text>
-      case 'heading-one':
-       return <Heading as="h1" size="3xl" {...attributes}>{children}</Heading>
-      case 'heading-two':
-        return <Heading as="h2" size="2xl" {...attributes}>{children}</Heading>
-      case 'heading-three':
-        return <Heading as="h3" size="xl" {...attributes}>{children}</Heading>
-      case 'heading-four':
-        return <Heading as="h4" size="lg" {...attributes}>{children}</Heading>
-      case 'heading-five':
-        return <Heading as="h5" size="md" {...attributes}>{children}</Heading>
-      case 'heading-six':
-        return <Heading as="h6" size="sm" {...attributes}>{children}</Heading>
-      case 'list-item':
-        return <ListItem {...attributes}>{children}</ListItem>
-      case 'numbered-list':
-        return <OrderedList {...attributes}>{children}</OrderedList>
-      case 'bulleted-list':
-        return <UnorderedList {...attributes}>{children}</UnorderedList>
-      case 'image':
-        return <ImageElement
-              attributes={attributes}
-              children={children}
-              element={element}>
-          </ImageElement>
-      default:
-        return <Text as="p" {...attributes}>{children}</Text>
-    }
+  const handleSaveEditor = (value) => {
+    setValue(value);
   }
 
   const Leaf = ({ attributes, children , leaf }) => {
@@ -123,6 +81,30 @@ import ToolTip from './ToolTip';
   }
 
 
+  useEffect(() => {
+    const prevEditor = localStorage.getItem('editor');
+    if (!prevEditor) {
+      return;
+    }
+    setEditorModalOpen(true);
+  }, [setEditorModalOpen]);
+
+  const handleClickContinue = () => {
+    setEditorModalOpen(false);
+  };
+
+  const handleClickReset = () => {
+    setEditorModalOpen(false)
+    localStorage.removeItem('editor');
+    setValue(initialEditorState);
+    Transforms.delete(editor, {
+        at: {
+          anchor: Editor.start(editor, []),
+          focus: Editor.end(editor, []),
+        },
+    });
+  };
+
   return (
     <Box
       mt={fullScreen ? 0 : 20}
@@ -130,7 +112,15 @@ import ToolTip from './ToolTip';
       width="100%"
       display="flex"
       justifyContent="center"
+      position="relative"
     >
+    {editorModalOpen &&
+      <EditorModal
+         handleClickContinue={handleClickContinue}
+         handleClickReset={handleClickReset}
+         editorModalOpen={editorModalOpen}
+      />
+    }
       <Box
         backgroundColor="#FFF"
         transition="all 0.5s ease-in-out"
@@ -168,7 +158,7 @@ import ToolTip from './ToolTip';
            </Icon>)}
           </Box>
          </ToolTip>
-          <Toolbar>
+          <Toolbar handleSaveEditor={handleSaveEditor} editorValue={value}>
             <BlockButton btnStyles={btnStyles} format="heading-one"   label="h1" toolTip="3XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-two"   label="h2" toolTip="2XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-three" label="h3" toolTip="XL"/>
@@ -187,16 +177,6 @@ import ToolTip from './ToolTip';
             <ImageButton btnStyles={btnStyles} format="image" icon={AiOutlinePicture} toolTip="Image"></ImageButton>
             <WordCountButton count={count} handleSetCount={handleSetCount} icon={AiOutlineFileText} toolTip="Word Count" />
           </Toolbar>
-          <Box pl={5}>
-            <Text m={0} as="p" color="dark.secondary">
-              Words:
-              <Box fontWeight="bold" as="span"> {count.words}</Box>
-            </Text>
-            <Text m={0} as="p" color="dark.secondary">
-              Chars:
-              <Box fontWeight="bold" as="span"> {count.chars}</Box>
-            </Text>
-          </Box>
           <Box
             height="2px"
             width="100%"
