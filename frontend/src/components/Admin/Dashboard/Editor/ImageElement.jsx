@@ -3,24 +3,27 @@
   import { useSlate, ReactEditor } from 'slate-react';
   import { Editor, Transforms } from 'slate';
   import { BiTrash } from 'react-icons/bi';
+  import { AiOutlineAlignCenter, AiOutlineAlignLeft, AiOutlineAlignRight } from 'react-icons/ai'
+  import ImageAlignmentButton from './ImageAlignmentButton';
 
 const ImageElement = ({ attributes, children, element }) => {
   const editor = useSlate();
   const [isEditingCaption, setEditingCaption] = useState(false);
   const [isTrashShowing, setIsTrashShowing] = useState(false);
   const [caption, setCaption] = useState(element.caption);
+  const [imageAlignment, setImageAlignment] = useState(element.textAlign || 'center');
   const path = ReactEditor.findPath(editor, element);
 
   const handleOnBlur = (e) => {
     setEditingCaption(false);
-    updateCaption();
+    update('caption', caption);
   }
 
   const handleOnKeyDown = (e) => {
     const exitKeys = [27, 13];
     if (exitKeys.includes(e.keyCode)) {
       if (e.keyCode === 13) {
-        updateCaption();
+        update('caption', caption);
       }
       setEditingCaption(false);
     }
@@ -39,19 +42,18 @@ const ImageElement = ({ attributes, children, element }) => {
     setIsTrashShowing(false);
   }
 
-  const updateCaption = () => {
-   const imageNode = Editor.above(editor, {
+  const update = (prop, value) => {
+     const imageNode = Editor.above(editor, {
           at: editor.selection,
           match: (n) => !Editor.isEditor(n) && n.type === 'image'
         });
 
     if (!imageNode) return;
     Transforms.setNodes(editor,
-      { caption },
+      { [prop] : value },
       { at: imageNode[1] }
     );
   }
-
   const handleClickEdit = (e) => {
     e.stopPropagation();
     setEditingCaption(true);
@@ -68,9 +70,19 @@ const ImageElement = ({ attributes, children, element }) => {
     setCaption(e.target.value);
   }
 
+  const handleClickAlignment = (type) => {
+    setImageAlignment(type);
+    update('textAlign', type);
+  }
+
+  const alignmentValues= {
+    left: '0 0 0 0',
+    right: '0 0 0 auto',
+    center: '0 auto 0 auto',
+  };
 
    return (
-          <Box margin="0 auto" width={['70%', '70%', '400px', '60%']} maxWidth={'600px'}>
+          <Box margin={alignmentValues[imageAlignment]} width={['70%', '70%', '400px', '60%']} maxWidth={'600px'}>
             <Box
               position="relative"
               as="div"
@@ -99,6 +111,25 @@ const ImageElement = ({ attributes, children, element }) => {
                     top="0"
                     left="0"
                     backgroundColor={ isTrashShowing ? 'rgba(0, 0,0,0.4)': 'transparent'}>
+                    {isTrashShowing &&
+                      <Box justifyContent="flex-end" display="flex">
+                        <ImageAlignmentButton
+                          handleClickAlignment={handleClickAlignment}
+                          label="Align Left"
+                          type="left" i
+                          icon={AiOutlineAlignLeft} />
+                        <ImageAlignmentButton
+                          handleClickAlignment={handleClickAlignment}
+                          label="Align Center"
+                          type="center"
+                          icon={AiOutlineAlignCenter} />
+                        <ImageAlignmentButton
+                          handleClickAlignment={handleClickAlignment}
+                          label="Align Right"
+                          type="right"
+                          icon={AiOutlineAlignRight} />
+                      </Box>
+                    }
                 </Box>
                 {isTrashShowing &&
                   <Icon

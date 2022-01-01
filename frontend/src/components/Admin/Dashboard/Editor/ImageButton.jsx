@@ -1,10 +1,11 @@
 import { Button, Icon, Input} from '@chakra-ui/react';
 import { useSlate } from 'slate-react';
 import { Transforms } from 'slate';
+import { nanoid } from 'nanoid';
 import ToolTip from './ToolTip';
 
 
-const ImageButton = ({ format, icon, toolTip }) => {
+const ImageButton = ({ format, icon, toolTip, handleSetFiles }) => {
   const editor = useSlate();
   const { isVoid } = editor;
 
@@ -21,13 +22,15 @@ const ImageButton = ({ format, icon, toolTip }) => {
     });
   }
 
-  const packageImage = (url, caption) => {
+  const packageImage = (url, file, id) => {
     if (!url) return;
     return [
       {
         type: 'image',
+        id,
+        textAlign: 'center',
         url,
-        caption,
+        caption: file.name,
         children: [{ text: '' }],
       },
       {
@@ -37,23 +40,23 @@ const ImageButton = ({ format, icon, toolTip }) => {
     ];
   }
 
-  const insertImage = (editor, url, caption) => {
-    const imageNode = packageImage(url, caption);
+  const insertImage = (editor, url, file, id) => {
+    const imageNode = packageImage(url, file, id);
     Transforms.insertNodes(editor, imageNode);
   }
 
   const handleOnChange = async (e) => {
     const [file] = e.target.files;
     if (file > 2000000) {
-      console.log('File size is too big');
       return;
     } else {
       const result = await toBase64(file);
       if(result instanceof Error) {
-        console.log('Error: ', result.message);
+        console.log('Error ImageButton.jsx: ', result.message);
         return;
    }
-      insertImage(editor, result, file.name);
+      const id = nanoid();
+      insertImage(editor, result, file, id);
       e.target.value = '';
     }
   };
@@ -68,6 +71,7 @@ const ImageButton = ({ format, icon, toolTip }) => {
         <Icon as={icon}></Icon>
         <Input
           type="file"
+          multiple
           accept="image/png, image/jpeg"
           onChange={handleOnChange}
           position="absolute"
