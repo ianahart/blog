@@ -27,11 +27,12 @@
       case 'bulleted-list':
         return <UnorderedList {...attributes}>{children}</UnorderedList>
       case 'image':
+
         return <ImageElement
-                attributes={attributes}
-                children={children}
-                element={element}>
-          </ImageElement>
+                 attributes={attributes}
+                 children={children}
+                 element={element}>
+               </ImageElement>
       default:
         return <Text as="p" {...attributes}>{children}</Text>
     }

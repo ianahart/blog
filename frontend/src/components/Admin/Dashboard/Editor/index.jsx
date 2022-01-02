@@ -2,10 +2,13 @@
 import {Box, Icon } from '@chakra-ui/react';
 import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
 import { createEditor, Editor, Transforms } from 'slate';
-import { Slate, Editable, withReact } from 'slate-react';
+import { Slate, Editable, withReact} from 'slate-react';
 import { FaParagraph } from 'react-icons/fa';
 import { BiFullscreen, BiExitFullscreen, BiCodeAlt, BiFontColor } from 'react-icons/bi';
 import { AiOutlineOrderedList, AiOutlinePicture, AiOutlineLink, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
+
+
+import apiRequest from '../../../../services/apiRequest';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import Toolbar from './Toolbar';
 import BlockButton from './BlockButton';
@@ -14,6 +17,7 @@ import InlineButton from './InlineButton';
 import WordCountButton from './WordCountButton';
 import ImageButton from './ImageButton';
 import Element from './Element';
+import Leaf from './Leaf';
 import ToolTip from './ToolTip';
 import EditorModal from './EditorModal';
 
@@ -49,23 +53,13 @@ import EditorModal from './EditorModal';
     setValue(value);
   }
 
-  const Leaf = ({ attributes, children , leaf }) => {
-    if (leaf.bold) {
-      children = <strong>{children}</strong>
+  const handleSubmit = async () => {
+    try {
+      const response =  await apiRequest('/api/v1/posts/',  { post: value }, 'POST', null);
+      console.log(response)
+    } catch(e) {
+      console.log(e);
     }
-    if (leaf.code) {
-      children = <code>{children}</code>
-    }
-    if (leaf.italic) {
-      children = <em>{children}</em>
-    }
-    if (leaf.underline) {
-      children = <u>{children}</u>
-    }
-    if (leaf.color) {
-      children = <span>{children}</span>
-    }
-      return <span style={{color: leaf.color}} {...attributes}>{children}</span>
   }
 
   const handleSetCount = (count) => {
@@ -158,7 +152,7 @@ import EditorModal from './EditorModal';
            </Icon>)}
           </Box>
          </ToolTip>
-          <Toolbar handleSaveEditor={handleSaveEditor} editorValue={value}>
+          <Toolbar handleSubmit={handleSubmit} handleSaveEditor={handleSaveEditor} editorValue={value}>
             <BlockButton btnStyles={btnStyles} format="heading-one"   label="h1" toolTip="3XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-two"   label="h2" toolTip="2XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-three" label="h3" toolTip="XL"/>

@@ -1,6 +1,6 @@
   import { Box, Image, Icon, Input } from '@chakra-ui/react';
   import { useState } from 'react';
-  import { useSlate, ReactEditor } from 'slate-react';
+  import { useSlate, ReactEditor, useReadOnly } from 'slate-react';
   import { Editor, Transforms } from 'slate';
   import { BiTrash } from 'react-icons/bi';
   import { AiOutlineAlignCenter, AiOutlineAlignLeft, AiOutlineAlignRight } from 'react-icons/ai'
@@ -10,6 +10,7 @@ const ImageElement = ({ attributes, children, element }) => {
   const editor = useSlate();
   const [isEditingCaption, setEditingCaption] = useState(false);
   const [isTrashShowing, setIsTrashShowing] = useState(false);
+  const isReadOnly = useReadOnly();
   const [caption, setCaption] = useState(element.caption);
   const [imageAlignment, setImageAlignment] = useState(element.textAlign || 'center');
   const path = ReactEditor.findPath(editor, element);
@@ -55,11 +56,13 @@ const ImageElement = ({ attributes, children, element }) => {
     );
   }
   const handleClickEdit = (e) => {
+    if (isReadOnly) return;
     e.stopPropagation();
     setEditingCaption(true);
   }
 
   const handleClickTrashToggle = (e) => {
+    if (isReadOnly) return;
     e.stopPropagation();
     const isShowing = !isTrashShowing;
     setIsTrashShowing(isShowing);

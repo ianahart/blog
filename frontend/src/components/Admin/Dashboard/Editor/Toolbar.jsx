@@ -6,7 +6,7 @@ import SaveButton from "./SaveButton";
 import SubmitButton from "./SubmitButton";
 import ToolTip from "./ToolTip";
 
-const Toolbar = ({ children, editorValue, handleSaveEditor }) => {
+const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const iconStyles = {
     cursor: 'pointer',
@@ -21,7 +21,7 @@ const Toolbar = ({ children, editorValue, handleSaveEditor }) => {
       <Box m={1} display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
           <SaveButton handleSaveEditor={handleSaveEditor} editorValue={editorValue} />
-          <SubmitButton />
+          <SubmitButton handleSubmit={handleSubmit} />
         </Box>
         {isCollapsed ?
           (

@@ -31,7 +31,7 @@ const ColorPicker = (props) => {
         height="100%"
         boxShadow="md"
         backgroundColor="rgba(0, 0, 0, 0.5)"
-        zIndex={1}
+        zIndex={6}
         top="50px"
         borderRadius={8}
         position="absolute">
