@@ -30,6 +30,7 @@ const ImageButton = ({ format, icon, toolTip, handleSetFiles }) => {
         id,
         textAlign: 'center',
         url,
+        contentType: file.type,
         caption: file.name,
         children: [{ text: '' }],
       },
