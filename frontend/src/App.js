@@ -10,6 +10,7 @@ import About from './pages/About';
 import Login from './pages/Admin/Login';
 import ForgotPassword from './pages/Admin/ForgotPassword';
 import Dashboard from './pages/Admin/Dashboard';
+import AdminPost from './components/Admin/Dashboard/Posts/AdminPost';
 import NotFound from './pages/NotFound';
 import Footer from './components/Footer';
 import NavContextProvider from './contexts/NavContext';
@@ -50,6 +51,11 @@ const App = () => {
               <Route path="/admin/:userId/editor" element={
                 <RequireAuth>
                   <Dashboard />
+                </RequireAuth>
+                } />
+              <Route path="/admin/:userId/post/:postId" element={
+                <RequireAuth>
+                  <AdminPost />
                 </RequireAuth>
                 } />
               <Route path="*" element={<NotFound />} />

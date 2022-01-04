@@ -57,6 +57,11 @@ import EditorModal from './EditorModal';
     try {
       const response =  await apiRequest('/api/v1/posts/',  { post: value }, 'POST', null);
       console.log(response)
+      // TO CHECK IF DATA IS STILL IN RIGHT STRUCTURE
+      //  localStorage.setItem('editor', JSON.stringify(response.data.post));
+
+
+
     } catch(e) {
       console.log(e);
     }
@@ -101,7 +106,7 @@ import EditorModal from './EditorModal';
 
   return (
     <Box
-      mt={fullScreen ? 0 : 20}
+      mt={fullScreen || editorModalOpen ? 0 : 20}
       height="100%"
       width="100%"
       display="flex"
@@ -119,9 +124,10 @@ import EditorModal from './EditorModal';
         backgroundColor="#FFF"
         transition="all 0.5s ease-in-out"
         transform={ fullScreen ? 'scale(1)': 'scale(1)'}
+        mb={3}
         minHeight={fullScreen ? '100vh' : '400px'}
         width={fullScreen ? '100%' : ['90%', '90%', '600px']}
-        minWidth={['90%', '90%', '600px']}
+        minWidth={['90%', '90%', '750px']}
         borderLeft={ fullScreen ? '1px solid #e4e6eb': 'none'}
         borderRadius={5}
       >

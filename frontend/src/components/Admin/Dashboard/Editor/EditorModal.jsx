@@ -6,12 +6,12 @@ const EditorModal = ({ editorModalOpen, handleClickContinue, handleClickReset })
     <Box
       position="absolute"
       height="100%"
-      backgroundColor="rgba(0,0,0,0.65)"
+      backgroundColor="rgba(0,0,0,0.75)"
       width="100%"
       display="flex"
       flexDirection="column"
       alignItems="center"
-      justifyContent="center"
+      // justifyContent="center"
       zIndex={5}
       top="0"
       left="0"
@@ -19,6 +19,7 @@ const EditorModal = ({ editorModalOpen, handleClickContinue, handleClickReset })
       <SlideFade in={editorModalOpen} offsetY="300px">
         <Box
           minHeight="200px"
+          m="15rem auto 1rem auto"
           width={['85%', '85%', '70%', '600px']}
           borderRadius={5}
           boxShadow="md"
@@ -28,7 +29,7 @@ const EditorModal = ({ editorModalOpen, handleClickContinue, handleClickReset })
           flexDirection="column"
           backgroundColor="light.primary">
           <Box>
-            <Text color="dark.secondary">You have a unfinished blog post, what would you like to do?</Text>
+            <Text p={1} color="dark.secondary">You have a unfinished blog post, what would you like to do?</Text>
           </Box>
           <Box
             display="flex"

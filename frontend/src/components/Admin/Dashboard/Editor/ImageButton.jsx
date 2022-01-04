@@ -5,7 +5,7 @@ import { nanoid } from 'nanoid';
 import ToolTip from './ToolTip';
 
 
-const ImageButton = ({ format, icon, toolTip, handleSetFiles }) => {
+const ImageButton = ({ format, icon, toolTip }) => {
   const editor = useSlate();
   const { isVoid } = editor;
 

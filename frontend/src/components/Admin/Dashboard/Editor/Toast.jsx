@@ -23,9 +23,9 @@ const Toast = ({ handleCloseSaveToast, buttonClicked }) => {
           top="-40px"
           width="100%"
           zIndex={10}
-          borderRadius={8}
-          backgroundColor="rgba(0,0,0,0.4)"
-          padding={1}
+          borderRadius={5}
+          backgroundColor="rgba(0,0,0,0.65)"
+          padding={2}
           position="absolute">
           <Box width="100%">
             <Text

@@ -2,9 +2,9 @@ import { Box, Collapse, Icon } from "@chakra-ui/react";
 import { BsArrowsCollapse } from 'react-icons/bs';
 import { AiOutlineTool } from 'react-icons/ai';
 import { useState } from "react";
-import SaveButton from "./SaveButton";
-import SubmitButton from "./SubmitButton";
 import ToolTip from "./ToolTip";
+import CoverTools from "./CoverTools";
+import EditorMenu from "./Menu";
 
 const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -20,8 +20,10 @@ const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
     <Box>
       <Box m={1} display="flex" alignItems="center" justifyContent="space-between">
         <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
-          <SaveButton handleSaveEditor={handleSaveEditor} editorValue={editorValue} />
-          <SubmitButton handleSubmit={handleSubmit} />
+          <EditorMenu
+            editorValue={editorValue}
+            handleSubmit={handleSubmit}
+            handleSaveEditor={handleSaveEditor} />
         </Box>
         {isCollapsed ?
           (
@@ -46,10 +48,13 @@ const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
         }
       </Box>
       <Collapse in={!isCollapsed}>
-        <Box display="flex" flexWrap="wrap" alignItems="center" p={2}>
-          { children }
-        </Box>
-      </Collapse>
+        <Box p={2} display="flex" flexDirection={['column', 'column', 'row']} alignItems="center" justifyContent="space-between">
+          <CoverTools />
+          <Box display="flex" width={['100%', '90%', '70%']} flexWrap="wrap" alignItems="center">
+            { children }
+          </Box>
+       </Box>
+     </Collapse>
     </Box>
   );
 }

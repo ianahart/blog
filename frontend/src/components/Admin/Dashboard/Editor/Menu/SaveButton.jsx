@@ -1,6 +1,7 @@
-import { Button, Box, Collapse } from '@chakra-ui/react';
+import { Box, Collapse, Icon } from '@chakra-ui/react';
 import { useState } from 'react';
-import Toast from './Toast';
+import Toast from '../Toast';
+import { BiSave } from 'react-icons/bi';
 
 const SaveButton = ({ editorValue, handleSaveEditor }) => {
   const [buttonClicked, setButtonClicked] = useState(false);
@@ -25,14 +26,10 @@ const SaveButton = ({ editorValue, handleSaveEditor }) => {
           buttonClicked={buttonClicked}
         />
       </Collapse>
-      <Button
-        onClick={handleClickSave}
-        _hover={{color: 'dark.secondary'}}
-        m={1}
-        backgroundColor="blue.secondary"
-        color="#FFF">
+      <Box display="flex" alignItems="center" onClick={handleClickSave}>
+        <Icon mr={0.5} as={BiSave}></Icon>
         Save
-      </Button>
+      </Box>
     </Box>
   )
 }
