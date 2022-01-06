@@ -14,6 +14,7 @@ const Dashboard = () => {
 
     const handleActiveComp = (comp) => {(setActiveComp(comp))};
     const handleSidebarToggle = () => {(setIsSidebarVisible(!isSidebarVisible))};
+    const handleSidebarClose = () => {(setIsSidebarVisible(false))};
 
     useEffect(() => {
       const handleResize = (e) => {
@@ -26,7 +27,6 @@ const Dashboard = () => {
       return () => window.removeEventListener('resize', handleResize);
     }, [isSidebarVisible, curWindowWidth]);
 
-
     const dashboardViews = () => {
        switch(activeComp) {
          case 'MainView':
@@ -34,7 +34,7 @@ const Dashboard = () => {
          case 'YourPosts':
            return <YourPosts />
          case 'BlogEditor':
-           return <BlogEditor />
+           return <BlogEditor handleActiveComp={handleActiveComp} />
          default:
            return <MainView />
        }
@@ -60,6 +60,7 @@ const Dashboard = () => {
         <Sidebar
           activeComp={activeComp}
           handleActiveComp={handleActiveComp}
+          handleSidebarClose={handleSidebarClose}
           curWindowWidth={curWindowWidth}
           isSidebarVisible={isSidebarVisible}
         />
