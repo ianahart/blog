@@ -26,9 +26,13 @@ import EditorModal from './EditorModal';
     const editor = useMemo(() => withReact(createEditor()), []);
     const renderElement = useCallback(props => <Element {...props}/>,[]);
     const renderLeaf = useCallback(props => <Leaf {...props} />, []);
+
     const [fullScreen, setFullScreen] = useState(false);
     const [count, setCount] = useState({ words: 0, chars: 0 });
     const [editorModalOpen, setEditorModalOpen] = useState(false);
+    const [title, setTitle] = useState(null);
+    const [coverImage, setCoverImage] = useState(null);
+    const [submitError ,setSubmitError] = useState(null);
     const initialEditorState = [
     {
       type: 'paragraph',
@@ -53,22 +57,70 @@ import EditorModal from './EditorModal';
     setValue(value);
   }
 
-  const handleSubmit = async () => {
+  const handleSubmitError = ({ data, status }) => {
+    setSubmitError(data.detail)
+  }
+
+  const getReadTime = () => {
+    const { words } = {...count}
+    const wpm = 240;
+    let msg = '';
+
+    const avgTime = Math.ceil(words / wpm);
+    if (avgTime <= 1) {
+      msg = `Reading time: ${avgTime} min`
+    } else {
+      msg = avgTime > 1 && avgTime < 60 ? `Reading time: ${avgTime} mins` : `Reading time: about 1 hour`;
+    }
+    return msg;
+  }
+
+  const handleSubmit = async (e) => {
     try {
-      const response =  await apiRequest('/api/v1/posts/',  { post: value }, 'POST', null);
+      setSubmitError(null)
+      if (!title) {
+        handleSubmitError({ data: { detail:'Please provide a title for your blog post.' }, status: null });
+        return;
+      }
+      if (!coverImage) {
+        handleSubmitError({ data: { detail:'Please provide a cover image for your blog post.' }, status: null });
+        return;
+      }
+
+      const readTime = getReadTime();
+
+      const formData = new FormData();
+      formData.append('file', coverImage);
+      formData.append('post', JSON.stringify(value));
+      formData.append('title', JSON.stringify(title));
+      formData.append('contentType', JSON.stringify(coverImage.type));
+      formData.append('filename', JSON.stringify(coverImage.name));
+      formData.append('readtime', JSON.stringify(readTime));
+      formData.append('authorid', JSON.stringify(user.userId));
+
+      const response =  await apiRequest('/api/v1/posts/',   formData , 'POST', handleSubmitError, { 'content-type': 'multipart/form-data' });
       console.log(response)
-      // TO CHECK IF DATA IS STILL IN RIGHT STRUCTURE
-      //  localStorage.setItem('editor', JSON.stringify(response.data.post));
-
-
 
     } catch(e) {
       console.log(e);
     }
   }
 
-  const handleSetCount = (count) => {
-    setCount(count);
+    const handleCountText = (editor, e) => {
+    const curCount = {words: 0, chars: 0};
+    const { children } = editor;
+
+    children.forEach((child) => {
+        const counts = child.children.reduce((acc, cur)=> {
+        let text = child.type.includes('-list') || cur.type?.includes('link') ? cur.children[0].text : cur.text;
+        acc.words += text.split(' ').filter((word) => word !== '').length;
+        acc.chars += text.replace(' ', '').trim().length;
+        return acc;
+        }, { words: 0, chars: 0 });
+      curCount.words += counts.words
+      curCount.chars += counts.chars
+      setCount({...count, ...{ words: curCount.words, chars: curCount.chars }});
+    });
   }
 
   const enterFullScreen = () => {
@@ -77,6 +129,14 @@ import EditorModal from './EditorModal';
 
   const exitFullScreen = () => {
     setFullScreen(false);
+  }
+
+  const handleSetCoverImage = (image) => {
+    setCoverImage(image)
+  }
+
+  const handleSetTitle = (title) => {
+    setTitle(title)
   }
 
 
@@ -126,8 +186,8 @@ import EditorModal from './EditorModal';
         transform={ fullScreen ? 'scale(1)': 'scale(1)'}
         mb={3}
         minHeight={fullScreen ? '100vh' : '400px'}
-        width={fullScreen ? '100%' : ['90%', '90%', '600px']}
-        minWidth={['90%', '90%', '750px']}
+        width={fullScreen ? '100%' : ['90%', '90%', '90%', '750px']}
+        minWidth={['90%', '90%', '90%', '750px']}
         borderLeft={ fullScreen ? '1px solid #e4e6eb': 'none'}
         borderRadius={5}
       >
@@ -158,7 +218,16 @@ import EditorModal from './EditorModal';
            </Icon>)}
           </Box>
          </ToolTip>
-          <Toolbar handleSubmit={handleSubmit} handleSaveEditor={handleSaveEditor} editorValue={value}>
+          <Toolbar
+            title={title}
+            editorValue={value}
+            submitError={submitError}
+            handleSubmit={handleSubmit}
+            handleCountText={handleCountText}
+            coverImage={coverImage?.name}
+            handleSetTitle={handleSetTitle}
+            handleSaveEditor={handleSaveEditor}
+            handleSetCoverImage={handleSetCoverImage}>
             <BlockButton btnStyles={btnStyles} format="heading-one"   label="h1" toolTip="3XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-two"   label="h2" toolTip="2XL"/>
             <BlockButton btnStyles={btnStyles} format="heading-three" label="h3" toolTip="XL"/>
@@ -175,7 +244,7 @@ import EditorModal from './EditorModal';
             <MarkButton  btnStyles={btnStyles} format="code"        icon={BiCodeAlt} toolTip="Code Block"/>
             <InlineButton format="link" icon={AiOutlineLink} toolTip="Link"></InlineButton>
             <ImageButton btnStyles={btnStyles} format="image" icon={AiOutlinePicture} toolTip="Image"></ImageButton>
-            <WordCountButton count={count} handleSetCount={handleSetCount} icon={AiOutlineFileText} toolTip="Word Count" />
+            <WordCountButton count={count} handleCountText={handleCountText} icon={AiOutlineFileText} toolTip="Word Count" />
           </Toolbar>
           <Box
             height="2px"

@@ -3,11 +3,13 @@ import { useSlate } from 'slate-react';
 import { Transforms } from 'slate';
 import { nanoid } from 'nanoid';
 import ToolTip from './ToolTip';
+import { useState } from 'react';
 
 
 const ImageButton = ({ format, icon, toolTip }) => {
   const editor = useSlate();
   const { isVoid } = editor;
+  const [fileSize, setFileSize] = useState(0);
 
   editor.isVoid = (element) => {
     return ['image'].includes(element.type) || isVoid(element);
@@ -48,7 +50,8 @@ const ImageButton = ({ format, icon, toolTip }) => {
 
   const handleOnChange = async (e) => {
     const [file] = e.target.files;
-    if (file > 2000000) {
+    setFileSize(file.size);
+    if (file.size > 2000000) {
       return;
     } else {
       const result = await toBase64(file);
@@ -59,11 +62,12 @@ const ImageButton = ({ format, icon, toolTip }) => {
       const id = nanoid();
       insertImage(editor, result, file, id);
       e.target.value = '';
+      setFileSize(0);
     }
   };
 
   return (
-    <ToolTip top="-40px" right="5px" label={toolTip}>
+    <ToolTip top="-40px" right="5px" label={fileSize > 2000000 ? 'Image is too big' : toolTip}>
       <Button
         position="relative"
         m={2}

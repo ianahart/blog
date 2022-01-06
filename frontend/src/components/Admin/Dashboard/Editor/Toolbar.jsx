@@ -1,12 +1,22 @@
-import { Box, Collapse, Icon } from "@chakra-ui/react";
+import { Box, Collapse, Icon, Text } from "@chakra-ui/react";
 import { BsArrowsCollapse } from 'react-icons/bs';
-import { AiOutlineTool } from 'react-icons/ai';
+import { AiOutlineTool, AiOutlineExclamationCircle } from 'react-icons/ai';
 import { useState } from "react";
 import ToolTip from "./ToolTip";
 import CoverTools from "./CoverTools";
 import EditorMenu from "./Menu";
 
-const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
+const Toolbar = ({
+    children,
+    editorValue,
+    submitError,
+    handleSaveEditor,
+    handleCountText,
+    handleSubmit,
+    coverImage,
+    title,
+    handleSetCoverImage,
+    handleSetTitle }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const iconStyles = {
     cursor: 'pointer',
@@ -19,10 +29,22 @@ const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
   return (
     <Box>
       <Box m={1} display="flex" alignItems="center" justifyContent="space-between">
-        <Box display="flex" flexDirection="row" justifyContent="center" alignItems="center">
+        <Box
+          display="flex"
+          flexDirection="column"
+          justifyContent="center"
+          alignItems="flex-start">
+          <Box my={3}>
+            {submitError &&
+            <Box display="flex" alignItems="center">
+               <Icon mr={1.5} color="red" height="18px" as={AiOutlineExclamationCircle} />
+               <Text fontWeight="600" fontSize="12px" color="validationError.primary">{submitError}</Text>
+            </Box>}
+          </Box>
           <EditorMenu
             editorValue={editorValue}
             handleSubmit={handleSubmit}
+            handleCountText={handleCountText}
             handleSaveEditor={handleSaveEditor} />
         </Box>
         {isCollapsed ?
@@ -48,8 +70,13 @@ const Toolbar = ({ children, editorValue, handleSaveEditor, handleSubmit }) => {
         }
       </Box>
       <Collapse in={!isCollapsed}>
-        <Box p={2} display="flex" flexDirection={['column', 'column', 'row']} alignItems="center" justifyContent="space-between">
-          <CoverTools />
+        <Box position="relative" p={2} display="flex" flexDirection={['column', 'column', 'row']} alignItems="center" justifyContent="space-between">
+          <CoverTools
+            coverImage={coverImage}
+            title={title}
+            handleSetCoverImage={handleSetCoverImage}
+            handleSetTitle={handleSetTitle}
+          />
           <Box display="flex" width={['100%', '90%', '70%']} flexWrap="wrap" alignItems="center">
             { children }
           </Box>

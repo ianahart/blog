@@ -26,7 +26,7 @@ const Sidebar = ({ isSidebarVisible, curWindowWidth, handleActiveComp, activeCom
 
 
   return (
-    <Box position="relative">
+    <Box position={['relative', 'relative', 'absolute', 'absolute']}>
       <Slide
         style={{ position: 'relative', top: '0', zIndex: 10}}
         position="relative"

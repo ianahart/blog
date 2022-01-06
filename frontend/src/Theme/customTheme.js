@@ -49,6 +49,9 @@ const customTheme = extendTheme({
             light: '#00A8CC',
             secondary: '#05b4da',
             secondaryHover: '#8eb7d1',
+        },
+        validationError: {
+            primary: '#ababab',
         }
 
     },
