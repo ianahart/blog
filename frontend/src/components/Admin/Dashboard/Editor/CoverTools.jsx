@@ -1,14 +1,20 @@
-import { Box, Button, Input, Text } from '@chakra-ui/react';
+import { Box, Button, Input, Text, Link } from '@chakra-ui/react';
 import { useState } from 'react';
 import { IoMdAdd } from 'react-icons/io';
 import { AiOutlineCloseCircle } from 'react-icons/ai';
 import CoverTool from './CoverTool';
-const CoverTools = ({ coverImage, title, handleSetCoverImage, handleSetTitle}) => {
+const CoverTools = ({ coverImage, title, handleSetCoverImage, handleLSInsert, handleSetTitle}) => {
   const [fileSize, setFileSize] = useState(0);
+  const [downloadLink, setDownloadLink] = useState(JSON.parse(localStorage.getItem('editor_preview'))?.cover_image || null);
   const [isTitleInputOpen, setIsTitleOpen] = useState(false);
 
   const handleImageOnChange = (e) => {
     const file = e.target.files[0];
+    const link = URL.createObjectURL(file);
+
+    setDownloadLink(link);
+    handleLSInsert('cover_image', link);
+
     if (!file) return;
     setFileSize(file.size);
 
@@ -27,11 +33,16 @@ const CoverTools = ({ coverImage, title, handleSetCoverImage, handleSetTitle}) =
     setIsTitleOpen(true);
   }
 
+  const handleDownloadLink = (value) => {
+    setDownloadLink(value);
+  }
+
   return (
         <Box mt="0.5rem" mb={['1rem', '1rem', 'auto']}>
           <Box onClick={openTitleInput}>
             <CoverTool
               label="Post Title"
+              type="title"
               stateValue={title}
               iconAdd={IoMdAdd}
               iconRemove={AiOutlineCloseCircle}
@@ -77,13 +88,16 @@ const CoverTools = ({ coverImage, title, handleSetCoverImage, handleSetTitle}) =
             }
             <CoverTool
                 label="Cover Image"
+                type="cover_image"
                 iconAdd={IoMdAdd}
                 stateValue={coverImage}
                 iconRemove={AiOutlineCloseCircle}
                 handleStateValue={handleSetCoverImage}
+                handleDownloadLink={handleDownloadLink}
               />
             <Text fontSize="12px" color="dark.secondary">{ fileSize > 2000000 ? 'The file is too large max: 2mb' : ''}</Text>
           </Box>
+            {downloadLink && <Link color="blue.primary" textDecoration="underline" fontSize="12px" cursor="pointer" href={downloadLink} download>Re-download cover image</Link>}
         </Box>
   );
 };

@@ -16,6 +16,7 @@ const Toolbar = ({
     coverImage,
     title,
     handleSetCoverImage,
+    handleLSInsert,
     handleSetTitle }) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const iconStyles = {
@@ -70,14 +71,28 @@ const Toolbar = ({
         }
       </Box>
       <Collapse in={!isCollapsed}>
-        <Box position="relative" p={2} display="flex" flexDirection={['column', 'column', 'row']} alignItems="center" justifyContent="space-between">
+        <Box
+          position="relative"
+          p={2}
+          display="flex"
+          flexDirection={['column', 'column', 'row']}
+          alignItems="center"
+          justifyContent="space-between">
           <CoverTools
+            handleLSInsert={handleLSInsert}
             coverImage={coverImage}
             title={title}
             handleSetCoverImage={handleSetCoverImage}
             handleSetTitle={handleSetTitle}
           />
-          <Box display="flex" width={['100%', '90%', '70%']} flexWrap="wrap" alignItems="center">
+          <Box
+            maxWidth="900px" p={0.5}
+            borderRadius="5px"
+            backgroundColor="#f9f9f9"
+            display="flex"
+            width={['100%', '90%', '70%']}
+            flexWrap="wrap"
+            alignItems="center">
             { children }
           </Box>
        </Box>

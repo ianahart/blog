@@ -1,8 +1,13 @@
 import { Link as RouterLink } from 'react-router-dom';
 import { Box, Icon, Link } from '@chakra-ui/react';
 
-const DashLink = ({ link, activeComp, handleActiveComp }) => {
+const DashLink = ({ link, activeComp, handleSidebarClose, handleActiveComp }) => {
   const dynamicStyles = activeComp === link.comp ? { color: '#16DB93', fontWeight: 'bold', fontSize: '1rem' } : { color: '#686D76', fontWeight: '400', fontSize: '0.9rem' };
+
+  const handleDashLink = (comp) => {
+    handleSidebarClose();
+    handleActiveComp(comp);
+  }
   return (
     <Box
       py={3}
@@ -15,7 +20,7 @@ const DashLink = ({ link, activeComp, handleActiveComp }) => {
       alignItems="center">
       <Link
         style={dynamicStyles}
-        onClick={() => handleActiveComp(link.comp)}
+        onClick={() => handleDashLink(link.comp)}
         width="70%"
         textAlign="left"
         as={RouterLink}

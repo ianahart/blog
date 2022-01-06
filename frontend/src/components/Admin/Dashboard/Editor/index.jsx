@@ -1,44 +1,40 @@
 
 import {Box, Icon } from '@chakra-ui/react';
-import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
-import { createEditor, Editor, Transforms } from 'slate';
-import { Slate, Editable, withReact} from 'slate-react';
 import { FaParagraph } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import { Slate, Editable, withReact} from 'slate-react';
+import { createEditor, Editor, Transforms } from 'slate';
+import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
 import { BiFullscreen, BiExitFullscreen, BiCodeAlt, BiFontColor } from 'react-icons/bi';
 import { AiOutlineOrderedList, AiOutlinePicture, AiOutlineLink, AiOutlineUnorderedList, AiOutlineBold,AiOutlineUnderline,AiOutlineItalic,AiOutlineFileText} from 'react-icons/ai';
 
-
-import apiRequest from '../../../../services/apiRequest';
-import { AuthContext } from '../../../../contexts/AuthContext';
+import Leaf from './Leaf';
 import Toolbar from './Toolbar';
-import BlockButton from './BlockButton';
+import Element from './Element';
+import ToolTip from './ToolTip';
 import MarkButton from './MarkButton';
+import BlockButton from './BlockButton';
+import EditorModal from './EditorModal';
+import ImageButton from './ImageButton';
 import InlineButton from './InlineButton';
 import WordCountButton from './WordCountButton';
-import ImageButton from './ImageButton';
-import Element from './Element';
-import Leaf from './Leaf';
-import ToolTip from './ToolTip';
-import EditorModal from './EditorModal';
+import apiRequest from '../../../../services/apiRequest';
+import { AuthContext } from '../../../../contexts/AuthContext';
 
- const BlogEditor = () => {
-    const { user } = useContext(AuthContext);
-    const editor = useMemo(() => withReact(createEditor()), []);
-    const renderElement = useCallback(props => <Element {...props}/>,[]);
-    const renderLeaf = useCallback(props => <Leaf {...props} />, []);
+ const BlogEditor = ({ handleActiveComp }) => {
+  const { user } = useContext(AuthContext);
+  const editor = useMemo(() => withReact(createEditor()), []);
+  const renderElement = useCallback(props => <Element {...props}/>,[]);
+  const renderLeaf = useCallback(props => <Leaf {...props} />, []);
 
-    const [fullScreen, setFullScreen] = useState(false);
-    const [count, setCount] = useState({ words: 0, chars: 0 });
-    const [editorModalOpen, setEditorModalOpen] = useState(false);
-    const [title, setTitle] = useState(null);
-    const [coverImage, setCoverImage] = useState(null);
-    const [submitError ,setSubmitError] = useState(null);
-    const initialEditorState = [
-    {
-      type: 'paragraph',
-      children: [{ text: ' ' }],
-    },
-  ];
+  const navigate = useNavigate();
+  const [title, setTitle] = useState(JSON.parse(localStorage.getItem('editor_preview'))?.title || null);
+  const [coverImage, setCoverImage] = useState(JSON.parse(localStorage.getItem('editor_preview'))?.cover_image || null);
+  const [fullScreen, setFullScreen] = useState(false);
+  const [submitError ,setSubmitError] = useState(null);
+  const [count, setCount] = useState({ words: 0, chars: 0 });
+  const [editorModalOpen, setEditorModalOpen] = useState(false);
+  const initialEditorState = [{ type: 'paragraph', children: [{ text: ' ' }] }];
   const [value, setValue] = useState(JSON.parse(localStorage.getItem('editor')) || initialEditorState);
 
   const btnStyles = {
@@ -75,7 +71,15 @@ import EditorModal from './EditorModal';
     return msg;
   }
 
+  const handlePostSuccess = () => {
+    localStorage.removeItem('editor');
+    localStorage.removeItem('editor_preview');
+    handleActiveComp('MainView');
+    navigate(`/admin/${user.userId}/dashboard`);
+  };
+
   const handleSubmit = async (e) => {
+     localStorage.removeItem('editor_cover_image');
     try {
       setSubmitError(null)
       if (!title) {
@@ -88,8 +92,8 @@ import EditorModal from './EditorModal';
       }
 
       const readTime = getReadTime();
-
       const formData = new FormData();
+
       formData.append('file', coverImage);
       formData.append('post', JSON.stringify(value));
       formData.append('title', JSON.stringify(title));
@@ -99,8 +103,9 @@ import EditorModal from './EditorModal';
       formData.append('authorid', JSON.stringify(user.userId));
 
       const response =  await apiRequest('/api/v1/posts/',   formData , 'POST', handleSubmitError, { 'content-type': 'multipart/form-data' });
-      console.log(response)
-
+      if (response?.status === 200) {
+          handlePostSuccess();
+      }
     } catch(e) {
       console.log(e);
     }
@@ -132,13 +137,24 @@ import EditorModal from './EditorModal';
   }
 
   const handleSetCoverImage = (image) => {
-    setCoverImage(image)
+    setCoverImage(image);
   }
 
-  const handleSetTitle = (title) => {
-    setTitle(title)
+  const handleLSInsert = (key, value) => {
+    const editorPreview = JSON.parse(localStorage.getItem('editor_preview'));
+      if (editorPreview) {
+        editorPreview[key] = value
+        localStorage.setItem('editor_preview', JSON.stringify(editorPreview));
+      } else {
+        const obj = key === 'title' ? { title: value, cover_image: null } : { title: null, cover_image: value };
+        localStorage.setItem('editor_preview', JSON.stringify(obj));
+      }
   }
 
+  const handleSetTitle = (updatedTitle) => {
+    setTitle(updatedTitle);
+    handleLSInsert('title', updatedTitle);
+  }
 
   useEffect(() => {
     const prevEditor = localStorage.getItem('editor');
@@ -223,9 +239,10 @@ import EditorModal from './EditorModal';
             editorValue={value}
             submitError={submitError}
             handleSubmit={handleSubmit}
-            handleCountText={handleCountText}
             coverImage={coverImage?.name}
             handleSetTitle={handleSetTitle}
+            handleLSInsert={handleLSInsert}
+            handleCountText={handleCountText}
             handleSaveEditor={handleSaveEditor}
             handleSetCoverImage={handleSetCoverImage}>
             <BlockButton btnStyles={btnStyles} format="heading-one"   label="h1" toolTip="3XL"/>

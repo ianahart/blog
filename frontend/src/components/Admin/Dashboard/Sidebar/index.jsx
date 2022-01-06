@@ -8,7 +8,7 @@ import DashLink from './DashLink';
 import { FiHome, FiEdit, FiFileText } from 'react-icons/fi';
 import { useNavigate } from 'react-router-dom';
 
-const Sidebar = ({ isSidebarVisible, curWindowWidth, handleActiveComp, activeComp }) => {
+const Sidebar = ({ isSidebarVisible, handleSidebarClose, curWindowWidth, handleActiveComp, activeComp }) => {
   const { user } = useContext(AuthContext);
   const isMobile = isSidebarVisible && curWindowWidth <= 768 ? true: false;
   const sidebarPos = isMobile ? { position: 'absolute', top: 0, right: 0 } : {position: 'relative', top: 0, left: 0}
@@ -74,6 +74,7 @@ const Sidebar = ({ isSidebarVisible, curWindowWidth, handleActiveComp, activeCom
               return (
                 <DashLink
                   handleActiveComp={handleActiveComp}
+                  handleSidebarClose={handleSidebarClose}
                   activeComp={activeComp}
                   key={index}
                   link={link}
