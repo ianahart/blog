@@ -5,16 +5,19 @@ import Sidebar from '../../components/Admin/Dashboard/Sidebar/index.jsx';
 import MainView from '../../components/Admin/Dashboard/MainView.jsx';
 import BlogEditor from '../../components/Admin/Dashboard/Editor/index.jsx';
 import YourPosts from '../../components/Admin/Dashboard/Posts/index.jsx';
+import Spinner from '../../components/Mixed/Spinner.jsx';
 
 const Dashboard = () => {
     const [isSidebarVisible, setIsSidebarVisible] = useState(true);
     const [curWindowWidth, setCurWindowWidth] = useState(window.innerWidth);
+    const [isLoading, setIsLoading] = useState(false);
     const [activeComp, setActiveComp] = useState('MainView');
     const dashboardPos = isSidebarVisible && curWindowWidth <= 768 ? 'row-reverse' : 'row';
 
     const handleActiveComp = (comp) => {(setActiveComp(comp))};
     const handleSidebarToggle = () => {(setIsSidebarVisible(!isSidebarVisible))};
     const handleSidebarClose = () => {(setIsSidebarVisible(false))};
+    const handleIsLoading = (loading) => {(setIsLoading(loading))};
 
     useEffect(() => {
       const handleResize = (e) => {
@@ -34,11 +37,13 @@ const Dashboard = () => {
          case 'YourPosts':
            return <YourPosts />
          case 'BlogEditor':
-           return <BlogEditor handleActiveComp={handleActiveComp} />
+           return  <BlogEditor handleIsLoading={handleIsLoading} handleActiveComp={handleActiveComp} />
          default:
            return <MainView />
        }
     }
+
+
 
   return (
     <Box
@@ -50,22 +55,27 @@ const Dashboard = () => {
         isSidebarVisible={isSidebarVisible}
         handleSidebarToggle={handleSidebarToggle}
       />
-      <Box
-        display="flex"
-        flexDirection={[dashboardPos, dashboardPos, 'row']}
-        minHeight="100%"
-        width="100%"
-        height="100%"
-      >
-        <Sidebar
-          activeComp={activeComp}
-          handleActiveComp={handleActiveComp}
-          handleSidebarClose={handleSidebarClose}
-          curWindowWidth={curWindowWidth}
-          isSidebarVisible={isSidebarVisible}
-        />
-        { dashboardViews() }
-      </Box>
+      {
+        isLoading ? (
+          <Spinner size={100} loading={isLoading} />) : (
+            <Box
+              display="flex"
+              flexDirection={[dashboardPos, dashboardPos, 'row']}
+              minHeight="100%"
+              width="100%"
+              height="100%"
+            >
+              <Sidebar
+                activeComp={activeComp}
+                handleActiveComp={handleActiveComp}
+                handleSidebarClose={handleSidebarClose}
+                curWindowWidth={curWindowWidth}
+                isSidebarVisible={isSidebarVisible}
+              />
+              { dashboardViews() }
+            </Box>
+        )
+      }
     </Box>
   );
 }

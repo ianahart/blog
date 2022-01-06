@@ -21,7 +21,7 @@ import WordCountButton from './WordCountButton';
 import apiRequest from '../../../../services/apiRequest';
 import { AuthContext } from '../../../../contexts/AuthContext';
 
- const BlogEditor = ({ handleActiveComp }) => {
+ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
   const { user } = useContext(AuthContext);
   const editor = useMemo(() => withReact(createEditor()), []);
   const renderElement = useCallback(props => <Element {...props}/>,[]);
@@ -75,6 +75,7 @@ import { AuthContext } from '../../../../contexts/AuthContext';
     localStorage.removeItem('editor');
     localStorage.removeItem('editor_preview');
     handleActiveComp('MainView');
+    handleIsLoading(false);
     navigate(`/admin/${user.userId}/dashboard`);
   };
 
@@ -90,7 +91,7 @@ import { AuthContext } from '../../../../contexts/AuthContext';
         handleSubmitError({ data: { detail:'Please provide a cover image for your blog post.' }, status: null });
         return;
       }
-
+      handleIsLoading(true);
       const readTime = getReadTime();
       const formData = new FormData();
 
@@ -102,11 +103,12 @@ import { AuthContext } from '../../../../contexts/AuthContext';
       formData.append('readtime', JSON.stringify(readTime));
       formData.append('authorid', JSON.stringify(user.userId));
 
-      const response =  await apiRequest('/api/v1/posts/',   formData , 'POST', handleSubmitError, { 'content-type': 'multipart/form-data' });
+      const response =  await apiRequest('/api/v1/posts/admin/',   formData , 'POST', handleSubmitError, { 'content-type': 'multipart/form-data' });
       if (response?.status === 200) {
           handlePostSuccess();
       }
     } catch(e) {
+      handleIsLoading(false);
       console.log(e);
     }
   }

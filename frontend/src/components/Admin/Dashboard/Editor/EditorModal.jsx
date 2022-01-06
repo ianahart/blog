@@ -11,7 +11,6 @@ const EditorModal = ({ editorModalOpen, handleClickContinue, handleClickReset })
       display="flex"
       flexDirection="column"
       alignItems="center"
-      // justifyContent="center"
       zIndex={5}
       top="0"
       left="0"
