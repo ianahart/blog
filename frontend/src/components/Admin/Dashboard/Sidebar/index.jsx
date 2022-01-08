@@ -1,20 +1,22 @@
 
-import { Box,Icon, Text, Slide } from '@chakra-ui/react';
+import { Box,Icon, Image, Text, Slide } from '@chakra-ui/react';
 import { BiUserCircle } from 'react-icons/bi';
 import { BsFillBookmarkCheckFill } from 'react-icons/bs';
-import { useContext, useRef, useEffect } from 'react';
+import { useContext, useRef,  useEffect } from 'react';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import DashLink from './DashLink';
 import { FiHome, FiEdit, FiFileText } from 'react-icons/fi';
+import { IoSettingsOutline } from 'react-icons/io5'
 import { useNavigate } from 'react-router-dom';
 
-const Sidebar = ({ isSidebarVisible, handleSidebarClose, curWindowWidth, handleActiveComp, activeComp }) => {
+const Sidebar = ({ isSidebarVisible,  handleSidebarClose, curWindowWidth, handleActiveComp, activeComp }) => {
   const { user } = useContext(AuthContext);
   const isMobile = isSidebarVisible && curWindowWidth <= 768 ? true: false;
   const sidebarPos = isMobile ? { position: 'absolute', top: 0, right: 0 } : {position: 'relative', top: 0, left: 0}
   const navigate = useRef(useNavigate());
 
   const dashLinks = [
+    { to: `/admin/${user.userId}/settings`, label: 'Settings', icon: IoSettingsOutline, comp: 'Settings' },
     { to: `/admin/${user.userId}/dashboard`, label: 'Dashboard', icon: FiHome, comp: 'MainView' },
     { to: `/admin/${user.userId}/your-posts`, label: 'Your Posts', icon: FiFileText, comp: 'YourPosts' },
     { to: `/admin/${user.userId}/editor`, label: 'Editor', icon: FiEdit, comp: 'BlogEditor'},
@@ -23,7 +25,6 @@ const Sidebar = ({ isSidebarVisible, handleSidebarClose, curWindowWidth, handleA
   useEffect(() => {
     navigate.current(`/admin/${user.userId}/dashboard`);
   }, [user.userId]);
-
 
   return (
     <Box position={['relative', 'relative', 'absolute', 'absolute']}>
@@ -52,17 +53,23 @@ const Sidebar = ({ isSidebarVisible, handleSidebarClose, curWindowWidth, handleA
             justifyContent="space-evenly"
             alignItems="center"
           >
-            <Box height="45px" width="45px">
-              <Icon
-                borderRadius="50%"
-                color="blue.primary"
-                backgroundColor="green.primary"
-                height="100%"
-                width="100%"
-                as={BiUserCircle}
-              >
-            </Icon>
-            </Box>
+          { user.avatarUrl ?
+              (<Box borderRadius="50%" height="50px" width="50px">
+                <Image borderRadius="50%" height="100%" width="100%" src={user.avatarUrl} alt="a users avatar/portrait picture" />
+               </Box>
+              ) :
+              (<Box height="45px" width="45px">
+                <Icon
+                  borderRadius="50%"
+                  color="blue.primary"
+                  backgroundColor="green.primary"
+                  height="100%"
+                  width="100%"
+                  as={BiUserCircle}
+                >
+              </Icon>
+            </Box>)
+            }
             <Box display="flex" flexDirection="column">
               <Text fontWeight="bold" color="dark.secondary">{ user.email }</Text>
               <Text fontSize={12} color="gray.text">Admin</Text>

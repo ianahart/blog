@@ -105,6 +105,7 @@ const LoginForm = () => {
       clearForm(credentials);
       validateForm(credentials);
       const response = await apiRequest('/api/v1/auth/login', { credentials }, 'POST', applyErrors);
+      console.log(response)
       if (!response) {
         return
       }

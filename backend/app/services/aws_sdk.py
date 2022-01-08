@@ -1,9 +1,12 @@
 from typing import Optional, Union
 from dotenv import load_dotenv
 import boto3
+from pathlib import Path
 import os
 import base64
 import uuid
+import random
+import stat
 from datetime import datetime
 
 
@@ -57,11 +60,43 @@ class AwsSdk:
         obj.put(
             Body=post_el['url'],
             ACL='public-read',
-            ContentType='image/jpeg'
+            ContentType=post_el['contentType']
         )
 
         object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}"
         return object_url, filename
+
+    def upload_avatar(self, avatar, file_bytes, folder) -> Union[str, bool]:
+        try:
+            path = Path(avatar.filename)
+            content_type = 'image/' + path.suffix.split('.')[1]
+
+            date = datetime.utcnow().strftime('%Y%m%d%H%M%SZ')
+            filename = f'{date}-{random.randint(10000, 100000)}-{path}'
+
+            obj = self.s3.Object(self.bucket_name, f'{folder}/{filename}')
+            obj.put(
+                Body=file_bytes,
+                ACL='public-read',
+                ContentType=content_type,
+            )
+
+            portrait_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{folder}/{filename}"
+            return portrait_url, filename
+
+        except Exception as e:
+            print(e)
+            return False
+
+    def file_size_exceeded(self, file_bytes) -> bool:
+        try:
+            return True if len(file_bytes) > 2000000 else False
+        except:
+            return False
+
+    def delete_file(self, folder: str, filename: str) -> None:
+        if len(folder):
+            self.s3.Object(self.bucket_name, f'{folder}/{filename}').delete()
 
 
 aws = AwsSdk(

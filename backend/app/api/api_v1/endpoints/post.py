@@ -12,12 +12,12 @@ router = APIRouter()
 
 
 @router.get('/', dependencies=[Depends(JWTBearer())])
-def get_posts():
-    all_posts = CRUDPost.get_all_posts()
+def get_posts(*, db:Session = Depends(deps.get_db)):
+    all_posts = CRUDPost.get_all_posts(db)
     return all_posts
 
 
-@router.post('/', dependencies=[Depends(JWTBearer())], status_code=200)
+@router.post('/admin/', dependencies=[Depends(JWTBearer())], status_code=200)
 async def create_post(*, db: Session = Depends(deps.get_db),
                       file: UploadFile = File(...),
                       filename: str = Form(...),

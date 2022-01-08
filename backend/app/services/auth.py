@@ -16,9 +16,10 @@ class Auth:
             'error': None,
             'data': {
                 'authenticated': False,
+                'avatarUrl': None,
                 'accessToken': None,
                 'userId': None,
-                'email': None
+                'email': None,
             }
         }
 
@@ -54,6 +55,9 @@ class Auth:
             auth_status['data']['accessToken'] = access_token
             auth_status['data']['userId'] = user.id
             auth_status['data']['email'] = user.email
+
+            if user.portrait_url:
+                auth_status['data']['avatarUrl'] = user.portrait_url
             return auth_status
         else:
             auth_status['error'] = utils.error.message(

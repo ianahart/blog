@@ -24,7 +24,7 @@ def logout(request: Request, db: Session = Depends(deps.get_db)):
         raise HTTPException(400, detail='Unable to complete logout.')
 
 
-@router.post('/login')
+@router.post('/login', status_code=200)
 def login(*, db: Session = Depends(deps.get_db), credentials: schemas.auth.AuthLogin) -> Optional[Dict]:
     auth = services.auth.authenticate(db, credentials=credentials)
 

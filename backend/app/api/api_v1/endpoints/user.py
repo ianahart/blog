@@ -1,8 +1,8 @@
 from typing import Any, Dict
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
-
+from app.core.auth_bearer import JWTBearer
 from app import crud, schemas, models, utils
 from app.core.config import settings
 from app.api import deps
@@ -61,3 +61,16 @@ def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVeri
         raise HTTPException(400, detail=exception)
 
     return {'is_user_verified': is_user_verified}
+
+
+@router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200)
+def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict:
+
+    avatar_url = crud.user.upload(user_id, db, avatar)
+
+    if avatar_url:
+        return {
+            'user_id': user_id,
+            'msg': 'Avatar changed',
+            'avatarUrl': avatar_url
+        }

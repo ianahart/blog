@@ -1,11 +1,12 @@
+import { Box, Text } from '@chakra-ui/react';
+import HomeBG from '../images/home_bg.svg';
 
 const Home = () => {
 
   return (
-    <div>
-
-      <h1>this is home page</h1>
-    </div>
+    <Box backgroundImage={HomeBG} backgroundSize="cover" backgroundPosition="center" minHeight="100vh" width="100%">
+      <Text>This is the home page</Text>
+    </Box>
   );
 }
 

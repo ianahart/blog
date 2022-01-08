@@ -5,6 +5,7 @@ import Sidebar from '../../components/Admin/Dashboard/Sidebar/index.jsx';
 import MainView from '../../components/Admin/Dashboard/MainView.jsx';
 import BlogEditor from '../../components/Admin/Dashboard/Editor/index.jsx';
 import YourPosts from '../../components/Admin/Dashboard/Posts/index.jsx';
+import Settings from '../../components/Admin/Dashboard/Settings/index.jsx';
 import Spinner from '../../components/Mixed/Spinner.jsx';
 
 const Dashboard = () => {
@@ -38,6 +39,8 @@ const Dashboard = () => {
            return <YourPosts />
          case 'BlogEditor':
            return  <BlogEditor handleIsLoading={handleIsLoading} handleActiveComp={handleActiveComp} />
+         case 'Settings':
+           return <Settings />
          default:
            return <MainView />
        }

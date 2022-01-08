@@ -15,7 +15,6 @@ class Post(Base):
     slug = Column(String(256), nullable=True)
     cover_image_filename = Column(String(256), nullable=True)
     cover_image_path = Column(String(256), nullable=True)
-    # content = Column(JSON)
     content = Column(MutableDict.as_mutable(JSON))
     read_time = Column(String(64), nullable=True)
     author = relationship('User', back_populates='posts')

@@ -4,7 +4,7 @@ import { emailRules, applyRules, getLocalUser, findNeedle } from "../misc/helper
 export const AuthContext = createContext();
 
 const AuthContextProvider = (props) => {
-   const userReset =  { adminExists: false, isTempVerified: false, accessToken: null, userId: null, authenticated: false, email: null };
+   const userReset =  { adminExists: false, isTempVerified: false, accessToken: null, userId: null, authenticated: false, email: null, avatarUrl: null };
    const initialUserState = JSON.parse(localStorage.getItem('user')) ? JSON.parse(localStorage.getItem('user')) : userReset;
    const initialCredState = {
     creds:  [
@@ -60,6 +60,16 @@ const AuthContextProvider = (props) => {
     localStorage.setItem('user', JSON.stringify({...userCopy}))
   };
 
+  const updateUserProp = (prop, value) => {
+    const localUser = getLocalUser();
+    if (localUser) {
+      localUser[prop] = value
+    }
+    localStorage.setItem('user', JSON.stringify(localUser));
+    const updatedUser = {...user, ...localUser}
+    setUser(updatedUser);
+  }
+
   const handleRefreshAuth = () => {
     const localUser = getLocalUser();
     if (localUser) {
@@ -90,6 +100,7 @@ const AuthContextProvider = (props) => {
           handleLoginSuccess,
           handleRefreshAuth,
           handleRemoveLocUser,
+          updateUserProp,
         }
       }
     >

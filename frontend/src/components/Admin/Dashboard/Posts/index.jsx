@@ -11,6 +11,8 @@ const YourPosts = () => {
   const { user } = useContext(AuthContext);
   const navigate = useNavigate();
 
+  //admin/posts
+
   const handleClick = async (e) => {
       try {
       const response = await apiRequest('/api/v1/posts/', {}, 'GET');

@@ -53,6 +53,11 @@ const App = () => {
                   <Dashboard />
                 </RequireAuth>
                 } />
+              <Route path="/admin/:userId/settings" element={
+                <RequireAuth>
+                  <Dashboard />
+                </RequireAuth>
+                } />
               <Route path="/admin/:userId/post/:postId" element={
                 <RequireAuth>
                   <AdminPost />

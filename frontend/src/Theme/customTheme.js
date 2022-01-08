@@ -100,3 +100,15 @@ const customTheme = extendTheme({
 });
 
 export default customTheme
+
+
+// blue
+// #05B4DA
+//green
+// #16DB93
+
+// gray
+// #E3E2E2
+
+// gray light
+// #DEDCDC

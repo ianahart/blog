@@ -11,6 +11,7 @@ import MainLogo from '../Logos/MainLogo';
 import '@fontsource/caveat-brush/400.css'
 
 const Navbar = () => {
+
   const { user } = useContext(AuthContext)
   const {
           isMobileView,

@@ -11,6 +11,8 @@ class User(Base):
     role = Column(String(32), nullable=True)
     email = Column(String(128), nullable=False)
     hashed_password = Column(String, nullable=False)
+    portrait_filename = Column(String(256), nullable=True)
+    portrait_url = Column(String(256), nullable=True)
     token = Column(String(256), nullable=True)
     temp_password = Column(String(128), nullable=True)
     temp_password_changed = Column(Boolean, nullable=True, default=0)

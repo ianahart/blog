@@ -1,7 +1,10 @@
 import datetime
+from logging import raiseExceptions
 from typing import Dict, Optional
+from fastapi import File, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Boolean
+from app.services import aws
 from app.core.security import get_password_hash, verify_password
 from app.models.user import User
 from app.models.document import Document
@@ -48,6 +51,45 @@ class CRUDUser(CRUDBase[User, UserCreate]):
         db.refresh(db_obj)
 
         return db_obj
+
+    def upload(self, user_id: int, db: Session, avatar: File):
+
+        if not user_id:
+            return
+
+        user = db.query(User).where(
+            User.id == user_id).first()
+
+        if isinstance(user, type(None)):
+            raise HTTPException(404, detail="Could not find the user.")
+
+        try:
+            file_bytes = avatar.file.read()
+        except:
+            return
+
+        if aws.file_size_exceeded(file_bytes):
+            raise HTTPException(
+                400, detail="File size must not exceed 2MB(megabytes).")
+
+        try:
+            [portrait_url, filename] = aws.upload_avatar(
+                avatar=avatar, file_bytes=file_bytes, folder='avatars')
+
+            if user.portrait_filename and user.portrait_url:
+                aws.delete_file(folder='avatars',
+                                filename=user.portrait_filename)
+
+            user.portrait_url = portrait_url
+            user.portrait_filename = filename
+
+            db.commit()
+
+            return portrait_url
+
+        except:
+            raise HTTPException(
+                400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg')
 
 
 user = CRUDUser(User)

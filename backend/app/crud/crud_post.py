@@ -12,7 +12,12 @@ import datetime
 
 
 class CRUDPost:
-    def get_all_posts():
+    def get_all_posts(self, db: Session):
+
+        # posts = db.query(Post).all()
+        # for row in posts:
+        #     print(row.author.email)
+
         return [
             {'text': 'lorem ipsum1', 'id': 1},
             {'text': 'lorem ipsum2', 'id': 2},
@@ -60,7 +65,6 @@ class CRUDPost:
             slug=string_util.slugify(post_in['title']),
             cover_image_filename=post_in['cover_file']['filename'],
             cover_image_path=post_in['cover_file']['url'],
-            # content=json.dumps((post_in['post'])),
             content={'post': post_in['post']},
             read_time=post_in['read_time'],
         )
