@@ -1,8 +1,12 @@
-from sqlalchemy import Column, String, Integer, Boolean, DateTime, ForeignKey
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
+from sqlalchemy import Column, String, Integer, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 
 
 from app.db.base_class import Base
+
+# pyright: reportGeneralTypeIssues=false
 
 
 class Token(Base):

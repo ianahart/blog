@@ -31,10 +31,6 @@ const Settings = () => {
     }
   }
 
-  const handlePortraitOnChange = (e) => {
-    console.log(e);
-  }
-
   const validateFields = () => {
     setFieldErrors([]);
     [firstname, lastname, password].forEach((field) => {
@@ -78,7 +74,7 @@ const Settings = () => {
             justifyContent="space-between"
             flexDirection={['column', 'column', 'row', 'row']}
           >
-           <PortraitUpload handlePortraitOnChange={handlePortraitOnChange}  />
+           <PortraitUpload />
             <form mb={5} width={['100%', '100%', '60%', '50%']}>
              <Image margin="1rem auto 3.5rem auto" width="70%" src={settingsSecure} alt="settings secure illustration" />
              {fieldErrors.length ? <Icon height="24px" width="24px" color="red" as ={AiOutlineExclamationCircle}></Icon> : ''}

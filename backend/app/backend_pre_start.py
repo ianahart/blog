@@ -1,6 +1,7 @@
 import logging
-
-from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed
+# pyright:  reportPrivateImportUsage=false
+#pyright: reportMissingImports=false
+from tenacity import after_log, before_log, retry, stop_after_attempt, wait_fixed # noqa E501
 
 from app.db.session import SessionLocal
 

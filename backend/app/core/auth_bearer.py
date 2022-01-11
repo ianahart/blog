@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from fastapi import Request, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session
@@ -9,9 +11,9 @@ class JWTBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
-    async def __call__(self, request: Request, db: Session = Depends(deps.get_db)):
-
-        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)
+    async def __call__(self, request: Request, db: Session = Depends(deps.get_db)):  # noqa E501
+        # pyright: reportGeneralTypeIssues=false
+        credentials: HTTPAuthorizationCredentials = await super(JWTBearer, self).__call__(request)  # noqa E501
 
         if credentials:
             if not credentials.scheme == "Bearer":
@@ -39,7 +41,7 @@ class JWTBearer(HTTPBearer):
 
             payload = decode_access_token(
                 access_token=access_token, db=db)
-        except:
+        except:  # noqa E722
 
             payload = None
 

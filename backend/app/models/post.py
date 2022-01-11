@@ -1,3 +1,5 @@
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSON
@@ -6,7 +8,7 @@ from sqlalchemy.ext.mutable import MutableDict
 from app.db.base_class import Base
 
 
-class Post(Base):
+class Post(Base):  # type: ignore
     __tablename__ = 'post'
     id = Column(Integer, primary_key=True, index=True)
     author_id = Column(Integer, ForeignKey('user.id'), nullable=False)

@@ -1,7 +1,8 @@
-from base64 import decode
+
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from jose import jwt
 import time
-from jose.exceptions import ExpiredSignatureError
 from sqlalchemy.orm import Session
 from typing import Any, Union, Dict
 from datetime import datetime, timedelta
@@ -11,27 +12,27 @@ from fastapi.param_functions import Depends
 from app.api import deps
 from app.core import config
 from app.models import Token
-from app.models import User
 from dotenv import load_dotenv
 load_dotenv()
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_token(subject: Union[str, Any], db: Session = Depends(deps.get_db)) -> Any:
+def get_token(subject: Union[str, Any], db: Session = Depends(deps.get_db)) -> Any: # noqa E501
     try:
 
         existing_token = db.query(Token).where(
             Token.user_role_id == subject).first()
         return existing_token
 
-    except:
+    except: # noqa E722
         return None
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
+def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str: # noqa E501
 
     if expires_delta:
+        # pyright: reportGeneralTypeIssues=false
         expire = datetime.utcnow() + timedelta(minutes=expires_delta)
     else:
         expire = datetime.utcnow() + timedelta(
@@ -45,9 +46,9 @@ def create_access_token(subject: Union[str, Any], expires_delta: timedelta = Non
     return encoded_jwt_token
 
 
-def save_access_token(*, db: Session = Depends(deps.get_db), subject: int, access_token: str) -> None:
+def save_access_token(*, db: Session = Depends(deps.get_db), subject: int, access_token: str) -> None: # noqa E501
 
-    existing_token = db.query(Token).where(Token.user_role_id == subject).where(
+    existing_token = db.query(Token).where(Token.user_role_id == subject).where(  # noqa E501
         Token.token_valid_to > datetime.utcnow()).first()
 
     if existing_token:

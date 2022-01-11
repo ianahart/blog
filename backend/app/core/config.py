@@ -1,7 +1,8 @@
 import os
 import secrets
+# pyright: reportMissingImports=false
 from dotenv import load_dotenv
-from pydantic import AnyHttpUrl, BaseSettings, EmailStr, HttpUrl, PostgresDsn, validator
+from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
 from typing import Any, Dict, List, Optional, Union
 
 load_dotenv()
@@ -12,6 +13,7 @@ class Settings(BaseSettings):
     PROJECT_VERSION: str
     API_V1_STR: str = '/api/v1'
     JWT_SECRET: str = secrets.token_urlsafe(32)
+    # pyright: reportGeneralTypeIssues=false
     ALGORITHM: str = os.getenv('ALGORITHM')
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
@@ -22,7 +24,7 @@ class Settings(BaseSettings):
     SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
     @validator("SQLALCHEMY_DATABASE_URI", pre=True)
-    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:
+    def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:  # noqa E501
         if isinstance(v, str):
             return v
         return PostgresDsn.build(
@@ -34,7 +36,7 @@ class Settings(BaseSettings):
         )
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]: # noqa E501
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):

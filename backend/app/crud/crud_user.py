@@ -1,6 +1,7 @@
 import datetime
-from logging import raiseExceptions
-from typing import Dict, Optional
+from typing import Dict
+# pyright: reportMissingModuleSource=false
+# pyright: reportMissingImports=false
 from fastapi import File, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Boolean
@@ -19,6 +20,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
         document = db.query(Document).order_by(Document.id.desc()).first()
 
         if not isinstance(document, type(None)):
+            # pyright: reportGeneralTypeIssues=false
             return verify_password(obj_in.temp_password, document.password)
 
         return False
@@ -65,7 +67,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
         try:
             file_bytes = avatar.file.read()
-        except:
+        except: # noqa E722
             return
 
         if aws.file_size_exceeded(file_bytes):
@@ -87,9 +89,9 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
             return portrait_url
 
-        except:
+        except: # noqa E722
             raise HTTPException(
-                400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg')
+                400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg') # noqa E501
 
 
 user = CRUDUser(User)

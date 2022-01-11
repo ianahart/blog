@@ -1,5 +1,6 @@
-from typing import Optional, List, Dict
-from pydantic import BaseModel, ValidationError, validator
+from typing import Optional, List
+#pyright: reportMissingImports=false
+from pydantic import BaseModel
 import datetime
 # Shared properties
 

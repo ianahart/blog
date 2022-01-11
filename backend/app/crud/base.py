@@ -1,5 +1,7 @@
-from typing import Any, Dict, Generic, List, Optional, Type, TypeVar, Union
+from typing import Generic, Type, TypeVar
 
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -22,4 +24,5 @@ class CRUDBase(Generic[ModelType, CreateSchemaType]):
         db.add(db_obj)
         db.commit()
         db.refresh(db_obj)
+        # pyright: reportGeneralTypeIssues=false
         return db_obj

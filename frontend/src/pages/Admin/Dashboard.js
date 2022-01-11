@@ -53,6 +53,7 @@ const Dashboard = () => {
       minHeight="100vh"
       height="100%"
       backgroundColor="light.primary"
+
     >
       <Header
         isSidebarVisible={isSidebarVisible}

@@ -1,6 +1,9 @@
-from typing import Optional, List, Dict
+from typing import Optional, List
+#pyright: reportMissingImports=false
 from pydantic import BaseModel
-import datetime
+
+
+# pyright: reportGeneralTypeIssues=false
 
 
 class AuthBase(BaseModel):

@@ -1,6 +1,6 @@
 from typing import Optional, List
-from pydantic import BaseModel, Json
-from fastapi import File
+# pyright: reportMissingImports=false
+from pydantic import BaseModel
 import datetime
 import json
 
@@ -42,6 +42,7 @@ class NewPost(BaseModel):
     @classmethod
     def validate_to_json(cls, value):
         if isinstance(value, List):
+            # pyright: reportGeneralTypeIssues=false
             return cls(**json.loads(value))
         return value
 

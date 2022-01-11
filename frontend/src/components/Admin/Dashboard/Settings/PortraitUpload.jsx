@@ -6,7 +6,7 @@ import Spinner from '../../../Mixed/Spinner.jsx';
 import apiRequest from '../../../../services/apiRequest.js';
 import { AuthContext } from '../../../../contexts/AuthContext.js';
 
-const PortraitUpload = ({ handlePortraitOnChange }) => {
+const PortraitUpload = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [uploadError, setUploadError] = useState(null);
@@ -18,8 +18,12 @@ const PortraitUpload = ({ handlePortraitOnChange }) => {
   };
   const handleOnDragLeave = () => (setIsDragging(false));
 
-  const handleOnDrop = (e) => {
-    const avatar = e.dataTransfer.files[0];
+  const handleOnChange = (e) => {
+    const avatar = e.target.files[0]
+    handleUploadAvatar(avatar)
+  }
+
+  const handleUploadAvatar = (avatar) => {
     setIsDragging(false)
       if (!avatar) return;
       if (avatar.size > 2000000) {
@@ -31,6 +35,10 @@ const PortraitUpload = ({ handlePortraitOnChange }) => {
       }
     setIsLoading(true)
     uploadAvatar(avatar);
+  }
+
+  const handleOnDrop = (e) => {
+    const avatar =  e.dataTransfer.files[0]
   }
 
   const handleUploadError = ({ data, status }) => {
@@ -115,7 +123,7 @@ const PortraitUpload = ({ handlePortraitOnChange }) => {
             cursor="pointer"
             zIndex={4}
             accept="image/png, image/jpeg"
-            onChange={handlePortraitOnChange}
+            onChange={handleOnChange}
             position="absolute"
             opacity={0}
             top={0}

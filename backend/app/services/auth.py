@@ -1,5 +1,5 @@
-from typing import Optional, Dict
-from fastapi.param_functions import Depends
+from typing import Dict
+# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm import Session
 
 
@@ -32,7 +32,7 @@ class Auth:
         if len(msg) > 0:
             auth_status['error'] = utils.error.message(msg, 'password')
             return auth_status
-
+        # pyright: reportGeneralTypeIssues=false
         user = db.query(models.User).where(
             models.User.email == auth_creds['email']).first()
 
@@ -41,9 +41,9 @@ class Auth:
                 'User not found.', 'password')
             return auth_status
 
-        if security.verify_password(auth_creds['password'], user.hashed_password):
+        if security.verify_password(auth_creds['password'], user.hashed_password): # noqa E501
             auth_status['data']['authenticated'] = True
-
+            # pyright: reportGeneralTypeIssues=false
             access_token = security.create_access_token(
                 subject=user.id,
                 expires_delta=config.settings.ACCESS_TOKEN_EXPIRE_MINUTES)

@@ -1,4 +1,6 @@
 from typing import Any, Dict
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
@@ -62,9 +64,9 @@ def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVeri
 
     return {'is_user_verified': is_user_verified}
 
-
+# pyright: reportGeneralTypeIssues=false
 @router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200)
-def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict:
+def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict: # noqa E501
 
     avatar_url = crud.user.upload(user_id, db, avatar)
 

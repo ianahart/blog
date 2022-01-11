@@ -1,10 +1,10 @@
 from typing import Dict
 
+# pyright: reportMissingImports=false
+# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
-from app.crud.base import CRUDBase
 from app.services import aws
-from fastapi.encoders import jsonable_encoder
 from fastapi import HTTPException
 from app.utils import string_util
 import json
@@ -39,22 +39,22 @@ class CRUDPost:
             post_in['cover_file']['url'] = object_url
             post_in['cover_file']['filename'] = filename
 
-        except Exception as e:
+        except Exception:
             raise HTTPException(
-                500, detail='Unable to upload cover image file to web service.')
+                500, detail='Unable to upload cover image file to web service.')  # noqa E501
 
         for post_el in form_data['post']:
             post_el = {key: val for key,
-                       val in post_el.items() if val != None}
+                       val in post_el.items() if val is not None}
 
             if post_el['type'] == 'image':
                 try:
                     [object_url, filename] = aws.upload_file(post_el)
                     post_el['url'] = object_url
                     post_el['filename'] = filename
-                except Exception as e:
+                except Exception:
                     raise HTTPException(
-                        500, detail='Unable to upload images in your blog post to web service.')
+                        500, detail='Unable to upload images in your blog post to web service.') # noqa E501 
 
             post_in['post'].append(post_el)
 

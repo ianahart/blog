@@ -1,4 +1,5 @@
-from typing import Optional, Union
+from typing import Union
+# pyright: reportMissingImports=false
 from dotenv import load_dotenv
 import boto3
 from pathlib import Path
@@ -6,7 +7,6 @@ import os
 import base64
 import uuid
 import random
-import stat
 from datetime import datetime
 
 
@@ -14,7 +14,7 @@ load_dotenv()
 
 
 class AwsSdk:
-    def __init__(self, access_key: str, secret_access_key: str, bucket_name: str, region_name: str) -> None:
+    def __init__(self, access_key: str, secret_access_key: str, bucket_name: str, region_name: str) -> None: # noqa E501
         self.bucket_name = bucket_name
         self.region_name = region_name
         session = boto3.Session(
@@ -31,7 +31,7 @@ class AwsSdk:
             url = base64.b64decode(
                 file['url'].split(';base64,')[1])
 
-        return file['url'] if url == None else url
+        return file['url'] if url is None else url
 
     def create_filename(self, file: dict) -> str:
         date = datetime.utcnow().strftime('%Y%m%d%H%M%SZ')
@@ -55,7 +55,7 @@ class AwsSdk:
             TypeError('Invalid image')
 
         filename = self.create_filename(post_el)
-
+        # pyright: reportGeneralTypeIssues=false
         obj = self.s3.Object(self.bucket_name, filename)
         obj.put(
             Body=post_el['url'],
@@ -63,7 +63,7 @@ class AwsSdk:
             ContentType=post_el['contentType']
         )
 
-        object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}"
+        object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}" # noqa E501
         return object_url, filename
 
     def upload_avatar(self, avatar, file_bytes, folder) -> Union[str, bool]:
@@ -81,7 +81,7 @@ class AwsSdk:
                 ContentType=content_type,
             )
 
-            portrait_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{folder}/{filename}"
+            portrait_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{folder}/{filename}" # noqa E501
             return portrait_url, filename
 
         except Exception as e:
@@ -90,8 +90,9 @@ class AwsSdk:
 
     def file_size_exceeded(self, file_bytes) -> bool:
         try:
+
             return True if len(file_bytes) > 2000000 else False
-        except:
+        except: # noqa E722
             return False
 
     def delete_file(self, folder: str, filename: str) -> None:

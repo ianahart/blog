@@ -1,6 +1,7 @@
 import typing as t
 
-from sqlalchemy.ext.declarative import as_declarative, declared_attr
+# pyright: reportMissingModuleSource=false
+from sqlalchemy.ext.declarative import as_declarative
 
 class_registry: t.Dict = {}
 
@@ -10,5 +11,5 @@ class Base:
     id: t.Any
     __name__: str
 
-    def __tablename__(cls) -> str:
+    def __tablename__(self, cls) -> str:
         return cls.__name__.lower()

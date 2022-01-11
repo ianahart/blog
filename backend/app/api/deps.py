@@ -1,15 +1,16 @@
 from typing import Generator
-from sqlalchemy.orm import Session
 
 from app.db.session import SessionLocal
 
 
 def get_db() -> Generator:
+    db = None
     try:
         db = SessionLocal()
         yield db
     finally:
-        db.close()
+        if db:
+            db.close()
 
 
 def authenticate_request():

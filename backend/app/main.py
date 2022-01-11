@@ -1,4 +1,4 @@
-from typing import Optional
+# pyright: reportMissingImports=false
 from fastapi import FastAPI
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
@@ -24,5 +24,6 @@ if settings.BACKEND_CORS_ORIGINS:
 
 if __name__ == "__main__":
     # Use this for debugging purposes only
+    # pyright: reportGeneralTypeIssues=false
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8001, log_level="debug")
