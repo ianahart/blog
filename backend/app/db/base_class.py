@@ -1,6 +1,4 @@
 import typing as t
-
-# pyright: reportMissingModuleSource=false
 from sqlalchemy.ext.declarative import as_declarative
 
 class_registry: t.Dict = {}

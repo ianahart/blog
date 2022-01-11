@@ -1,6 +1,4 @@
 
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from jose import jwt
 import time
 from sqlalchemy.orm import Session

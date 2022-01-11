@@ -1,5 +1,3 @@
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSON

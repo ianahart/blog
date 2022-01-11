@@ -1,5 +1,4 @@
 from typing import Union
-# pyright: reportMissingImports=false
 from dotenv import load_dotenv
 import boto3
 from pathlib import Path
@@ -14,7 +13,7 @@ load_dotenv()
 
 
 class AwsSdk:
-    def __init__(self, access_key: str, secret_access_key: str, bucket_name: str, region_name: str) -> None: # noqa E501
+    def __init__(self, access_key: str, secret_access_key: str, bucket_name: str, region_name: str) -> None:  # noqa E501
         self.bucket_name = bucket_name
         self.region_name = region_name
         session = boto3.Session(
@@ -63,7 +62,7 @@ class AwsSdk:
             ContentType=post_el['contentType']
         )
 
-        object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}" # noqa E501
+        object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}"  # noqa E501
         return object_url, filename
 
     def upload_avatar(self, avatar, file_bytes, folder) -> Union[str, bool]:
@@ -81,7 +80,7 @@ class AwsSdk:
                 ContentType=content_type,
             )
 
-            portrait_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{folder}/{filename}" # noqa E501
+            portrait_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{folder}/{filename}"  # noqa E501
             return portrait_url, filename
 
         except Exception as e:
@@ -92,7 +91,7 @@ class AwsSdk:
         try:
 
             return True if len(file_bytes) > 2000000 else False
-        except: # noqa E722
+        except:  # noqa E722
             return False
 
     def delete_file(self, folder: str, filename: str) -> None:

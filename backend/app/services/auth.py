@@ -1,5 +1,4 @@
 from typing import Dict
-# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm import Session
 
 
@@ -41,7 +40,7 @@ class Auth:
                 'User not found.', 'password')
             return auth_status
 
-        if security.verify_password(auth_creds['password'], user.hashed_password): # noqa E501
+        if security.verify_password(auth_creds['password'], user.hashed_password):  # noqa E501
             auth_status['data']['authenticated'] = True
             # pyright: reportGeneralTypeIssues=false
             access_token = security.create_access_token(

@@ -1,7 +1,4 @@
-from typing import Any, Optional
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form, Body
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form, Body # noqa E501
 from sqlalchemy.orm import Session
 from app.crud.crud_post import post as CRUDPost
 from app.core.auth_bearer import JWTBearer
@@ -13,7 +10,7 @@ router = APIRouter()
 
 
 @router.get('/', dependencies=[Depends(JWTBearer())])
-def get_posts(*, db:Session = Depends(deps.get_db)):
+def get_posts(*, db: Session = Depends(deps.get_db)):
     all_posts = CRUDPost.get_all_posts(db)
     return all_posts
 
@@ -41,6 +38,6 @@ async def create_post(*, db: Session = Depends(deps.get_db),
 
     if not result:
         raise HTTPException(
-            400, detail="Something went wrong creating your post. Make sure all fields are filled out.")
+            400, detail="Something went wrong creating your post. Make sure all fields are filled out.") # noqa E501
 
     return {'status': 'success', 'post': 'Blog post created'}

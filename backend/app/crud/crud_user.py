@@ -1,7 +1,5 @@
 import datetime
 from typing import Dict
-# pyright: reportMissingModuleSource=false
-# pyright: reportMissingImports=false
 from fastapi import File, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Boolean

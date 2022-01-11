@@ -1,6 +1,4 @@
 from typing import Dict, Optional
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm import Session
 from fastapi import APIRouter, HTTPException, Depends, Request
 
@@ -27,9 +25,8 @@ def logout(request: Request, db: Session = Depends(deps.get_db)):
 
 
 @router.post('/login', status_code=200)
-def login(*, db: Session = Depends(deps.get_db), credentials: schemas.auth.AuthLogin) -> Optional[Dict]: # noqa E501
+def login(*, db: Session = Depends(deps.get_db), credentials: schemas.auth.AuthLogin) -> Optional[Dict]:  # noqa E501
     auth = services.auth.authenticate(db, credentials=credentials)
-
     if not isinstance(auth['error'], type(None)):
         raise HTTPException(400, auth['error'])
 

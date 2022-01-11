@@ -1,7 +1,4 @@
 from typing import Generic, Type, TypeVar
-
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from fastapi.encoders import jsonable_encoder
 from pydantic import BaseModel
 from sqlalchemy.orm import Session

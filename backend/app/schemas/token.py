@@ -1,5 +1,4 @@
 from typing import Optional
-# pyright: reportMissingImports=false
 from pydantic import BaseModel
 
 

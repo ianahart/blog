@@ -1,6 +1,5 @@
 import os
 import secrets
-# pyright: reportMissingImports=false
 from dotenv import load_dotenv
 from pydantic import AnyHttpUrl, BaseSettings, PostgresDsn, validator
 from typing import Any, Dict, List, Optional, Union
@@ -36,7 +35,7 @@ class Settings(BaseSettings):
         )
 
     @validator("BACKEND_CORS_ORIGINS", pre=True)
-    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]: # noqa E501
+    def assemble_cors_origins(cls, v: Union[str, List[str]]) -> Union[List[str], str]:  # noqa E501
         if isinstance(v, str) and not v.startswith("["):
             return [i.strip() for i in v.split(",")]
         elif isinstance(v, (list, str)):

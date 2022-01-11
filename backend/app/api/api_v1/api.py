@@ -1,4 +1,3 @@
-# pyright: reportMissingImports=false
 from fastapi import APIRouter
 from app.api.api_v1.endpoints import user, post, auth, tag
 

@@ -1,7 +1,6 @@
 from core.config import settings
 from app import crud
 from app import schemas
-# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm import Session
 
 

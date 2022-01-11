@@ -1,19 +1,16 @@
 from typing import Any, Dict
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from fastapi import APIRouter, HTTPException, Depends, File, UploadFile
 from sqlalchemy.orm import Session
 
 from app.core.auth_bearer import JWTBearer
-from app import crud, schemas, models, utils
-from app.core.config import settings
+from app import crud, schemas, utils
 from app.api import deps
 
 router = APIRouter()
 
 
 @router.post('/', status_code=201, response_model=schemas.User)
-def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCreate) -> Any:
+def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCreate) -> Any: # noqa E401
 
     msg = ''
     for credential in user_in.credentials:
@@ -30,8 +27,8 @@ def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCrea
 
     if user:
         raise HTTPException(400,
-                            default="A user with that username already exists in our system."
-                            )
+                            default="A user with that username already exists in our system." # noqa E501
+                            ) # noqa E501
 
     user = crud.user.create(db, obj_in=user_in)
 
@@ -39,7 +36,7 @@ def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCrea
 
 
 @router.post('/exists', status_code=200)
-def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExists) -> Dict:
+def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExists) -> Dict: # noqa E501:
 
     msg = utils.validate.email(email=user_in.email)
 
@@ -54,7 +51,7 @@ def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExis
 
 
 @router.post('/verify', status_code=200)
-def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVerify) -> Dict:
+def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVerify) -> Dict: # noqa E501
 
     is_user_verified = crud.user.verify(db, obj_in=user_in)
     if not is_user_verified:
@@ -65,8 +62,10 @@ def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVeri
     return {'is_user_verified': is_user_verified}
 
 # pyright: reportGeneralTypeIssues=false
-@router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200)
-def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict: # noqa E501
+
+
+@router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200) # noqa E501
+def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict:  # noqa E501
 
     avatar_url = crud.user.upload(user_id, db, avatar)
 

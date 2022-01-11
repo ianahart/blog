@@ -1,5 +1,3 @@
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from fastapi import Request, HTTPException, Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from sqlalchemy.orm import Session

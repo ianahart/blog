@@ -1,8 +1,6 @@
 from typing import Optional, List
-#pyright: reportMissingImports=false
 from pydantic import BaseModel
 import datetime
-# Shared properties
 
 
 class UserBase(BaseModel):

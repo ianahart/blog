@@ -1,5 +1,3 @@
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from sqlalchemy import Column, Integer, String, Boolean, DateTime
 from sqlalchemy.orm import relationship
 

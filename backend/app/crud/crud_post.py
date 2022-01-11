@@ -1,7 +1,4 @@
 from typing import Dict
-
-# pyright: reportMissingImports=false
-# pyright: reportMissingModuleSource=false
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
 from app.services import aws
@@ -54,7 +51,7 @@ class CRUDPost:
                     post_el['filename'] = filename
                 except Exception:
                     raise HTTPException(
-                        500, detail='Unable to upload images in your blog post to web service.') # noqa E501 
+                        500, detail='Unable to upload images in your blog post to web service.')  # noqa E501
 
             post_in['post'].append(post_el)
 
