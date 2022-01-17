@@ -16,14 +16,15 @@ const SaveButton = ({ editorValue, handleSaveEditor }) => {
 
   const handleCloseSaveToast = () => {
     setButtonClicked(false);
-  }
+  };
 
   return (
     <Box position="relative" width="100%">
       <Collapse in={buttonClicked} animateOpacity>
         <Toast
-          handleCloseSaveToast={handleCloseSaveToast}
+          handleCloseToast={handleCloseSaveToast}
           buttonClicked={buttonClicked}
+          message="Your current post has been saved!"
         />
       </Collapse>
       <Box display="flex" alignItems="center" onClick={handleClickSave}>
@@ -31,7 +32,8 @@ const SaveButton = ({ editorValue, handleSaveEditor }) => {
         Save
       </Box>
     </Box>
-  )
-}
+  );
+};
 
 export default SaveButton;
+

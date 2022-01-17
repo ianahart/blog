@@ -19,6 +19,8 @@ class Auth:
                 'accessToken': None,
                 'userId': None,
                 'email': None,
+                'firstName': None,
+                'lastName': None,
             }
         }
 
@@ -50,10 +52,14 @@ class Auth:
             security.save_access_token(db=db,
                                        subject=user.id,
                                        access_token=access_token)
+            
+            
 
             auth_status['data']['accessToken'] = access_token
             auth_status['data']['userId'] = user.id
             auth_status['data']['email'] = user.email
+            auth_status['data']['firstName'] = user.first_name
+            auth_status['data']['lastName'] = user.last_name
 
             if user.portrait_url:
                 auth_status['data']['avatarUrl'] = user.portrait_url

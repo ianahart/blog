@@ -10,8 +10,7 @@ router = APIRouter()
 
 
 @router.post('/', status_code=201, response_model=schemas.User)
-def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCreate) -> Any: # noqa E401
-
+def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCreate) -> Any:  # noqa E401
     msg = ''
     for credential in user_in.credentials:
         credential = credential.dict()
@@ -27,8 +26,8 @@ def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCrea
 
     if user:
         raise HTTPException(400,
-                            default="A user with that username already exists in our system." # noqa E501
-                            ) # noqa E501
+                            default="A user with that username already exists in our system."  # noqa E501
+                            )  # noqa E501
 
     user = crud.user.create(db, obj_in=user_in)
 
@@ -36,7 +35,7 @@ def create_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserCrea
 
 
 @router.post('/exists', status_code=200)
-def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExists) -> Dict: # noqa E501:
+def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExists) -> Dict:  # noqa E501:
 
     msg = utils.validate.email(email=user_in.email)
 
@@ -51,7 +50,7 @@ def user_exists(*, db: Session = Depends(deps.get_db), user_in: schemas.UserExis
 
 
 @router.post('/verify', status_code=200)
-def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVerify) -> Dict: # noqa E501
+def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVerify) -> Dict:  # noqa E501
 
     is_user_verified = crud.user.verify(db, obj_in=user_in)
     if not is_user_verified:
@@ -64,7 +63,7 @@ def verify_user(*, db: Session = Depends(deps.get_db), user_in: schemas.UserVeri
 # pyright: reportGeneralTypeIssues=false
 
 
-@router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200) # noqa E501
+@router.patch('/{user_id}/avatar', dependencies=[Depends(JWTBearer())], status_code=200)  # noqa E501
 def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: UploadFile = File(...)) -> Dict:  # noqa E501
 
     avatar_url = crud.user.upload(user_id, db, avatar)
@@ -75,3 +74,25 @@ def upload_avatar(*, user_id: int, db: Session = Depends(deps.get_db), avatar: U
             'msg': 'Avatar changed',
             'avatarUrl': avatar_url
         }
+
+
+@router.patch('/{user_id}', dependencies=[Depends(JWTBearer())], status_code=200)
+def update_user(
+        *,
+        user_id: int,
+        db: Session = Depends(deps.get_db),
+        user: schemas.UserUpdateInfo):
+
+    try:
+
+        user_values = crud.user.update(user_id, db, dict(user))
+
+        if user_values[0] != 'error':
+
+            updated_attrs = dict(zip(['firstName', 'lastName'], user_values))
+            return {'msg': 'User information updated.', 'attrs': updated_attrs}
+        else:
+            raise Exception(user_values[1])
+
+    except Exception as e:
+        raise HTTPException(400, detail=str(e))

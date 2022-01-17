@@ -7,13 +7,17 @@ from app.services import aws
 from app.core.security import get_password_hash, verify_password
 from app.models.user import User
 from app.models.document import Document
-from app.schemas.user import UserCreate, UserExists, UserVerify
+from app import schemas
 from app.crud.base import CRUDBase
 
 
-class CRUDUser(CRUDBase[User, UserCreate]):
+class CRUDUser(CRUDBase[User, schemas.UserCreate]):
 
-    def verify(self, db: Session, obj_in: UserVerify) -> Boolean:
+    def __init__(self, model):
+        super().__init__(model)
+        self.error = ''
+
+    def verify(self, db: Session, obj_in: schemas.UserVerify) -> Boolean:
 
         document = db.query(Document).order_by(Document.id.desc()).first()
 
@@ -23,7 +27,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
         return False
 
-    def exists(self, db: Session, obj_in: UserExists) -> Dict:
+    def exists(self, db: Session, obj_in: schemas.UserExists) -> Dict:
 
         user = db.query(User).where(
             User.email == obj_in.email).where(
@@ -31,7 +35,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
         return True if not isinstance(user, type(None)) else False
 
-    def create(self, db: Session, *, obj_in: UserCreate) -> User:
+    def create(self, db: Session, *, obj_in: schemas.UserCreate) -> User:
 
         cred_dict = {}
 
@@ -65,7 +69,7 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
         try:
             file_bytes = avatar.file.read()
-        except: # noqa E722
+        except:  # noqa E722
             return
 
         if aws.file_size_exceeded(file_bytes):
@@ -87,9 +91,41 @@ class CRUDUser(CRUDBase[User, UserCreate]):
 
             return portrait_url
 
-        except: # noqa E722
+        except:  # noqa E722
             raise HTTPException(
-                400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg') # noqa E501
+                400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg')  # noqa E501
+
+    def update(self, user_id: int, db: Session, user: dict) -> tuple:
+
+        try:
+
+            user_obj = db.query(User).where(
+                    User.id == user_id).first()
+
+            if not user:
+                raise Exception(status_code=404, detail='This user does not exist.')
+
+            for attr, val in user.items():
+                if attr == 'password' and not isinstance(val, type(None)):
+
+                    attr = 'hashed_password'
+                    same_password = verify_password(val, user_obj.hashed_password)
+
+                    if same_password:
+                        raise Exception('Cannot use your old password for your new password.')
+
+                    val = get_password_hash(val)
+
+                setattr(user_obj, attr, val)
+
+            db.commit()
+            db.refresh(user_obj)
+
+            return (user_obj.first_name, user_obj.last_name)
+        except Exception as e:
+            e_detail = str(e)
+
+            return ('error', e_detail)
 
 
 user = CRUDUser(User)

@@ -72,7 +72,17 @@ const Sidebar = ({ isSidebarVisible,  handleSidebarClose, curWindowWidth, handle
             }
             <Box display="flex" flexDirection="column">
               <Text fontWeight="bold" color="dark.secondary">{ user.email }</Text>
-              <Text fontSize={12} color="gray.text">Admin</Text>
+              <Text fontSize={12} color="gray.secondary">Admin</Text>
+              {
+                  user?.firstName && user?.lastName &&
+                  <Box 
+                    display="flex" 
+                    flexDirection="row" 
+                    >
+                    <Text mr={1} color="gray.secondary" fontSize="12px">{ user.firstName  }</Text>
+                    <Text color="gray.secondary" fontSize="12px">{ user.lastName  }</Text>
+                  </Box>
+              }
             </Box>
             <Icon fill="green.primary" color="green.primary" as={BsFillBookmarkCheckFill}></Icon>
           </Box>
