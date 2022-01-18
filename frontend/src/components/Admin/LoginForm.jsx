@@ -6,43 +6,43 @@ import { findNeedle } from '../../misc/helpers';
 import apiRequest from '../../services/apiRequest';
 
 import {
-        Box,
-        Button,
-        FormControl,
-        FormLabel,
-        FormErrorMessage,
-        Heading,
-        Icon,
-        Input,
-        InputGroup,
-        Link
-      } from '@chakra-ui/react';
-import  { AuthContext }  from '../../contexts/AuthContext';
-
-
+  Box,
+  Button,
+  FormControl,
+  FormLabel,
+  FormErrorMessage,
+  Heading,
+  Icon,
+  Input,
+  InputGroup,
+  Link,
+} from '@chakra-ui/react';
+import { AuthContext } from '../../contexts/AuthContext';
 
 const LoginForm = () => {
   const initialState = {
     activeField: '',
     isUserVerified: false,
-  }
+  };
 
   const [state, setState] = useState(initialState);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   const {
-          user,
-          setUser,
-          credentials,
-          setCredentials,
-          validateForm,
-          emailRule,
-          handleInputChange,
-          applyErrors,
-          handleLoginSuccess,
-          clearForm }=  useContext(AuthContext);
+    user,
+    setUser,
+    credentials,
+    setCredentials,
+    validateForm,
+    emailRule,
+    handleInputChange,
+    applyErrors,
+    handleLoginSuccess,
+    clearForm,
+  } = useContext(AuthContext);
 
-  let passwordType = user.isTempVerified || user.adminExists ? 'password' : 'temp_password';
-  let password = credentials[findNeedle(credentials, passwordType, 'name')]
+  let passwordType =
+    user.isTempVerified || user.adminExists ? 'password' : 'temp_password';
+  let password = credentials[findNeedle(credentials, passwordType, 'name')];
   let email = credentials[findNeedle(credentials, 'email', 'name')];
 
   const roleText = (admin, verified, notVerified) => {
@@ -56,82 +56,110 @@ const LoginForm = () => {
 
   const verify = async (data) => {
     try {
-      const response = await apiRequest('/api/v1/users/admin/verify', data, 'POST', applyErrors);
+      const response = await apiRequest(
+        '/api/v1/users/admin/verify',
+        data,
+        'POST',
+        applyErrors
+      );
       setUser({ ...user, isTempVerified: response.data.is_user_verified });
-    } catch(e) {
-        return false;
+    } catch (e) {
+      return false;
     }
-  }
+  };
 
   const handleOnSubmit = async (e) => {
-      try {
-        clearForm(credentials);
-        validateForm(credentials);
-        if (checkErrors()) {
-          return;
-        }
-          if(!user.adminExists && !user.isTempVerified) {
-              await verify({ temp_password: password.value })
-             return
-          }
-          setUser({...user, adminExists: true });
-          await apiRequest('/api/v1/users/admin/', { credentials }, 'POST', applyErrors);
-      } catch(e) {
-        if (e) {
-          console.log('LoginForm.jsx@handleSubmit() Error:', e);
-        }
+    try {
+      clearForm(credentials);
+      validateForm(credentials);
+      if (checkErrors()) {
+        return;
       }
-  }
+      if (!user.adminExists && !user.isTempVerified) {
+        await verify({ temp_password: password.value });
+        return;
+      }
+      setUser({ ...user, adminExists: true });
+      await apiRequest(
+        '/api/v1/users/admin/',
+        { credentials },
+        'POST',
+        applyErrors
+      );
+    } catch (e) {
+      if (e) {
+        console.log('LoginForm.jsx@handleSubmit() Error:', e);
+      }
+    }
+  };
 
   const handleClick = async () => {
     try {
-        clearForm(credentials);
-        emailRule();
-        if (email.error.length) {
-          return;
-        }
-        const response =  await apiRequest('/api/v1/users/admin/exists',  { email: email.value }, 'POST', applyErrors);
-        if (response.data.user_exists) {
-          setUser({ ...user, adminExists: true });
-        }
-        setState({ ...state, isUserVerified: true });
-    } catch(e) {
+      clearForm(credentials);
+      emailRule();
+      if (email.error.length) {
         return;
+      }
+      const response = await apiRequest(
+        '/api/v1/users/admin/exists',
+        { email: email.value },
+        'POST',
+        applyErrors
+      );
+      if (response.data.user_exists) {
+        setUser({ ...user, adminExists: true });
+      }
+      setState({ ...state, isUserVerified: true });
+    } catch (e) {
+      return;
     }
-  }
+  };
 
   const login = async () => {
     try {
       clearForm(credentials);
       validateForm(credentials);
-      const response = await apiRequest('/api/v1/auth/login', { credentials }, 'POST', applyErrors);
-      console.log(response)
+      const response = await apiRequest(
+        '/api/v1/auth/login',
+        { credentials },
+        'POST',
+        applyErrors
+      );
       if (!response) {
-        return
+        return;
       }
-      handleLoginSuccess(response.data.data)
+      handleLoginSuccess(response.data.data);
 
-        navigate('/')
-    } catch(e) {
+      navigate('/');
+    } catch (e) {
       if (e) {
         console.log(e);
       }
     }
-  }
+  };
 
   const onSubmitHandler = debounce(handleOnSubmit, 200);
-  const changeHandler = debounce(value => handleInputChange(value), 50);
+  const changeHandler = debounce((value) => handleInputChange(value), 50);
   const clickHandler = debounce(handleClick, 200);
 
-  const debouncedChangeHandler = ({ target }) => changeHandler({ name:target.name, value:target.value });
-  const debouncedClickHandler = () => clickHandler()
-  const debouncedOnSubmitHandler = (e) => {e.preventDefault(); onSubmitHandler(e)}
+  const debouncedChangeHandler = ({ target }) =>
+    changeHandler({ name: target.name, value: target.value });
+  const debouncedClickHandler = () => clickHandler();
+  const debouncedOnSubmitHandler = (e) => {
+    e.preventDefault();
+    onSubmitHandler(e);
+  };
 
   useEffect(() => {
-       return () => setCredentials(['email', 'temp_password', 'password']
-       .map(cred => ({ name: cred, value: '', error: '' })))
-  }, [setCredentials])
-
+    return () =>
+      setCredentials(
+        ['email', 'temp_password', 'password'].map((cred) => ({
+          name: cred,
+          value: '',
+          error: '',
+        }))
+      );
+  }, [setCredentials]);
 
   return (
     <Box
@@ -149,7 +177,8 @@ const LoginForm = () => {
         color="dark.primary"
         letterSpacing="0"
         size="lg"
-      >Admin Login
+      >
+        Admin Login
       </Heading>
       <Box
         display="flex"
@@ -157,29 +186,25 @@ const LoginForm = () => {
         alignItems="center"
         justifyContent="center"
       >
-        <FormControl
-          isInvalid={email.error}
-          my={8}
-          id="email"
-        >
+        <FormControl isInvalid={email.error} my={8} id="email">
           <FormLabel variant="login">Username</FormLabel>
-          <InputGroup
-            display="flex"
-            flexDirection="column"
-            position="relative"
-          >
+          <InputGroup display="flex" flexDirection="column" position="relative">
             <Icon
               position="absolute"
               left="12px"
               zIndex="1"
               fontSize="1.5rem"
-              color={state.activeField === 'email' ? 'blue.light': 'gray.secondary'}
+              color={
+                state.activeField === 'email' ? 'blue.light' : 'gray.secondary'
+              }
               as={BiUser}
             />
 
             <Input
-              onFocus={(e) => setState({...state, activeField: e.target.name })}
-              onBlur={() => setState({...state, activeField: '' })}
+              onFocus={(e) =>
+                setState({ ...state, activeField: e.target.name })
+              }
+              onBlur={() => setState({ ...state, activeField: '' })}
               onChange={debouncedChangeHandler}
               name="email"
               value={email.value}
@@ -188,29 +213,24 @@ const LoginForm = () => {
               pl="35px"
               variant="minimal"
               size="sm"
-           />
-           <FormErrorMessage
-            display="flex"
-            justifyContent="center"
-            my={3}
-            >
+            />
+            <FormErrorMessage display="flex" justifyContent="center" my={3}>
               {email.error}
             </FormErrorMessage>
           </InputGroup>
         </FormControl>
-        {
-          !state.isUserVerified &&
+        {!state.isUserVerified && (
           <Box my={5} textAlign="center">
-            <Button onClick={debouncedClickHandler} variant="main">Continue</Button>
+            <Button onClick={debouncedClickHandler} variant="main">
+              Continue
+            </Button>
           </Box>
-         }
-         { state.isUserVerified &&
-          <FormControl
-            isInvalid={password.error}
-            my={8}
-            id="password"
-          >
-            <FormLabel variant="login">{roleText('Password', 'Create Password', 'Temp Password')}</FormLabel>
+        )}
+        {state.isUserVerified && (
+          <FormControl isInvalid={password.error} my={8} id="password">
+            <FormLabel variant="login">
+              {roleText('Password', 'Create Password', 'Temp Password')}
+            </FormLabel>
             <InputGroup
               display="flex"
               flexDirection="column"
@@ -221,57 +241,68 @@ const LoginForm = () => {
                 left="12px"
                 zIndex="1"
                 fontSize="1.5rem"
-                color={state.activeField === 'password' || state.activeField === 'temp_password' ? 'blue.light': 'gray.secondary'}
+                color={
+                  state.activeField === 'password' ||
+                  state.activeField === 'temp_password'
+                    ? 'blue.light'
+                    : 'gray.secondary'
+                }
                 as={BiLockAlt}
               />
               <Input
-                onFocus={(e) => setState({...state, activeField: e.target.name })}
-                onBlur={() => setState({...state, activeField: '' })}
+                onFocus={(e) =>
+                  setState({ ...state, activeField: e.target.name })
+                }
+                onBlur={() => setState({ ...state, activeField: '' })}
                 onChange={debouncedChangeHandler}
                 name={roleText('password', 'password', 'temp_password')}
                 value={password.value}
                 autoComplete="off"
-                placeholder={roleText('Type your password', 'Create your password', 'Type your temp password')}
+                placeholder={roleText(
+                  'Type your password',
+                  'Create your password',
+                  'Type your temp password'
+                )}
                 pl="35px"
                 variant="minimal"
                 size="sm"
                 type="password"
-            />
-            <FormErrorMessage
-              display="flex"
-              justifyContent="center"
-              my={3}
-            >
-              {password.error}
-            </FormErrorMessage>
+              />
+              <FormErrorMessage display="flex" justifyContent="center" my={3}>
+                {password.error}
+              </FormErrorMessage>
             </InputGroup>
           </FormControl>
-        }
+        )}
       </Box>
-        <Box mb="1rem" textAlign="right" mr="0.65rem">
-          <Link
-            as={RouterLink}
-            _hover={{ textDecoration: 'none' }}
-            color="dark.secondary"
-            fontWeight="400"
-            to="/admin/forgot-password">
-            Forgot password?
-          </Link>
+      <Box mb="1rem" textAlign="right" mr="0.65rem">
+        <Link
+          as={RouterLink}
+          _hover={{ textDecoration: 'none' }}
+          color="dark.secondary"
+          fontWeight="400"
+          to="/admin/forgot-password"
+        >
+          Forgot password?
+        </Link>
+      </Box>
+      {state.isUserVerified && !user.adminExists && (
+        <Box my={5} textAlign="center">
+          <Button type="submit" variant="main">
+            {roleText('Create', 'Create', 'Verify')}
+          </Button>
         </Box>
-        {
-          state.isUserVerified && !user.adminExists &&
-          <Box my={5} textAlign="center">
-            <Button type="submit" variant="main">{roleText('Create', 'Create', 'Verify')}</Button>
-          </Box>
-        }
-        {
-          state.isUserVerified && user.adminExists &&
-          <Box my={5} textAlign="center">
-            <Button onClick={login} type="button" variant="main">Login</Button>
-          </Box>
-        }
+      )}
+      {state.isUserVerified && user.adminExists && (
+        <Box my={5} textAlign="center">
+          <Button onClick={login} type="button" variant="main">
+            Login
+          </Button>
+        </Box>
+      )}
     </Box>
   );
-}
+};
 
 export default LoginForm;
+
