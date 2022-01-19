@@ -1,24 +1,31 @@
-import { Box, Collapse, Icon, Text } from "@chakra-ui/react";
+import { Box, Collapse, Icon, Text } from '@chakra-ui/react';
 import { BsArrowsCollapse } from 'react-icons/bs';
 import { AiOutlineTool, AiOutlineExclamationCircle } from 'react-icons/ai';
-import { useState } from "react";
-import ToolTip from "./ToolTip";
-import CoverTools from "./CoverTools";
-import EditorMenu from "./Menu";
+import { useState } from 'react';
+import ToolTip from './ToolTip';
+import CoverTools from './CoverTools';
+import TagsTool from './TagsTool';
+import TagsForm from './TagsForm';
+import EditorMenu from './Menu';
 
 const Toolbar = ({
-    children,
-    editorValue,
-    submitError,
-    handleSaveEditor,
-    handleCountText,
-    handleSubmit,
-    coverImage,
-    title,
-    handleSetCoverImage,
-    handleLSInsert,
-    handleSetTitle }) => {
+  children,
+  editorValue,
+  submitError,
+  handleSaveEditor,
+  handleCountText,
+  handleSubmit,
+  coverImage,
+  title,
+  tags,
+  handleSetCoverImage,
+  handleLSInsert,
+  handleSetTitle,
+  handleAddTag,
+  handleRemoveTag,
+}) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isTagsToolOpen, setIsTagsToolOpen] = useState(false);
   const iconStyles = {
     cursor: 'pointer',
     color: '#8d8d8f',
@@ -27,48 +34,67 @@ const Toolbar = ({
     height: '24px',
   };
 
+  const openTagsTool = () => setIsTagsToolOpen(true);
+  const closeTagsTool = () => setIsTagsToolOpen(false);
+
   return (
     <Box>
-      <Box m={1} display="flex" alignItems="center" justifyContent="space-between">
+      <Box
+        m={1}
+        display="flex"
+        alignItems="center"
+        justifyContent="space-between"
+      >
         <Box
           display="flex"
           flexDirection="column"
           justifyContent="center"
-          alignItems="flex-start">
+          alignItems="flex-start"
+        >
           <Box my={3}>
-            {submitError &&
-            <Box display="flex" alignItems="center">
-               <Icon mr={1.5} color="red" height="18px" as={AiOutlineExclamationCircle} />
-               <Text fontWeight="600" fontSize="12px" color="validationError.primary">{submitError}</Text>
-            </Box>}
+            {submitError && (
+              <Box display="flex" alignItems="center">
+                <Icon
+                  mr={1.5}
+                  color="red"
+                  height="18px"
+                  as={AiOutlineExclamationCircle}
+                />
+                <Text
+                  fontWeight="600"
+                  fontSize="12px"
+                  color="validationError.primary"
+                >
+                  {submitError}
+                </Text>
+              </Box>
+            )}
           </Box>
           <EditorMenu
             editorValue={editorValue}
             handleSubmit={handleSubmit}
             handleCountText={handleCountText}
-            handleSaveEditor={handleSaveEditor} />
+            handleSaveEditor={handleSaveEditor}
+          />
         </Box>
-        {isCollapsed ?
-          (
-            <ToolTip top="-60px" label="Show Toolbar">
-              <Icon
-                onClick={() => setIsCollapsed(false)}
-                mr={1}
-                style={iconStyles}
-                as={AiOutlineTool}>
-              </Icon>
-            </ToolTip>
-          ) :
-          (
-            <ToolTip top="-60px" label="Collapse Toolbar">
-              <Icon
-                onClick={() => setIsCollapsed(true)}
-                style={iconStyles}
-                as={BsArrowsCollapse}>
-              </Icon>
-            </ToolTip>
-          )
-        }
+        {isCollapsed ? (
+          <ToolTip top="-60px" label="Show Toolbar">
+            <Icon
+              onClick={() => setIsCollapsed(false)}
+              mr={1}
+              style={iconStyles}
+              as={AiOutlineTool}
+            ></Icon>
+          </ToolTip>
+        ) : (
+          <ToolTip top="-60px" label="Collapse Toolbar">
+            <Icon
+              onClick={() => setIsCollapsed(true)}
+              style={iconStyles}
+              as={BsArrowsCollapse}
+            ></Icon>
+          </ToolTip>
+        )}
       </Box>
       <Collapse in={!isCollapsed}>
         <Box
@@ -77,28 +103,42 @@ const Toolbar = ({
           display="flex"
           flexDirection={['column', 'column', 'row']}
           alignItems="center"
-          justifyContent="space-between">
-          <CoverTools
-            handleLSInsert={handleLSInsert}
-            coverImage={coverImage}
-            title={title}
-            handleSetCoverImage={handleSetCoverImage}
-            handleSetTitle={handleSetTitle}
-          />
+          justifyContent="space-between"
+        >
+          <Box display="flex" flexDirection="column">
+            <CoverTools
+              handleLSInsert={handleLSInsert}
+              coverImage={coverImage}
+              title={title}
+              handleSetCoverImage={handleSetCoverImage}
+              handleSetTitle={handleSetTitle}
+            />
+            {isTagsToolOpen && (
+              <TagsForm
+                tags={tags}
+                handleAddTag={handleAddTag}
+                handleRemoveTag={handleRemoveTag}
+                closeTagsTool={closeTagsTool}
+              />
+            )}
+            <TagsTool tags={tags} openTagsTool={openTagsTool} />
+          </Box>
           <Box
-            maxWidth="900px" p={0.5}
+            maxWidth="900px"
+            p={0.5}
             borderRadius="5px"
             backgroundColor="#f9f9f9"
             display="flex"
             width={['100%', '90%', '70%']}
             flexWrap="wrap"
-            alignItems="center">
-            { children }
+            alignItems="center"
+          >
+            {children}
           </Box>
-       </Box>
-     </Collapse>
+        </Box>
+      </Collapse>
     </Box>
   );
-}
+};
 
 export default Toolbar;

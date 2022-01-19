@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { Slate, Editable, withReact } from 'slate-react';
 import { createEditor, Editor, Transforms } from 'slate';
 import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
+import { nanoid } from 'nanoid';
 import {
   BiFullscreen,
   BiExitFullscreen,
@@ -49,7 +50,11 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
     JSON.parse(localStorage.getItem('editor_preview'))?.cover_image || null
   );
   const [fullScreen, setFullScreen] = useState(false);
-  const [submitError, setSubmitError] = useState(null);
+  const [postError, setPostError] = useState(null);
+  const tagState = localStorage.getItem('tags')
+    ? JSON.parse(localStorage.getItem('tags'))
+    : [];
+  const [tags, setTags] = useState(tagState);
   const [count, setCount] = useState({ words: 0, chars: 0 });
   const [editorModalOpen, setEditorModalOpen] = useState(false);
   const initialEditorState = [{ type: 'paragraph', children: [{ text: ' ' }] }];
@@ -69,12 +74,35 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
     width: '24px',
   };
 
-  const handleSaveEditor = (value) => {
-    setValue(value);
+  const handleAddTag = (value) => {
+    if (!value.trim().length) return;
+    setTags((prevState) => [...prevState, { id: nanoid(), value }]);
   };
 
-  const handleSubmitError = ({ data, status }) => {
-    setSubmitError(data.detail);
+  const handleRemoveTag = (oldTag) => {
+    const filtered = [...tags].filter(({ id }) => id !== oldTag);
+    setTags(filtered);
+  };
+
+  const handleSaveEditor = (value) => {
+    setValue(value);
+    saveTags();
+  };
+
+  const saveTags = () => {
+    localStorage.setItem('tags', JSON.stringify(tags));
+  };
+
+  const handlePostError = ({ data, status }) => {
+    setPostError(data.detail);
+  };
+
+  const handleTagError = ({ data, status }) => {
+    let errorMsg = '';
+    data.detail.forEach((error, index) => {
+      errorMsg += ` ${error.msg}`;
+    });
+    setPostError(errorMsg);
   };
 
   const getReadTime = () => {
@@ -97,6 +125,7 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
   const handlePostSuccess = () => {
     localStorage.removeItem('editor');
     localStorage.removeItem('editor_preview');
+    localStorage.removeItem('tags');
     handleActiveComp('MainView');
     handleIsLoading(false);
     navigate(`/admin/${user.userId}/dashboard`);
@@ -105,16 +134,27 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
   const handleSubmit = async (e) => {
     localStorage.removeItem('editor_cover_image');
     try {
-      setSubmitError(null);
+      setPostError(null);
       if (!title) {
-        handleSubmitError({
+        handlePostError({
           data: { detail: 'Please provide a title for your blog post.' },
           status: null,
         });
         return;
       }
+
+      if (!tags.length) {
+        handlePostError({
+          data: {
+            detail: 'Please make sure to add at least one tag',
+            status: null,
+          },
+        });
+        return;
+      }
+
       if (!coverImage) {
-        handleSubmitError({
+        handlePostError({
           data: { detail: 'Please provide a cover image for your blog post.' },
           status: null,
         });
@@ -132,14 +172,22 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
       formData.append('readtime', JSON.stringify(readTime));
       formData.append('authorid', JSON.stringify(user.userId));
 
-      const response = await apiRequest(
+      const postResponse = await apiRequest(
         '/api/v1/posts/admin/',
         formData,
         'POST',
-        handleSubmitError,
+        handlePostError,
         { 'content-type': 'multipart/form-data' }
       );
-      if (response?.status === 200) {
+
+      const tagsResponse = await apiRequest(
+        '/api/v1/tags/admin',
+        { tags, post_id: postResponse.data.post_id },
+        'POST',
+        handleTagError
+      );
+
+      if (postResponse?.status === 200) {
         handlePostSuccess();
       }
     } catch (e) {
@@ -293,14 +341,17 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
             </Box>
           </ToolTip>
           <Toolbar
+            tags={tags}
             title={title}
             editorValue={value}
-            submitError={submitError}
+            submitError={postError}
+            handleAddTag={handleAddTag}
             handleSubmit={handleSubmit}
             coverImage={coverImage?.name}
             handleSetTitle={handleSetTitle}
             handleLSInsert={handleLSInsert}
             handleCountText={handleCountText}
+            handleRemoveTag={handleRemoveTag}
             handleSaveEditor={handleSaveEditor}
             handleSetCoverImage={handleSetCoverImage}
           >

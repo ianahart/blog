@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form, Body # noqa E501
+from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form, Body  # noqa E501
 from sqlalchemy.orm import Session
 from app.crud.crud_post import post as CRUDPost
 from app.core.auth_bearer import JWTBearer
@@ -38,6 +38,6 @@ async def create_post(*, db: Session = Depends(deps.get_db),
 
     if not result:
         raise HTTPException(
-            400, detail="Something went wrong creating your post. Make sure all fields are filled out.") # noqa E501
+            400, detail="Something went wrong creating your post. Make sure all fields are filled out.")  # noqa E501
 
-    return {'status': 'success', 'post': 'Blog post created'}
+    return {'status': 'success', 'post_id': result, 'post': 'Blog post created'}

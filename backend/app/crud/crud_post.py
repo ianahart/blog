@@ -21,7 +21,7 @@ class CRUDPost:
             {'text': 'lorem ipsum3', 'id': 3}
         ]
 
-    def create_post(self, db: Session, form_data: dict, file) -> Dict:
+    def create_post(self, db: Session, form_data: dict, file):
 
         form_data = {key: json.loads(val) for key, val in form_data.items()}
         temp = {key: form_data[key] for key in [
@@ -67,8 +67,8 @@ class CRUDPost:
         )
         db.add(db_obj)
         db.commit()
-
-        return post_in
+        db.refresh(db_obj)
+        return db_obj.id
 
 
 post = CRUDPost()
