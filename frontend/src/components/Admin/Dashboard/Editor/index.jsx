@@ -3,7 +3,14 @@ import { FaParagraph } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import { Slate, Editable, withReact } from 'slate-react';
 import { createEditor, Editor, Transforms } from 'slate';
-import { useContext, useMemo, useCallback, useState, useEffect } from 'react';
+import {
+  useContext,
+  useRef,
+  useMemo,
+  useCallback,
+  useState,
+  useEffect,
+} from 'react';
 import { nanoid } from 'nanoid';
 import {
   BiFullscreen,
@@ -49,6 +56,8 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
   const [coverImage, setCoverImage] = useState(
     JSON.parse(localStorage.getItem('editor_preview'))?.cover_image || null
   );
+
+  const paperRef = useRef(null);
   const [fullScreen, setFullScreen] = useState(false);
   const [postError, setPostError] = useState(null);
   const tagState = localStorage.getItem('tags')
@@ -57,7 +66,9 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
   const [tags, setTags] = useState(tagState);
   const [count, setCount] = useState({ words: 0, chars: 0 });
   const [editorModalOpen, setEditorModalOpen] = useState(false);
-  const initialEditorState = [{ type: 'paragraph', children: [{ text: ' ' }] }];
+  const initialEditorState = [
+    { type: 'paragraph', children: [{ text: 'Get started on a blog post.' }] },
+  ];
   const [value, setValue] = useState(
     JSON.parse(localStorage.getItem('editor')) || initialEditorState
   );
@@ -187,7 +198,7 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
         handleTagError
       );
 
-      if (postResponse?.status === 200) {
+      if (postResponse?.status === 200 && tagsResponse?.status === 201) {
         handlePostSuccess();
       }
     } catch (e) {
@@ -463,13 +474,28 @@ const BlogEditor = ({ handleActiveComp, handleIsLoading }) => {
             backgroundColor="gray.outline"
             mb={3}
           ></Box>
-          <Box p={3}>
-            {fullScreen && <HoverToolbar />}
-            <Editable
-              placeholder="Get started on your blog post"
-              renderElement={renderElement}
-              renderLeaf={renderLeaf}
-            />
+          <Box
+            position="relative"
+            ref={paperRef}
+            maxHeight="600px"
+            overflowY="auto"
+            css={{
+              '&::-webkit-scrollbar': {
+                width: '8px',
+              },
+              '&::-webkit-scrollbar-track': {
+                width: '10px',
+                backgroundColor: '#BBBABD',
+              },
+              '&::-webkit-scrollbar-thumb': {
+                background: '#05b4da',
+                borderRadius: '24px',
+              },
+            }}
+            p={3}
+          >
+            {fullScreen && <HoverToolbar paperRef={paperRef} />}
+            <Editable renderElement={renderElement} renderLeaf={renderLeaf} />
           </Box>
         </Slate>
       </Box>

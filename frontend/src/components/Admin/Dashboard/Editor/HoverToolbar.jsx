@@ -9,7 +9,7 @@ import {
 } from 'react-icons/ai';
 import { Box } from '@chakra-ui/react';
 
-const HoverToolbar = () => {
+const HoverToolbar = ({ paperRef }) => {
   const btnStyles = {
     active: {
       backgroundColor: '#048BA8',
@@ -43,12 +43,13 @@ const HoverToolbar = () => {
       el.removeAttribute('style');
       return;
     }
-
     const domSelection = window.getSelection();
     const domRange = domSelection.getRangeAt(0);
     const rect = domRange.getBoundingClientRect();
     el.style.opacity = '1';
-    el.style.top = `${rect.top - el.offsetHeight - 85}px`;
+    el.style.top = `${
+      rect.top + paperRef.current.scrollTop - el.offsetHeight - 300
+    }px`;
     el.style.left = `${
       rect.left + window.pageXOffset - el.offsetWidth / 2 + rect.width / 2
     }px`;
