@@ -1,64 +1,64 @@
-import { extendTheme } from '@chakra-ui/react'
+import { extendTheme } from '@chakra-ui/react';
 import Input from './input';
 import Button from './button';
 import FormLabel from './formLabel';
 
 const customTheme = extendTheme({
-    components: {
-        Link:  { baseStyle: { _focus: { boxShadow: 'none' } } },
-        Input,
-        Button,
-        FormLabel,
+  components: {
+    Link: { baseStyle: { _focus: { boxShadow: 'none' } } },
+    Input,
+    Button,
+    FormLabel,
+  },
+  shadows: {
+    black: '0 3px 15px rgb(0 0 0 / 20%);',
+    outline: 'none',
+  },
+  colors: {
+    light: {
+      primary: '#EEEEEE',
+      hover: '#dedcdc',
     },
-    shadows: {
-        black: '0 3px 15px rgb(0 0 0 / 20%);'
+    dark: {
+      primary: '#4c4b4b',
+      secondary: '#686D76',
+      primaryHover: '#2c2e33',
+      secondaryHover: '#5a5e66',
     },
-    colors: {
-        light: {
-            primary: '#EEEEEE',
-            hover: '#dedcdc',
-        },
-        dark: {
-            primary: '#4c4b4b',
-            secondary: '#686D76',
-            primaryHover: '#2c2e33',
-            secondaryHover: '#5a5e66',
-        },
-        gray: {
-            primary: '#544f47',
-            secondary: '#8d8d8f',
-            outline: '#e3e2e2',
-            text: '#d3cece'
-        },
+    gray: {
+      primary: '#544f47',
+      secondary: '#8d8d8f',
+      outline: '#e3e2e2',
+      text: '#d3cece',
+    },
 
-        green: {
-            primary: '#16DB93'
-        },
-        pink: {
-            primary: "#A4036F"
-        },
-        orange: {
-            primary: 'F29E4C',
-        },
-        yellow: {
-            primary: '#EFEA5A',
-        },
-        blue: {
-            primary: '#048BA8',
-            primaryHover: '#2583c2',
-            light: '#00A8CC',
-            secondary: '#05b4da',
-            secondaryHover: '#8eb7d1',
-        },
-        validationError: {
-            primary: '#ababab',
-        }
-
+    green: {
+      primary: '#16DB93',
     },
-    fontSizes: {
-        xxs: '0.625rem'
+    pink: {
+      primary: '#A4036F',
     },
-    space: {
+    orange: {
+      primary: 'F29E4C',
+    },
+    yellow: {
+      primary: '#EFEA5A',
+    },
+    blue: {
+      primary: '#048BA8',
+      primaryHover: '#2583c2',
+      light: '#00A8CC',
+      secondary: '#05b4da',
+      secondaryHover: '#8eb7d1',
+    },
+    validationError: {
+      primary: '#ababab',
+    },
+  },
+  fontSizes: {
+    xxs: '0.625rem',
+  },
+  space: {
     px: '1px',
     0.5: '0.125rem',
     1: '0.25rem',
@@ -92,15 +92,14 @@ const customTheme = extendTheme({
     72: '18rem',
     80: '20rem',
     96: '24rem',
-    },
-    fonts: {
-        heading: 'Readex Pro',
-        body: 'Roboto Condensed',
+  },
+  fonts: {
+    heading: 'Readex Pro',
+    body: 'Roboto Condensed',
   },
 });
 
-export default customTheme
-
+export default customTheme;
 
 // blue
 // #05B4DA
@@ -112,3 +111,4 @@ export default customTheme
 
 // gray light
 // #DEDCDC
+

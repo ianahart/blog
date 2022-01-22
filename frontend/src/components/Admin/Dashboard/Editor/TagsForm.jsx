@@ -46,6 +46,7 @@ const TagsForm = ({ tags, closeTagsTool, handleAddTag, handleRemoveTag }) => {
         style.width = '100%';
         style.backgroundColor = '#8f8e8e';
         break;
+      default:
     }
     return style;
   };
@@ -96,7 +97,7 @@ const TagsForm = ({ tags, closeTagsTool, handleAddTag, handleRemoveTag }) => {
                 width="80%"
                 id="tags"
                 type="text"
-                placeHolder="tags..."
+                placeholder="tags..."
                 value={value}
                 onChange={handleOnChange}
               />

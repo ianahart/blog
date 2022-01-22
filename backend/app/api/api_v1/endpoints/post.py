@@ -1,4 +1,4 @@
-from fastapi import APIRouter, File, UploadFile, HTTPException, Depends, Form, Body  # noqa E501
+from fastapi import APIRouter, Header, File, UploadFile, HTTPException, Depends, Form, Body  # noqa E501
 from sqlalchemy.orm import Session
 from app.crud.crud_post import post as CRUDPost
 from app.core.auth_bearer import JWTBearer
@@ -9,10 +9,21 @@ from app import schemas
 router = APIRouter()
 
 
-@router.get('/', dependencies=[Depends(JWTBearer())])
-def get_posts(*, db: Session = Depends(deps.get_db)):
-    all_posts = CRUDPost.get_all_posts(db)
-    return all_posts
+@router.get('/admin/', dependencies=[Depends(JWTBearer())],
+            response_model=schemas.PostPreviewOut)
+def get_posts(*, db: Session = Depends(deps.get_db),
+              authorization: str = Header(None),
+              q_string: schemas.PostPreviewIn = Depends()):
+
+    data = CRUDPost.retrieve_all_posts(db, q_string, authorization)
+
+    if isinstance(data, dict):
+
+        if 'error' in data:
+
+            detail = data['error']
+            raise HTTPException(status_code=404, detail=detail)
+    return {'posts': data['posts'], 'pagination': data['pagination']}
 
 
 @router.post('/admin/', dependencies=[Depends(JWTBearer())], status_code=200)

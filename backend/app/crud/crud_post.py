@@ -1,25 +1,110 @@
-from typing import Dict
+from sqlalchemy.orm import load_only
+from typing import Dict, Any, Tuple, List
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
-from app.services import aws
+from app import schemas
 from fastapi import HTTPException
 from app.utils import string_util
+from app.core import config
+from app.services import aws
+from jose import jwt
 import json
 import datetime
 
 
 class CRUDPost:
-    def get_all_posts(self, db: Session):
+    def retrieve_all_posts(self, db: Session, q_str: schemas.PostPreviewIn, authorization: str) -> Dict:
 
-        # posts = db.query(Post).all()
-        # for row in posts:
-        #     print(row.author.email)
+        try:
 
-        return [
-            {'text': 'lorem ipsum1', 'id': 1},
-            {'text': 'lorem ipsum2', 'id': 2},
-            {'text': 'lorem ipsum3', 'id': 3}
-        ]
+            access_token = authorization.split(' ')[1]
+            decoded_token = jwt.decode(
+                access_token,
+                config.settings.JWT_SECRET,
+                config.settings.ALGORITHM, options={'verify_aud': False}
+            )
+
+        except Exception as e:
+            return {'error': 'Bearer Token is invalid'}
+
+        try:
+
+            q_str, order = self.paginate(q_str)
+
+            rows = db.query(Post).options(
+                    load_only(
+                        'id',
+                        'title',
+                        'slug',
+                        'read_time',
+                        'author_id',
+                        'created_at',
+                        'cover_image_path',
+                    )) \
+                .filter_by(author_id=decoded_token['sub']) \
+                .order_by(order) \
+                .slice(q_str.start, q_str.end)
+
+            if rows.first() is None:
+                raise Exception('All posts have been loaded.')
+
+            previews = self.create_previews(rows)
+            return {'posts': previews, 'pagination': q_str}
+        except Exception as e:
+
+            e_detail = str(e)
+            return {'error': e_detail}
+
+    def create_previews(self, rows) -> List:
+
+        previews = []
+
+        for row in rows:
+            row.portrait_url = row.author.portrait_url
+
+            if row.author.first_name is not None and row.author.last_name is not None:
+                row.author_name = row.author.first_name + ' ' + row.author.last_name
+            row.title = row.title.title()
+
+            if row.tag.text.count('|') > 0:
+                tags = row.tag.text.split('|')
+                row.tag.text = [tag.title() for tag in tags]
+                row = row.__dict__
+
+            for col in row:
+                if '_sa_' not in col:
+                    if col == 'created_at':
+                        row[col] = row[col].strftime("%b %d '%y")
+
+            previews.append(row)
+
+        return previews
+
+    def paginate(self, q_str) -> Tuple[Any, schemas.PostPreviewIn]:
+        order = None
+
+        if q_str.tab == 'top':
+            order = Post.title.asc()
+        elif q_str.tab == 'relevant':
+            order = Post.created_at.asc()
+        else:
+            # default latest tab
+            order = Post.created_at.desc()
+
+        if q_str.direction == 'prev':
+            q_str.page = q_str.page - 1
+            q_str.end = q_str.start
+            q_str.start = q_str.end - q_str.limit
+        else:
+            if q_str.direction != 'initial_load':
+                q_str.page = q_str.page + 1
+                q_str.start = q_str.end
+            else:
+                q_str.start = 0
+                q_str.page = 1
+            q_str.end = q_str.start + q_str.limit
+
+        return q_str, order
 
     def create_post(self, db: Session, form_data: dict, file):
 
@@ -58,7 +143,7 @@ class CRUDPost:
         db_obj = Post(
             author_id=int(post_in['author_id']),
             created_at=datetime.datetime.now(),
-            title=post_in['title'],
+            title=post_in['title'].title(),
             slug=string_util.slugify(post_in['title']),
             cover_image_filename=post_in['cover_file']['filename'],
             cover_image_path=post_in['cover_file']['url'],

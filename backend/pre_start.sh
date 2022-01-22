@@ -4,13 +4,13 @@
 
 #1) # Run below first if there are no versions in alembic folder to generate one
 #Create revision file
-         PYTHONPATH=/app alembic revision --autogenerate -m "initial revision"
+          PYTHONPATH=/app alembic revision --autogenerate -m "initial revision"
 
     ######################### STOP ##################################
     ######################## COMMENT OUT 1.)###############################
 
 #2.)# Let the DB start
-        #   PYTHONPATH=./app/backend_pre_start.py
+           PYTHONPATH=./app/backend_pre_start.py
 
 
 
