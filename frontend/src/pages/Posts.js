@@ -1,7 +1,8 @@
+import Previews from '../components/Posts/Previews';
+
 const Posts = () => {
-  return (
-    <h1>Posts</h1>
-  )
-}
+  return <Previews previewLink="/posts/" />;
+};
 
 export default Posts;
+

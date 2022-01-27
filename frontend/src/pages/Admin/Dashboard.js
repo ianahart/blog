@@ -4,7 +4,7 @@ import Header from '../../components/Admin/Dashboard/Header/index.jsx';
 import Sidebar from '../../components/Admin/Dashboard/Sidebar/index.jsx';
 import MainView from '../../components/Admin/Dashboard/MainView.jsx';
 import BlogEditor from '../../components/Admin/Dashboard/Editor/index.jsx';
-import Previews from '../../components/Admin/Dashboard/Posts/Previews/index.jsx';
+import AdminPreviews from '../../components/Admin/Dashboard/Posts/Previews/index.jsx';
 import Settings from '../../components/Admin/Dashboard/Settings/index.jsx';
 import Spinner from '../../components/Mixed/Spinner.jsx';
 
@@ -44,8 +44,8 @@ const Dashboard = () => {
     switch (activeComp) {
       case 'MainView':
         return <MainView />;
-      case 'Previews':
-        return <Previews />;
+      case 'AdminPreviews':
+        return <AdminPreviews />;
       case 'BlogEditor':
         return (
           <BlogEditor

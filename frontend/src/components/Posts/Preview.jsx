@@ -10,14 +10,13 @@ import {
 } from '@chakra-ui/react';
 import { BsFillHeartFill } from 'react-icons/bs';
 import { Link as RouterLink } from 'react-router-dom';
-const Preview = ({ previewData }) => {
+const Preview = ({ previewData, previewLink }) => {
   const prefersReducedMotion = usePrefersReducedMotion();
 
   const fade = keyframes`
     from { transform: translateX(-150px) }
     to { transform: translateX(0px)}
     `;
-
   const animation = prefersReducedMotion ? undefined : `${fade} 1s`;
   const author = previewData?.author_name
     ? previewData.author_name
@@ -57,7 +56,7 @@ const Preview = ({ previewData }) => {
         <Link
           as={RouterLink}
           _hover={{ textDecoration: 'none' }}
-          to={`/admin/${previewData.author_id}/post/${previewData.slug}`}
+          to={previewLink}
         >
           <Box
             borderRadius={8}

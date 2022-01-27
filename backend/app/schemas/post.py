@@ -84,6 +84,9 @@ class PostPreviewIn(BaseModel):
             raise ValueError('tab may only consist of alpha characters.')
         return v
 
+class AdminPostPreviewIn(BaseModel):
+    size: int = 0
+    total: int = 0
 
 class PostJsonType(BaseModel):
     type: str

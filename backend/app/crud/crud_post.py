@@ -13,19 +13,7 @@ import datetime
 
 
 class CRUDPost:
-    def retrieve_all_posts(self, db: Session, q_str: schemas.PostPreviewIn, authorization: str) -> Dict:
-
-        try:
-
-            access_token = authorization.split(' ')[1]
-            decoded_token = jwt.decode(
-                access_token,
-                config.settings.JWT_SECRET,
-                config.settings.ALGORITHM, options={'verify_aud': False}
-            )
-
-        except Exception as e:
-            return {'error': 'Bearer Token is invalid'}
+    def retrieve_all_posts(self, db: Session, q_str: schemas.PostPreviewIn) -> Dict:
 
         try:
 
@@ -41,7 +29,6 @@ class CRUDPost:
                         'created_at',
                         'cover_image_path',
                     )) \
-                .filter_by(author_id=decoded_token['sub']) \
                 .order_by(order) \
                 .slice(q_str.start, q_str.end)
 
@@ -154,6 +141,42 @@ class CRUDPost:
         db.commit()
         db.refresh(db_obj)
         return db_obj.id
+
+    def retrieve_admin_posts(self,
+                             db: Session,
+                             user_id: int,
+                             authorization: str,
+                             q_string: schemas.AdminPostPreviewIn
+                             ):
+        try:
+
+            access_token = authorization.split(' ')[1]
+            decoded_token = jwt.decode(
+                access_token,
+                config.settings.JWT_SECRET,
+                config.settings.ALGORITHM, options={'verify_aud': False}
+            )
+
+        except ValueError:
+            return {'error': 'Bearer token is invalid.', 'status_code': 403}
+
+        if user_id != int(decoded_token['sub']):
+            return {'error': 'User is not authorized for this action.', 'status_code': 403}
+
+        start = q_string.total
+        end = q_string.total + q_string.size
+
+        rows = db.query(Post) \
+            .filter_by(author_id=decoded_token['sub']) \
+            .order_by(Post.created_at.desc()) \
+            .slice(start, end)
+
+        if rows.first() is None:
+            return {'error': 'All posts have been loaded.', 'status_code': 404}
+
+        previews = self.create_previews(rows)
+
+        return {'posts': previews, 'pagination': q_string}
 
 
 post = CRUDPost()

@@ -39,7 +39,7 @@ const Sidebar = ({
       to: `/admin/${user.userId}/your-posts`,
       label: 'Your Posts',
       icon: FiFileText,
-      comp: 'Previews',
+      comp: 'AdminPreviews',
     },
     {
       to: `/admin/${user.userId}/editor`,
