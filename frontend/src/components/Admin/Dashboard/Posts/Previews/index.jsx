@@ -6,7 +6,6 @@ import {
   SliderTrack,
   SliderFilledTrack,
   SliderThumb,
-  SliderMark,
 } from '@chakra-ui/react';
 import { useContext, Fragment, useEffect, useState, useCallback } from 'react';
 import { useParams } from 'react-router-dom';
@@ -24,11 +23,6 @@ const AdminPreviews = () => {
     isLoading: false,
   });
   const params = useParams();
-  const handleFetchErrors = ({ data, status }) => {
-    if (status !== 403) {
-      setState((prevState) => ({ ...prevState, error: data.detail }));
-    }
-  };
 
   const loadAdminPreviews = useCallback(async () => {
     try {
@@ -150,7 +144,13 @@ const AdminPreviews = () => {
         {state.previews.length ? (
           <Fragment>
             {state.previews.map((preview) => {
-              return <Preview previewLink={`/admin/${preview.author_id}/posts/${preview.slug}`} key={preview.id} previewData={preview} />;
+              return (
+                <Preview
+                  previewLink={`/admin/${preview.author_id}/posts/${preview.slug}-${preview.id}`}
+                  key={preview.id}
+                  previewData={preview}
+                />
+              );
             })}
           </Fragment>
         ) : (

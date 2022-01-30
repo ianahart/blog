@@ -1,8 +1,10 @@
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple
 from pydantic import BaseModel, validator
 import datetime
 import json
+import re
 
+from pydantic.typing import NoneType
 
 class PostBase(BaseModel):
     id: Optional[int] = None
@@ -15,6 +17,42 @@ class PostBase(BaseModel):
     content: Optional[str] = None
     read_time: Optional[str] = None
 
+
+class GetPostOutChild(BaseModel):
+    author: dict
+    author_id: int
+    content: Dict[str, List]
+    cover_image_filename: Optional[str] = None
+    cover_image_path: Optional[str] = None
+    created_at: str
+    is_edited: Optional[bool] = None
+    id: int
+    read_time: str
+    slug: str
+    tags: List[str]
+    tag_id: int
+    title: str
+
+
+class GetPostOut(BaseModel):
+    status: str
+    retrieved_post: GetPostOutChild
+
+    class Config:
+        orm_mode = True
+
+
+class GetPostIn(BaseModel):
+    slug: str
+
+    @validator('slug')
+    def slug_is_only_numbers_letters_hyphens(cls, v):
+        matched = re.match(r"/^[0-9A-Za-z\s\- ] +$/")
+        matched = bool(matched)
+
+        if matched:
+            raise ValueError('Malformed slug in the Url')
+        return v
 
 class PostPreviewGrandChild(BaseModel):
     id: Optional[int] = None
@@ -98,11 +136,29 @@ class PostJsonType(BaseModel):
     caption: Optional[str] = None
     contentType: Optional[str] = None
     readtime: Optional[str] = None
+    tags: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True
 
 class NewPost(BaseModel):
+    post: List[PostJsonType]
+
+    @ classmethod
+    def __get_validators__(cls):
+        yield cls.validate_to_json
+
+    @ classmethod
+    def validate_to_json(cls, value):
+        if isinstance(value, List):
+            # pyright: reportGeneralTypeIssues=false
+            return cls(**json.loads(value))
+        return value
+
+    class Config:
+        orm_mode = True
+
+class PostUpdate(BaseModel):
     post: List[PostJsonType]
 
     @ classmethod

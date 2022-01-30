@@ -1,11 +1,11 @@
 from app.models import Tag
 from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
+from app import schemas
 import datetime
 
 class CRUDTag(CRUDBase):
     def create_tags(self, db: Session, data):
-
         tags = ''
 
         for key, inner in data:
@@ -29,6 +29,33 @@ class CRUDTag(CRUDBase):
         except Exception as e:
             e_detail = str(e)
 
-            return {'error': e_detail}
+            return {'error': e_detail, 'status': 500}
+
+    def update_tags(self, tag_id: int, db: Session, data: schemas.UpdateTag):
+        try:
+            text = ''
+
+            for key, inner in enumerate(data.tags):
+                value = inner.value.strip()
+                tag = f'{value}'.strip() if key == 0 else f'|{value}'
+                text += tag
+
+            updated = db.query(Tag) \
+                .where(Tag.id == tag_id) \
+                .where(Tag.post_id == int(data.post_id)) \
+                .update(
+                    {
+                        'post_id': int(data.post_id),
+                        'created_at': datetime.datetime.utcnow(),
+                        'text': text,
+                    }
+            )
+            db.commit()
+
+            return {'data': updated}
+        except Exception as e:
+            return {
+                'error': 'Unable to update the post tags',
+                'status': 500}
 
 tag = CRUDTag(Tag)

@@ -2,7 +2,7 @@ import { Box, Text } from '@chakra-ui/react';
 import { Fragment, useEffect, useState } from 'react';
 import apiRequest from '../../services/apiRequest.js';
 import Preview from './Preview';
-import Header from './Header';
+import PreviewHeader from './PreviewHeader';
 import Spinner from '../Mixed/Spinner';
 import Pagination from './Pagination.jsx';
 
@@ -118,7 +118,7 @@ const Previews = () => {
       minHeight="100vh"
     >
       <Box py={2} width={['100%', '650px', '650px']} height="max-content">
-        <Header
+        <PreviewHeader
           curPreviewTab={curPreviewTab}
           handleCurPreviewTab={handleCurPreviewTab}
         />
@@ -134,7 +134,7 @@ const Previews = () => {
             {previewData.map((preview) => {
               return (
                 <Preview
-                  previewLink={`/posts/${preview.slug}`}
+                  previewLink={`/posts/${preview.slug}-${preview.id}`}
                   key={preview.id}
                   authenticated={false}
                   previewData={preview}

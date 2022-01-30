@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
 from sqlalchemy.dialects.postgresql import JSON
 from sqlalchemy.ext.mutable import MutableDict
@@ -9,7 +9,8 @@ from app.db.base_class import Base
 class Post(Base):  # type: ignore
     __tablename__ = 'post'
     id = Column(Integer, primary_key=True, index=True)
-    author_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    author_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
+    is_edited = Column(Boolean, nullable=True, default=0)
     created_at = Column(DateTime, nullable=False)
     title = Column(String, nullable=True)
     slug = Column(String(256), nullable=True)

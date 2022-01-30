@@ -14,5 +14,5 @@ class Token(Base):
     token_valid_from = Column(DateTime, nullable=True)
     token_valid_to = Column(DateTime, nullable=True)
     access_token = Column(String, nullable=True)
-    user_role_id = Column(Integer, ForeignKey('user.id'), nullable=False)
+    user_role_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), nullable=False)
     user = relationship('User', back_populates='token')

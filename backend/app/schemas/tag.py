@@ -28,3 +28,24 @@ class AddTag(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UpdateTagChild(BaseModel):
+    id: str
+    value: str
+
+    @validator('value')
+    def tag_is_only_letters(cls, v):
+        if not all(s.isalpha() or s.isspace() for s in v):
+            raise ValueError('A tag may only consist of letters.')
+        elif len(v) > 75:
+            raise ValueError('A tag may not exceed 75 characters.')
+        return v.title()
+
+
+class UpdateTag(BaseModel):
+    tags: List[UpdateTagChild]
+    post_id: int
+
+    class Config:
+        orm_mode = True

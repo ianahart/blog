@@ -97,7 +97,7 @@ const Preview = ({ previewData, previewLink }) => {
             ></Box>
           </Box>
         </Link>
-        {previewData.tag.text.length
+        {previewData.tag?.text?.length
           ? previewData.tag.text.map((text, index) => {
               return (
                 <Box

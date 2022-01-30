@@ -10,7 +10,7 @@ from app.db.base_class import Base
 class Tag(Base):
     __tablename__ = 'tag'
     id = Column(Integer, primary_key=True, index=True)
-    post_id = Column(Integer, ForeignKey('post.id'), nullable=False)
+    post_id = Column(Integer, ForeignKey('post.id', ondelete="CASCADE"), nullable=False)
     created_at = Column(DateTime, nullable=False)
     text = Column(String(256), nullable=True)
     category = Column(String(256), nullable=True)

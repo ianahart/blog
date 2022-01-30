@@ -1,5 +1,5 @@
 import { Box, Button, Image } from '@chakra-ui/react';
-const Header = ({ curPreviewTab, handleCurPreviewTab }) => {
+const PreviewHeader = ({ curPreviewTab, handleCurPreviewTab }) => {
   const linksMap = {
     relevant: {
       src: 'https://ianblog.s3.amazonaws.com/static/preview-1.jpeg',
@@ -63,4 +63,4 @@ const Header = ({ curPreviewTab, handleCurPreviewTab }) => {
   );
 };
 
-export default Header;
+export default PreviewHeader;

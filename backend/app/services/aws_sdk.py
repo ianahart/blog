@@ -1,4 +1,5 @@
 from typing import Union
+import botocore
 from dotenv import load_dotenv
 import boto3
 from pathlib import Path
@@ -29,7 +30,6 @@ class AwsSdk:
         if isinstance(file['url'], str):
             url = base64.b64decode(
                 file['url'].split(';base64,')[1])
-
         return file['url'] if url is None else url
 
     def create_filename(self, file: dict) -> str:
@@ -46,7 +46,6 @@ class AwsSdk:
         return f'{identifier}.{ext}'
 
     def upload_file(self, post_el: dict):
-
         try:
             post_el['url'] = self.file_decoding(post_el)
 
@@ -54,12 +53,14 @@ class AwsSdk:
             TypeError('Invalid image')
 
         filename = self.create_filename(post_el)
+        filename = filename.replace('"', '')
+        content_type = post_el['contentType'].replace('"', '')
         # pyright: reportGeneralTypeIssues=false
         obj = self.s3.Object(self.bucket_name, filename)
         obj.put(
             Body=post_el['url'],
             ACL='public-read',
-            ContentType=post_el['contentType']
+            ContentType=content_type
         )
 
         object_url = f"https://{self.bucket_name}.s3.{self.region_name}.amazonaws.com/{filename}"  # noqa E501
@@ -95,9 +96,25 @@ class AwsSdk:
             return False
 
     def delete_file(self, folder: str, filename: str) -> None:
-        if len(folder):
-            self.s3.Object(self.bucket_name, f'{folder}/{filename}').delete()
+        try:
+            if len(folder):
+                self.s3.Object(self.bucket_name, f'{folder}/{filename}').delete()
+            else:
+                self.s3.Object(self.bucket_name, f'{filename}').delete()
+        except Exception as e:
+            print(e)
 
+    def get_file(self, filename: str):
+        try:
+            bucket = self.s3.Bucket(self.bucket_name)
+
+            for obj in bucket.objects.all():
+
+                if obj.key == filename:
+                    return filename
+        except botocore.exceptions.ClientError as e:
+            print(e)
+            return None
 
 aws = AwsSdk(
     os.getenv('AWS_ACCESS_KEY_ID'),

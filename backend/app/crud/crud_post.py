@@ -1,9 +1,11 @@
-from sqlalchemy.orm import load_only
+import uuid
+from sqlalchemy.orm import load_only, joinedload
 from typing import Dict, Any, Tuple, List
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
 from app import schemas
 from fastapi import HTTPException
+from fastapi.encoders import jsonable_encoder
 from app.utils import string_util
 from app.core import config
 from app.services import aws
@@ -43,26 +45,23 @@ class CRUDPost:
             return {'error': e_detail}
 
     def create_previews(self, rows) -> List:
-
         previews = []
-
         for row in rows:
             row.portrait_url = row.author.portrait_url
-
             if row.author.first_name is not None and row.author.last_name is not None:
                 row.author_name = row.author.first_name + ' ' + row.author.last_name
             row.title = row.title.title()
-
-            if row.tag.text.count('|') > 0:
-                tags = row.tag.text.split('|')
-                row.tag.text = [tag.title() for tag in tags]
-                row = row.__dict__
-
+            if row.tag is not None:
+                if row.tag.text.count('|') > 0:
+                    tags = row.tag.text.split('|')
+                    row.tag.text = [tag.title() for tag in tags]
+                else:
+                    row.tag.text = [row.tag.text.title()]
+            row = row.__dict__
             for col in row:
                 if '_sa_' not in col:
                     if col == 'created_at':
                         row[col] = row[col].strftime("%b %d '%y")
-
             previews.append(row)
 
         return previews
@@ -173,10 +172,129 @@ class CRUDPost:
 
         if rows.first() is None:
             return {'error': 'All posts have been loaded.', 'status_code': 404}
-
         previews = self.create_previews(rows)
 
         return {'posts': previews, 'pagination': q_string}
 
+    def retrieve_post(self, path: str, db: Session) -> Dict:
+
+        post_id = path.split('-')[-1]
+        slug = '-'.join(path.split('-')[0:-1])
+
+        if isinstance(post_id, type(None)):
+            return {
+                'error': 'Malformed segement in Url path.',
+                'status_code': 400
+            }
+        else:
+            post_id = int(post_id)
+
+        try:
+            post = db.query(Post) \
+                .options(joinedload('author')
+                         .load_only('first_name', 'last_name', 'portrait_url')) \
+                .where(Post.id == post_id) \
+                .where(Post.slug == slug)\
+                .first()
+
+            if not post or isinstance(post, type(None)):
+                return {
+                    'error': 'Could not find post',
+                    'status': 404
+                }
+
+            content = []
+
+            for node in post.content['post']:
+                if node['type'] == 'image':
+                    node['edit_marker'] = uuid.uuid4()
+                content.append(node)
+
+            post.content['post'] = content
+            post.tag_id = post.tag.id
+            post.tags = post.tag.text.split('|')
+            post.created_at = post.created_at.strftime("%b %d %Y")
+            return {'post': post}
+
+        except Exception:
+            return {
+                'error': 'Unable to complete request',
+                'status': 500
+            }
+
+    def update_post(self, db: Session, form: Dict, post_id: int):
+        try:
+            cover = {'url': '', 'filename': '', 'contentType': ''}
+            cur_post = db.query(Post).where(Post.id == post_id).first()
+            tag_id = cur_post.tag.id
+
+            if not cur_post or isinstance(cur_post, type(None)):
+                return {
+                    'error':
+                    'Unable to find your post to update.',
+                    'status': 404
+                }
+
+            cur_post = jsonable_encoder(cur_post)
+
+        except Exception as e:
+            print(e)
+            return {'error': 'You provided the wrong post', 'status': 400}
+
+        title = form['title'].replace('"', '').lower().split(' ')
+        slug = ''
+        for index, word in enumerate(title):
+            if index == 0:
+                slug += f'{word}'
+            else:
+                slug += f'-{word}'
+
+        if isinstance(form['file'], type(None)):
+            cover['url'] = cur_post['cover_image_path']
+            cover['filename'] = cur_post['cover_image_filename']
+        else:
+            form['url'] = form['file'].file.read()
+            [object_url, filename] = aws.upload_file(form)
+            if object_url and filename:
+                cover['url'] = object_url
+                cover['filename'] = filename
+                aws.delete_file('', cur_post['cover_image_filename'])
+
+        new_nodes = [node for node in json.loads((form['post'])) if node['type'] == 'image']
+        cur_nodes = [node for node in cur_post['content']['post'] if node['type'] == 'image']
+
+        new_urls = [new_node['url'] for new_node in new_nodes]
+        new_filenames = [new_node['filename'] for new_node in new_nodes]
+
+        for index, cur_node in enumerate(cur_nodes):
+            if cur_node['url'] not in new_urls:
+                filename = aws.get_file(cur_node['filename'])
+                if filename:
+                    aws.delete_file('', filename)
+            elif cur_node['filename'] in new_filenames:
+                new_filenames.remove(cur_node['filename'])
+
+        updated_content = []
+        for index, node in enumerate(json.loads((form['post']))):
+            if node['type'] == 'image' and node['filename'] in new_filenames:
+                [object_url, filename] = aws.upload_file(node)
+                node['url'] = object_url
+                node['filename'] = filename
+            updated_content.append(node)
+        try:
+            db.query(Post).where(Post.id == post_id).update({
+                'created_at': datetime.datetime.utcnow(),
+                'author_id': int(form['author_id']),
+                'slug': slug,
+                'cover_image_filename': cover['filename'],
+                'cover_image_path': cover['url'],
+                'content': {'post': updated_content},
+                'read_time': form['read_time']
+            })
+            db.commit()
+            return {'tag_id': tag_id}
+        except Exception as e:
+            print(e)
+            return {'error': 'Unable to update your blog post at this time.', 'status': 500}
 
 post = CRUDPost()
