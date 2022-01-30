@@ -75,6 +75,17 @@ async def create_post(*, db: Session = Depends(deps.get_db),
     return {'status': 'success', 'post_id': result, 'post': 'Blog post created'}
 
 
+@router.delete('/{post_id}/admin/', dependencies=[Depends(JWTBearer())], status_code=200)
+def delete_post(*, post_id: int, db: Session = Depends(deps.get_db)):
+    data = CRUDPost.delete_post(post_id, db)
+
+    if isinstance(data, dict):
+        if 'error' in data:
+            status_code = int(data['status'])
+            raise HTTPException(status_code=status_code, detail=data['error'])
+
+    return {'success': 'Post has been deleted'}
+
 @router.put('/{post_id}/admin/', dependencies=[Depends(JWTBearer())], status_code=200)
 async def update_post(*, post_id: int, db: Session = Depends(deps.get_db),
                       file: UploadFile = File(None),

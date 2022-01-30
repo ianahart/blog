@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy.orm import load_only, joinedload
-from typing import Dict, Any, Tuple, List
+from typing import Dict, Any, Optional, Tuple, List
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
 from app import schemas
@@ -15,6 +15,7 @@ import datetime
 
 
 class CRUDPost:
+
     def retrieve_all_posts(self, db: Session, q_str: schemas.PostPreviewIn) -> Dict:
 
         try:
@@ -296,5 +297,17 @@ class CRUDPost:
         except Exception as e:
             print(e)
             return {'error': 'Unable to update your blog post at this time.', 'status': 500}
+
+    def delete_post(self, post_id: int, db: Session) -> Optional[Dict]:
+
+        try:
+            result = db.query(Post).where(Post.id == post_id).delete()
+            db.commit()
+
+            if result:
+                return {'result': result}
+        except Exception as exception:
+            if exception:
+                return {'error': 'Unable to delete post', 'status': 500}
 
 post = CRUDPost()

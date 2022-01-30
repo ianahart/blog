@@ -1,4 +1,4 @@
-import { Box, Text } from '@chakra-ui/react';
+import { Box, Text, Icon } from '@chakra-ui/react';
 import { useContext, useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -12,6 +12,7 @@ import Modal from '../../components/Mixed/Modal.jsx';
 import InnerModal from '../../components/Mixed/InnerModal.jsx';
 import { DashboardContext } from '../../contexts/DashboardContext.js';
 import { v4 as uuidv4 } from 'uuid';
+import { BiErrorCircle } from 'react-icons/bi';
 const AdminPost = () => {
   const { user } = useContext(AuthContext);
   const { handleActiveComp } = useContext(DashboardContext);
@@ -23,6 +24,7 @@ const AdminPost = () => {
   const [error, setError] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
   const [editMsg, setEditMsg] = useState(null);
+  const [loading, setLoading] = useState(false);
 
   const openModal = (isOpen, action) => {
     checkForEdit(action);
@@ -60,11 +62,28 @@ const AdminPost = () => {
     localStorage.setItem('editor', JSON.stringify(editorValue));
   };
 
-  const deletePost = () => {
-    console.log('deleting this post');
+  const deletePost = async (postId) => {
+    try {
+      const response = await axios({
+        method: 'DELETE',
+        url: `/api/v1/posts/${postId}/admin/`,
+      });
+
+      if (response.status === 200) {
+        setLoading(false);
+      }
+
+      if (!loading) {
+        navigate(`/admin/${user.userId}/your-posts`);
+      }
+    } catch (e) {
+      setLoading(false);
+      setIsOpen(false);
+      setError(e.response.data.detail);
+    }
   };
 
-  const closeModal = (isOpen, action) => {
+  const closeModal = async (isOpen, action) => {
     if (editMsg) {
       setEditMsg(null);
     }
@@ -73,7 +92,8 @@ const AdminPost = () => {
       return;
     }
     if (action.toLowerCase() === 'delete') {
-      deletePost();
+      setLoading(true);
+      await deletePost(post.id);
     } else if (action.toLowerCase() === 'edit') {
       populateEditor();
       handleActiveComp('BlogEditor');
@@ -82,8 +102,8 @@ const AdminPost = () => {
       localStorage.removeItem('tags');
       localStorage.removeItem('editor');
       localStorage.removeItem('editor_preview');
+      setIsOpen(isOpen);
     }
-    setIsOpen(isOpen);
   };
 
   useEffect(() => {
@@ -107,7 +127,36 @@ const AdminPost = () => {
 
   return (
     <Box minHeight="100vh" height="100%" backgroundColor="light.primary">
-      {error && <Text>{error}</Text>}
+      {error && (
+        <Box
+          margin="0 1.5rem 1.5rem 1.5rem"
+          textAlign="center"
+          backgroundColor="#FFF"
+          borderRadius={8}
+          boxShadow="sm"
+          padding="3rem"
+        >
+          <Box
+            display="flex"
+            alignItems="center"
+            width="300px"
+            borderRadius={8}
+            p={3}
+            backgroundColor="#f3ebeb"
+            margin="0 auto"
+          >
+            <Icon
+              as={BiErrorCircle}
+              height="24px"
+              width="24px"
+              color="#950606"
+            />
+            <Text width="100%" textAlign="center" color="dark.secondary">
+              {error}
+            </Text>
+          </Box>
+        </Box>
+      )}
       <Box position="relative">
         <Modal isOpen={isOpen}>
           <InnerModal
