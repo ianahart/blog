@@ -75,7 +75,7 @@ const App = () => {
                 }
               />
               <Route
-                path="/admin/:userId/posts/:postId"
+                path="/admin/:userId/posts/:slug"
                 element={
                   <RequireAuth>
                     <AdminPost />

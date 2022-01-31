@@ -4,7 +4,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import BackLink from '../../components/Mixed/BackLink.jsx';
 import Contents from '../../components/Posts/Contents.jsx';
-import AdminPostSidebar from '../../components/Admin/Dashboard/Posts/AdminPostSidebar.jsx';
+import PostSidebar from '../../components/Posts/PostSidebar.jsx';
 import Meta from '../../components/Admin/Dashboard/Posts/Meta.jsx';
 import Controls from '../../components/Admin/Dashboard/Posts/Controls.jsx';
 import { AuthContext } from '../../contexts/AuthContext';
@@ -13,6 +13,8 @@ import InnerModal from '../../components/Mixed/InnerModal.jsx';
 import { DashboardContext } from '../../contexts/DashboardContext.js';
 import { v4 as uuidv4 } from 'uuid';
 import { BiErrorCircle } from 'react-icons/bi';
+import { FiHome } from 'react-icons/fi';
+
 const AdminPost = () => {
   const { user } = useContext(AuthContext);
   const { handleActiveComp } = useContext(DashboardContext);
@@ -111,7 +113,7 @@ const AdminPost = () => {
       try {
         const response = await axios({
           method: 'GET',
-          url: `/api/v1/posts/${params.postId}/`,
+          url: `/api/v1/posts/${params.slug}/`,
         });
         if (response.status === 200) {
           const { content: value, ...post } = response.data.retrieved_post;
@@ -119,7 +121,8 @@ const AdminPost = () => {
           setPost(post);
         }
       } catch (e) {
-        setError(e.response.data.error);
+        console.log(e.response);
+        setError(e.response.data.detail);
       }
     };
     fetchPost();
@@ -168,7 +171,11 @@ const AdminPost = () => {
           />
         </Modal>
         <Box onClick={() => handleActiveComp('AdminPreviews')}>
-          <BackLink path={`/admin/${user.userId}/your-posts`} />
+          <BackLink
+            text="Back to Dashboard"
+            icon={FiHome}
+            path={`/admin/${user.userId}/your-posts`}
+          />
         </Box>
         <Box
           display="flex"
@@ -179,29 +186,35 @@ const AdminPost = () => {
           minHeight="100vh"
           pb={5}
         >
-          <AdminPostSidebar
-            bgColor="transparent"
-            border="none"
-            maxHeight="100%"
-            size="25%"
-          >
-            <Controls openModal={openModal} />
-          </AdminPostSidebar>
-          <Contents
-            handleEditorChange={handleEditorChange}
-            post={post}
-            value={editorValue}
-          />
-          <AdminPostSidebar
-            bgColor="#FFF"
-            boxShadow="md"
-            border="1px solid #e5e5e7"
-            maxHeight="600px"
-            margin="0 0 0 1rem"
-            size="35%"
-          >
-            <Meta />
-          </AdminPostSidebar>
+          {!error?.length ? (
+            <>
+              <PostSidebar
+                bgColor="transparent"
+                border="none"
+                maxHeight="100%"
+                size="25%"
+              >
+                <Controls openModal={openModal} />
+              </PostSidebar>
+              <Contents
+                handleEditorChange={handleEditorChange}
+                post={post}
+                value={editorValue}
+              />
+              <PostSidebar
+                bgColor="#FFF"
+                boxShadow="md"
+                border="1px solid #e5e5e7"
+                maxHeight="600px"
+                margin="0 0 0 1rem"
+                size="35%"
+              >
+                <Meta />
+              </PostSidebar>
+            </>
+          ) : (
+            <></>
+          )}
         </Box>
       </Box>
     </Box>

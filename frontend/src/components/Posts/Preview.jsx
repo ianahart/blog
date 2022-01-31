@@ -8,11 +8,10 @@ import {
   Link,
   usePrefersReducedMotion,
 } from '@chakra-ui/react';
-import { BsFillHeartFill } from 'react-icons/bs';
+import { BsSuitHeart, BsHeartFill } from 'react-icons/bs';
 import { Link as RouterLink } from 'react-router-dom';
 const Preview = ({ previewData, previewLink }) => {
   const prefersReducedMotion = usePrefersReducedMotion();
-
   const fade = keyframes`
     from { transform: translateX(-150px) }
     to { transform: translateX(0px)}
@@ -117,10 +116,19 @@ const Preview = ({ previewData, previewLink }) => {
           : ''}
         <Box display="flex" my={3} justifyContent="space-between">
           <Box display="flex" justifyContent="center" alignItems="center">
-            <Icon fill="red.500" as={BsFillHeartFill} />
-            <Text ml={2} color="dark.secondary">
-              likes
-            </Text>
+            <Icon
+              height="20px"
+              width="20px"
+              fill="red.500"
+              as={previewData.user_has_liked ? BsHeartFill : BsSuitHeart}
+            />
+            {previewData.like_count > 0 ? (
+              <Text ml={1} color="dark.secondary">
+                {previewData.like_count}
+              </Text>
+            ) : (
+              <></>
+            )}
           </Box>
           <Text color="gray.400">{previewData.read_time}</Text>
         </Box>

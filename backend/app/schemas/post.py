@@ -26,6 +26,9 @@ class GetPostOutChild(BaseModel):
     cover_image_path: Optional[str] = None
     created_at: str
     is_edited: Optional[bool] = None
+    user_has_liked: bool
+    like_count: int
+    like_id: Optional[int] = None
     id: int
     read_time: str
     slug: str
@@ -73,6 +76,8 @@ class PostPreviewChild(BaseModel):
     read_time: str
     created_at: str
     cover_image_path: Optional[str] = None
+    like_count: int
+    user_has_liked: bool = False
     slug: str
     tag: Optional[PostPreviewGrandChild] = None
     title: str

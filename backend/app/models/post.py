@@ -25,3 +25,7 @@ class Post(Base):  # type: ignore
         uselist=False,
         primaryjoin="Post.id == Tag.post_id",
         back_populates='post')
+    likes = relationship(
+                 'Like',
+                 primaryjoin="Post.id == Like.post_id",
+                 back_populates="post")

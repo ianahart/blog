@@ -3,20 +3,6 @@ import { AiOutlineDelete } from 'react-icons/ai';
 import { AiOutlineEdit } from 'react-icons/ai';
 
 const Controls = ({ openModal }) => {
-  const containerStyles = {
-    cursor: 'pointer',
-    margintop: '1.5rem',
-    marginBottom: '1.5rem',
-    display: 'flex',
-    alignItems: 'center',
-    padding: '0.5rem',
-  };
-  const iconStyles = {
-    color: '#686d76',
-    width: '30px',
-    height: '30px',
-  };
-
   const handleOnClick = (action) => {
     openModal(true, action);
   };
@@ -33,29 +19,30 @@ const Controls = ({ openModal }) => {
       >
         <Box
           onClick={() => handleOnClick('edit')}
-          style={containerStyles}
+          layerStyle="iconContainer"
           _hover={{
             backgroundColor: 'rgba(22,219,147,0.2)',
-            borderRadius: '50%',
           }}
         >
           <Icon
-            style={iconStyles}
+            layerStyle="iconBtn"
             _hover={{ color: '#16DB93' }}
+            color="dark.secondary"
             as={AiOutlineEdit}
           />
         </Box>
         <Box
           onClick={() => handleOnClick('delete')}
-          style={containerStyles}
+          layerStyle="iconContainer"
           _hover={{
             backgroundColor: 'rgba(176,64,64,0.2)',
             borderRadius: '50%',
           }}
         >
           <Icon
-            style={iconStyles}
+            layerStyle="iconBtn"
             _hover={{ color: '#B04040' }}
+            color="dark.secondary"
             as={AiOutlineDelete}
           />
         </Box>

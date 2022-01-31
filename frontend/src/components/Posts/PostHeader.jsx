@@ -45,6 +45,15 @@ const PostHeader = ({ post }) => {
             />
             {post.created_at}
           </Text>
+          {post.is_edited ? (
+            <Box>
+              <Text fontSize="12px" color="validationError.primary">
+                (Edited by Author)
+              </Text>
+            </Box>
+          ) : (
+            <></>
+          )}
         </Box>
       </Box>
       <Box ml={2}>

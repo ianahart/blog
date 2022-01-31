@@ -8,7 +8,7 @@ from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
 from app.utils import string_util
 from app.core import config
-from app.services import aws
+from app.services import aws, auth
 from jose import jwt
 import json
 import datetime
@@ -41,13 +41,31 @@ class CRUDPost:
             previews = self.create_previews(rows)
             return {'posts': previews, 'pagination': q_str}
         except Exception as e:
-
+            print(e)
             e_detail = str(e)
             return {'error': e_detail}
+
+    def user_liked(self, post) -> Optional[Dict]:
+        user_has_liked = {
+            'user_has_liked': False,
+            'id': None
+        }
+        for like in post.likes:
+            if like.ip_address == auth.extract_ip():
+                return {
+                    'user_has_liked': True,
+                    'id': like.id
+                }
+        return user_has_liked
 
     def create_previews(self, rows) -> List:
         previews = []
         for row in rows:
+            if row.likes is not None:
+                has_liked = self.user_liked(row)
+                if has_liked:
+                    row.user_has_liked = has_liked['user_has_liked']
+                    row.like_count = len(row.likes)
             row.portrait_url = row.author.portrait_url
             if row.author.first_name is not None and row.author.last_name is not None:
                 row.author_name = row.author.first_name + ' ' + row.author.last_name
@@ -188,7 +206,10 @@ class CRUDPost:
                 'status_code': 400
             }
         else:
-            post_id = int(post_id)
+            try:
+                post_id = int(post_id)
+            except ValueError:
+                return {'error': 'The post was not found', 'status': 404}
 
         try:
             post = db.query(Post) \
@@ -215,9 +236,20 @@ class CRUDPost:
             post.tag_id = post.tag.id
             post.tags = post.tag.text.split('|')
             post.created_at = post.created_at.strftime("%b %d %Y")
+
+            post.user_has_liked = False
+            post.like_count = 0
+
+            if post.likes is not None:
+                has_liked = self.user_liked(post)
+                if has_liked:
+                    post.user_has_liked = has_liked['user_has_liked']
+                    post.like_count = len(post.likes)
+                    post.like_id = has_liked['id']
             return {'post': post}
 
-        except Exception:
+        except Exception as e:
+            print(e)
             return {
                 'error': 'Unable to complete request',
                 'status': 500
@@ -290,12 +322,12 @@ class CRUDPost:
                 'cover_image_filename': cover['filename'],
                 'cover_image_path': cover['url'],
                 'content': {'post': updated_content},
-                'read_time': form['read_time']
+                'read_time': form['read_time'],
+                'is_edited': True
             })
             db.commit()
             return {'tag_id': tag_id}
-        except Exception as e:
-            print(e)
+        except Exception:
             return {'error': 'Unable to update your blog post at this time.', 'status': 500}
 
     def delete_post(self, post_id: int, db: Session) -> Optional[Dict]:

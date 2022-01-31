@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from app.schemas.auth import AuthLogin
 from app import utils, models
 from app.core import security, config
-
+import socket
 
 class Auth:
 
@@ -52,8 +52,6 @@ class Auth:
             security.save_access_token(db=db,
                                        subject=user.id,
                                        access_token=access_token)
-            
-            
 
             auth_status['data']['accessToken'] = access_token
             auth_status['data']['userId'] = user.id
@@ -69,5 +67,15 @@ class Auth:
                 'Credentials are invalid.', 'password')
             return auth_status
 
+    def extract_ip(self):
+        st = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        try:
+            st.connect(('10.255.255.255', 1))
+            IP = st.getsockname()[0]
+        except Exception:
+            IP = '127.0.0.1'
+        finally:
+            st.close()
+        return IP
 
 auth = Auth()

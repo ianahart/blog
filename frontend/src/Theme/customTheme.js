@@ -2,8 +2,9 @@ import { extendTheme } from '@chakra-ui/react';
 import Input from './input';
 import Button from './button';
 import FormLabel from './formLabel';
-
+import { layerStyles } from './layerStyles';
 const customTheme = extendTheme({
+  layerStyles,
   components: {
     Link: { baseStyle: { _focus: { boxShadow: 'none' } } },
     Input,
@@ -111,4 +112,3 @@ export default customTheme;
 
 // gray light
 // #DEDCDC
-
