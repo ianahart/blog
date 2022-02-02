@@ -1,7 +1,7 @@
 import { Box, Button, Image } from '@chakra-ui/react';
 const PreviewHeader = ({ curPreviewTab, handleCurPreviewTab }) => {
   const linksMap = {
-    relevant: {
+    oldest: {
       src: 'https://ianblog.s3.amazonaws.com/static/preview-1.jpeg',
       alt: 'an astronaut in outerspace with earth in the background',
     },
@@ -32,12 +32,12 @@ const PreviewHeader = ({ curPreviewTab, handleCurPreviewTab }) => {
           Latest
         </Button>
         <Button
-          color={activeBtn('relevant')}
+          color={activeBtn('oldest')}
           variant="linkBtn"
           onClick={handleOnClick}
           type="text"
         >
-          Relevant
+          Oldest
         </Button>
 
         <Button

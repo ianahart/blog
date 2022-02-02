@@ -1,5 +1,6 @@
 from typing import Optional, Dict
 from app.models import Like
+from sqlalchemy import select, delete
 from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
 from app import schemas
@@ -12,12 +13,15 @@ class CRUDLike(CRUDBase):
         user_agent = 'blocked' if not isinstance(user_agent, str) else user_agent
         ip_address = auth.extract_ip()
 
-        already_liked = db.query(Like) \
-            .where(Like.post_id == data.post_id) \
-            .where(Like.ip_address == ip_address) \
-            .where(Like.user_agent == user_agent) \
+        already_liked = db.scalars(
+            select(Like)
+            .where(Like.post_id == data.post_id)
+            .where(Like.ip_address == ip_address)
+            .where(Like.user_agent == user_agent)
+            .limit(1)) \
             .first()
 
+        print(already_liked)
         if already_liked is not None:
             return {
                 'error': 'You have already liked this post',
@@ -47,7 +51,10 @@ class CRUDLike(CRUDBase):
     def delete_like(self, like_id: int, db: Session):
 
         try:
-            row = db.query(Like).where(Like.id == like_id).first()
+            row = db.scalars(
+                select(Like)
+                .where(Like.id == like_id).limit(1)) \
+                .first()
 
             if row is None:
                 raise ValueError('No like with that id exists.')

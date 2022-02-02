@@ -2,6 +2,7 @@
 from jose import jwt
 import time
 from sqlalchemy.orm import Session
+from sqlalchemy import select, delete
 from typing import Any, Union, Dict
 from datetime import datetime, timedelta
 from passlib.context import CryptContext
@@ -16,18 +17,21 @@ load_dotenv()
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
-def get_token(subject: Union[str, Any], db: Session = Depends(deps.get_db)) -> Any: # noqa E501
+def get_token(subject: Union[str, Any], db: Session = Depends(deps.get_db)) -> Any:  # noqa E501
     try:
+        existing_token = db.scalars(
+            select(Token)
+            .where(Token.user_role_id == subject)
+            .limit(1)) \
+            .first()
 
-        existing_token = db.query(Token).where(
-            Token.user_role_id == subject).first()
         return existing_token
 
-    except: # noqa E722
+    except:  # noqa E722
         return None
 
 
-def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str: # noqa E501
+def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:  # noqa E501
 
     if expires_delta:
         # pyright: reportGeneralTypeIssues=false
@@ -44,10 +48,14 @@ def create_access_token(subject: Union[str, Any], expires_delta: timedelta = Non
     return encoded_jwt_token
 
 
-def save_access_token(*, db: Session = Depends(deps.get_db), subject: int, access_token: str) -> None: # noqa E501
+def save_access_token(*, db: Session = Depends(deps.get_db), subject: int, access_token: str) -> None:  # noqa E501
 
-    existing_token = db.query(Token).where(Token.user_role_id == subject).where(  # noqa E501
-        Token.token_valid_to > datetime.utcnow()).first()
+    existing_token = db.scalars(
+        select(Token)
+        .where(Token.user_role_id == subject)
+        .where(Token.token_valid_to > datetime.utcnow())
+        .limit(1)) \
+        .first()
 
     if existing_token:
         return
@@ -84,19 +92,22 @@ def decode_access_token(access_token: str, db: Session) -> Dict:
             options={'verify_aud': False}
         )
 
-        match = db.query(Token).where(
-            Token.user_role_id == decoded_access_token['sub']
-        ).where(
-            Token.access_token == access_token).first()
+        match = db.scalars(
+            select(Token)
+            .where(Token.user_role_id == decoded_access_token['sub'])
+            .where(Token.access_token == access_token)
+            .limit(1)) \
+            .first()
 
         if not match:
             return None
 
         return True if decoded_access_token['exp'] > int(time.time()) else None
     except jwt.ExpiredSignatureError:
-
-        db.query(Token).where(Token.access_token == access_token).delete()
-
+        db.execute(
+            delete(Token)
+            .where(Token.access_token == access_token)
+            .execution_options(synchronize_session="fetch"))
         db.commit()
         return {}
 
@@ -106,12 +117,11 @@ def destroy_access_token(access_token: str, db: Session) -> None:
     if not access_token:
         return
 
-    token_row = db.query(Token).where(
-        Token.access_token == access_token).first()
-
-    db.delete(token_row)
+    db.execute(
+            delete(Token)
+            .where(Token.access_token == access_token)
+            .execution_options(synchronize_session="fetch"))
     db.commit()
-
 
 def invalidate_token(access_token: str, db: Session) -> Any:
     try:
@@ -120,8 +130,10 @@ def invalidate_token(access_token: str, db: Session) -> Any:
             config.settings.ALGORITHM, options={'verify_aud': False}
         )
 
-        db.query(Token).where(
-            Token.user_role_id == int(decoded_token['sub'])).delete()
+        db.execute(
+            delete(Token)
+            .where(Token.user_role_id == int(decoded_token['sub']))
+            .execution_options(synchronize_session="fetch"))
 
         db.commit()
     except jwt.ExpiredSignatureError:

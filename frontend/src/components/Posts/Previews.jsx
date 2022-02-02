@@ -11,9 +11,9 @@ const Previews = () => {
   const [pagination, setPagination] = useState({
     page: 0,
     start: 0,
-    end: 2,
-    limit: 2,
-    direction: 'initial_load',
+    total: 0,
+    limit: 3,
+    direction: 'initial_load'
   });
   const [fetchError, setFetchError] = useState(null);
   const [curPreviewTab, setCurPreviewTab] = useState('latest');
@@ -27,18 +27,35 @@ const Previews = () => {
     if (fetchError) {
       setFetchError(null);
     }
-
     setPreviewData([]);
-    setPagination({
-      page: 0,
-      start: 0,
-      end: 2,
-      limit: 2,
-      direction: 'initial_load',
-    });
-
+    setPagination((prevPagination) => {
+      return {
+        ...prevPagination,
+                    page: 0,
+        start: 'fuck',
+        total: 0,
+        limit: 3,
+        direction: 'initial_load'
+      }
+    })
     await fetchPreviews(newTab, 'initial_load');
   };
+
+  useEffect(() => {
+    if (pagination.direction === 'initial_load') {
+          setPagination((prevPagination) => {
+      return {
+        ...prevPagination,
+                    page: 0,
+        start: 0,
+        total: 0,
+        limit: 3,
+        direction: 'initial_load'
+      }
+    })
+    }
+  }, [pagination.direction])
+
 
   const handleFetchErrors = ({ data, status }) => {
     console.log(data);
@@ -51,8 +68,10 @@ const Previews = () => {
 
   const fetchPreviews = async (newTab, direction) => {
     try {
+      console.log('fetchPreviews()', newTab, direction)
       setFetchError('');
-      const queryString = `tab=${newTab}&start=${pagination.start}&end=${pagination.end}&direction=${direction}&page=${pagination.page}&limit=${pagination.limit}`;
+
+      const queryString = `tab=${newTab}&start=${pagination.start}&total=${pagination.total}&direction=${direction}&page=${pagination.page}&limit=${pagination.limit}`;
       const response = await apiRequest(
         `/api/v1/posts/?${queryString}`,
         {},
@@ -79,7 +98,7 @@ const Previews = () => {
     const loadPreviews = async () => {
       try {
         const response = await apiRequest(
-          `/api/v1/posts/?tab=latest&start=0&end=2&direction=initial_load&page=1&limit=2`,
+          `/api/v1/posts/?direction=initial_load&limit=${pagination.limit}`,
           {},
           'GET',
           handleFetchErrors,
@@ -102,11 +121,15 @@ const Previews = () => {
       }
     };
     loadPreviews();
-  }, []);
+  }, [pagination.limit]);
 
   const paginate = (tab, direction) => {
     setPreviewData([]);
-    fetchPreviews(tab, direction);
+    if (direction === 'next' && pagination.start + pagination.limit < pagination.total) {
+      fetchPreviews(tab, direction);
+    } else if (direction === 'prev' && pagination.start > 0) {
+      fetchPreviews(tab, direction);
+    }
   };
 
   return (
@@ -160,3 +183,4 @@ const Previews = () => {
 };
 
 export default Previews;
+

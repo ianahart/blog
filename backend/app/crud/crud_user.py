@@ -1,6 +1,7 @@
 import datetime
 from typing import Dict
 from fastapi import File, HTTPException
+from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 from sqlalchemy.sql.sqltypes import Boolean
 from app.services import aws
@@ -18,8 +19,11 @@ class CRUDUser(CRUDBase[User, schemas.UserCreate]):
         self.error = ''
 
     def verify(self, db: Session, obj_in: schemas.UserVerify) -> Boolean:
-
-        document = db.query(Document).order_by(Document.id.desc()).first()
+        document = db.scalars(
+            select(Document).
+            order_by(Document.id.desc())
+            .limit(1)) \
+            .first()
 
         if not isinstance(document, type(None)):
             # pyright: reportGeneralTypeIssues=false
@@ -29,9 +33,12 @@ class CRUDUser(CRUDBase[User, schemas.UserCreate]):
 
     def exists(self, db: Session, obj_in: schemas.UserExists) -> Dict:
 
-        user = db.query(User).where(
-            User.email == obj_in.email).where(
-            User.temp_password_changed).first()
+        user = db.scalars(
+            select(User)
+            .where(User.email == obj_in.email)
+            .where(User.temp_password_changed)
+            .limit(1)) \
+            .first()
 
         return True if not isinstance(user, type(None)) else False
 
@@ -61,8 +68,11 @@ class CRUDUser(CRUDBase[User, schemas.UserCreate]):
         if not user_id:
             return
 
-        user = db.query(User).where(
-            User.id == user_id).first()
+        user = db.scalars(
+            select(User)
+            .where(User.id == user_id)
+            .limit(1))\
+            .first()
 
         if isinstance(user, type(None)):
             raise HTTPException(404, detail="Could not find the user.")
@@ -95,12 +105,15 @@ class CRUDUser(CRUDBase[User, schemas.UserCreate]):
             raise HTTPException(
                 400, 'Unable to upload avatar make sure avatar is of type .png or .jpeg')  # noqa E501
 
-    def update(self, user_id: int, db: Session, user: dict) -> tuple:
+    def update_user(self, user_id: int, db: Session, user: dict) -> tuple:
 
         try:
 
-            user_obj = db.query(User).where(
-                    User.id == user_id).first()
+            user_obj = db.scalars(
+                select(User)
+                .where(User.id == user_id)
+                .limit(1)) \
+                .first()
 
             if not user:
                 raise Exception(status_code=404, detail='This user does not exist.')

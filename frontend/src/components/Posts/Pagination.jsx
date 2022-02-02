@@ -17,7 +17,7 @@ const Pagination = ({ fetchError, pagination, curPreviewTab, paginate }) => {
             Prev
           </Button>
         )}
-        {fetchError?.toLowerCase() !== 'all posts have been loaded.' && (
+        {pagination.start + pagination.limit < pagination.total && (
           <Button ml={3} onClick={() => paginate(curPreviewTab, 'next')}>
             Next
           </Button>

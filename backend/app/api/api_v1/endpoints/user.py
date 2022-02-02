@@ -85,7 +85,7 @@ def update_user(
 
     try:
 
-        user_values = crud.user.update(user_id, db, dict(user))
+        user_values = crud.user.update_user(user_id, db, dict(user))
 
         if user_values[0] != 'error':
 

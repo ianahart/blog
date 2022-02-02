@@ -1,7 +1,6 @@
 from typing import Dict
 from sqlalchemy.orm import Session
-
-
+from sqlalchemy import select
 from app.schemas.auth import AuthLogin
 from app import utils, models
 from app.core import security, config
@@ -34,8 +33,11 @@ class Auth:
             auth_status['error'] = utils.error.message(msg, 'password')
             return auth_status
         # pyright: reportGeneralTypeIssues=false
-        user = db.query(models.User).where(
-            models.User.email == auth_creds['email']).first()
+        user = db.scalars(
+            select(models.User)
+            .where(models.User.email == auth_creds['email'])
+            .limit(1)) \
+            .first()
 
         if not user:
             auth_status['error'] = utils.error.message(

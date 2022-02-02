@@ -1,8 +1,10 @@
 import uuid
+from sqlalchemy import select, func, update, delete
 from sqlalchemy.orm import load_only, joinedload
-from typing import Dict, Any, Optional, Tuple, List
+from typing import Dict, Any, Optional, List
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
+from app.models.like import Like
 from app import schemas
 from fastapi import HTTPException
 from fastapi.encoders import jsonable_encoder
@@ -20,22 +22,35 @@ class CRUDPost:
 
         try:
 
-            q_str, order = self.paginate(q_str)
+            query = select(Post).options(load_only(
+                Post.id,
+                Post.title,
+                Post.slug,
+                Post.read_time,
+                Post.author_id,
+                Post.created_at,
+                Post.cover_image_path,
+            ))
 
-            rows = db.query(Post).options(
-                    load_only(
-                        'id',
-                        'title',
-                        'slug',
-                        'read_time',
-                        'author_id',
-                        'created_at',
-                        'cover_image_path',
-                    )) \
-                .order_by(order) \
-                .slice(q_str.start, q_str.end)
+            q_str = self.paginate(q_str, db)
 
-            if rows.first() is None:
+            print(q_str)
+
+            if q_str.tab == 'top':
+                query = query.outerjoin(Like) \
+                    .group_by(Post.id) \
+                    .order_by(func.count(Like.id).desc())
+            elif q_str.tab == 'oldest':
+                query = query.order_by(Post.created_at.asc())
+            else:
+                query = query.order_by(Post.created_at.desc())
+
+            rows = db.execute(
+                query.offset(q_str.start)
+                .limit(q_str.limit)
+                        ).scalars().all()
+
+            if len(rows) == 0:
                 raise Exception('All posts have been loaded.')
 
             previews = self.create_previews(rows)
@@ -85,31 +100,29 @@ class CRUDPost:
 
         return previews
 
-    def paginate(self, q_str) -> Tuple[Any, schemas.PostPreviewIn]:
-        order = None
+    def paginate(self, q_str, db) -> schemas.PostPreviewIn:
 
-        if q_str.tab == 'top':
-            order = Post.title.asc()
-        elif q_str.tab == 'relevant':
-            order = Post.created_at.asc()
-        else:
-            # default latest tab
-            order = Post.created_at.desc()
+        values = jsonable_encoder(q_str)
+        missing_values = any(el is None for el in values.values())
+        print(q_str)
 
-        if q_str.direction == 'prev':
-            q_str.page = q_str.page - 1
-            q_str.end = q_str.start
-            q_str.start = q_str.end - q_str.limit
-        else:
-            if q_str.direction != 'initial_load':
-                q_str.page = q_str.page + 1
-                q_str.start = q_str.end
-            else:
+        if q_str.direction == 'initial_load':
+            try:
+                total = db.scalar(select(func.count(Post.id)))
                 q_str.start = 0
                 q_str.page = 1
-            q_str.end = q_str.start + q_str.limit
+                q_str.total = total
+            except Exception as e:
+                print(e)
+        elif q_str.direction == 'prev':
+            if q_str.page > 1:
+                q_str.page = q_str.page - 1
+                q_str.start = q_str.start - q_str.limit
+        elif q_str.direction == 'next':
+            q_str.start = q_str.start + q_str.limit
+            q_str.page = q_str.page + 1
 
-        return q_str, order
+        return q_str
 
     def create_post(self, db: Session, form_data: dict, file):
 
@@ -164,7 +177,7 @@ class CRUDPost:
                              db: Session,
                              user_id: int,
                              authorization: str,
-                             q_string: schemas.AdminPostPreviewIn
+                             q_str: schemas.AdminPostPreviewIn
                              ):
         try:
 
@@ -181,19 +194,18 @@ class CRUDPost:
         if user_id != int(decoded_token['sub']):
             return {'error': 'User is not authorized for this action.', 'status_code': 403}
 
-        start = q_string.total
-        end = q_string.total + q_string.size
+        rows = db.execute(select(Post)
+                          .filter_by(author_id=decoded_token['sub'])
+                          .order_by(Post.created_at.desc())
+                          .offset(q_str.total)
+                          .limit(q_str.size)) \
+            .scalars().all()
 
-        rows = db.query(Post) \
-            .filter_by(author_id=decoded_token['sub']) \
-            .order_by(Post.created_at.desc()) \
-            .slice(start, end)
-
-        if rows.first() is None:
+        if len(rows) == 0:
             return {'error': 'All posts have been loaded.', 'status_code': 404}
         previews = self.create_previews(rows)
-
-        return {'posts': previews, 'pagination': q_string}
+        q_str.total = q_str.total + q_str.size
+        return {'posts': previews, 'pagination': q_str}
 
     def retrieve_post(self, path: str, db: Session) -> Dict:
 
@@ -202,7 +214,7 @@ class CRUDPost:
 
         if isinstance(post_id, type(None)):
             return {
-                'error': 'Malformed segement in Url path.',
+                'error': 'Malformed segment in Url path.',
                 'status_code': 400
             }
         else:
@@ -212,11 +224,13 @@ class CRUDPost:
                 return {'error': 'The post was not found', 'status': 404}
 
         try:
-            post = db.query(Post) \
+            post = db.scalars(
+                select((Post))
                 .options(joinedload('author')
-                         .load_only('first_name', 'last_name', 'portrait_url')) \
-                .where(Post.id == post_id) \
-                .where(Post.slug == slug)\
+                         .load_only('first_name', 'last_name', 'portrait_url'))
+                .where(Post.id == post_id)
+                .where(Post.slug == slug)
+                .limit(1)) \
                 .first()
 
             if not post or isinstance(post, type(None)):
@@ -258,7 +272,10 @@ class CRUDPost:
     def update_post(self, db: Session, form: Dict, post_id: int):
         try:
             cover = {'url': '', 'filename': '', 'contentType': ''}
-            cur_post = db.query(Post).where(Post.id == post_id).first()
+            cur_post = db.scalars(
+                select(Post).where(
+                    Post.id == post_id).limit(1)
+                    ).first()
             tag_id = cur_post.tag.id
 
             if not cur_post or isinstance(cur_post, type(None)):
@@ -315,17 +332,23 @@ class CRUDPost:
                 node['filename'] = filename
             updated_content.append(node)
         try:
-            db.query(Post).where(Post.id == post_id).update({
-                'created_at': datetime.datetime.utcnow(),
-                'author_id': int(form['author_id']),
-                'slug': slug,
-                'cover_image_filename': cover['filename'],
-                'cover_image_path': cover['url'],
-                'content': {'post': updated_content},
-                'read_time': form['read_time'],
-                'is_edited': True
-            })
+
+            stmt = db.execute(
+                update(Post)
+                .where(Post.id == post_id)
+                .values(
+                    created_at=datetime.datetime.utcnow(),
+                    author_id=int(form['author_id']),
+                    slug=slug,
+                    title=form['title'].replace('"', ''),
+                    cover_image_filename=cover['filename'],
+                    cover_image_path=cover['url'],
+                    content={'post': updated_content},
+                    read_time=form['read_time'],
+                    is_edited=True
+                ).execution_options(synchronize_session="fetch"))
             db.commit()
+
             return {'tag_id': tag_id}
         except Exception:
             return {'error': 'Unable to update your blog post at this time.', 'status': 500}
@@ -333,12 +356,37 @@ class CRUDPost:
     def delete_post(self, post_id: int, db: Session) -> Optional[Dict]:
 
         try:
-            result = db.query(Post).where(Post.id == post_id).delete()
-            db.commit()
+            post = db.scalars(
+                select(Post)
+                .where(Post.id == post_id).limit(1)) \
+                .first()
 
-            if result:
-                return {'result': result}
+            if post:
+                post = jsonable_encoder(post)
+
+            for col in post:
+                try:
+                    if col == 'cover_image_filename':
+                        aws.delete_file('', post[col])
+                        print(col)
+                except Exception:
+                    return {'error': 'aws service is unavailable right now.', 'status': 503}
+
+            for node in post['content']['post']:
+                try:
+                    if node['type'] == 'image':
+                        aws.delete_file('', node['filename'])
+                except Exception:
+                    return {'error': 'aws service is unavailable right now.', 'status': 503}
+
+            stmt = db.execute(delete(Post)
+                              .where(Post.id == post_id)
+                              .execution_options(synchronize_session="fetch"))
+
+            db.commit()
+            return {'result': 'Post deleted'}
         except Exception as exception:
+            print(exception)
             if exception:
                 return {'error': 'Unable to delete post', 'status': 500}
 

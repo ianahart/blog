@@ -109,23 +109,25 @@ class PostPreviewOut(BaseModel):
 
 class PostPreviewIn(BaseModel):
     tab: Optional[str] = None
-    page: int
-    direction: str
-    start: int
-    end: int
-    limit: int
+    page: Optional[int] = None
+    direction: Optional[str] = None
+    start: Optional[int] = None
+    total: Optional[int] = None
+    limit: Optional[int] = None
 
     @validator('direction')
     def validate_direction(cls, v):
-        if v not in ['initial_load', 'next', 'prev']:
-            raise ValueError('direction must be either "next" or "prev"')
-        return v
+        if v:
+            if v not in ['initial_load', 'next', 'prev']:
+                raise ValueError('direction must be either "next" or "prev"')
+            return v
 
     @validator('tab')
     def tab_is_alpha_only(cls, v):
-        if not v.isalpha():
-            raise ValueError('tab may only consist of alpha characters.')
-        return v
+        if v:
+            if not v.isalpha():
+                raise ValueError('tab may only consist of alpha characters.')
+            return v
 
 class AdminPostPreviewIn(BaseModel):
     size: int = 0

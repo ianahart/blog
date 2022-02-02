@@ -1,4 +1,5 @@
 from app.models import Tag
+from sqlalchemy import update
 from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
 from app import schemas
@@ -40,16 +41,16 @@ class CRUDTag(CRUDBase):
                 tag = f'{value}'.strip() if key == 0 else f'|{value}'
                 text += tag
 
-            updated = db.query(Tag) \
-                .where(Tag.id == tag_id) \
-                .where(Tag.post_id == int(data.post_id)) \
-                .update(
-                    {
-                        'post_id': int(data.post_id),
-                        'created_at': datetime.datetime.utcnow(),
-                        'text': text,
-                    }
-            )
+            updated = db.execute(
+                update(Tag)
+                .where(Tag.id == tag_id)
+                .where(Tag.post_id == int(data.post_id))
+                .values(
+                    post_id=int(data.post_id),
+                    created_at=datetime.datetime.utcnow(),
+                    text=text
+                )
+                .execution_options(synchronize_session="fetch"))
             db.commit()
 
             return {'data': updated}
