@@ -209,7 +209,7 @@ const AdminPost = () => {
                 margin="0 0 0 1rem"
                 size="35%"
               >
-                <Meta />
+                {post?.id && <Meta postId={post.id} />}
               </PostSidebar>
             </>
           ) : (

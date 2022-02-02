@@ -54,7 +54,10 @@ const Sidebar = ({
   }, [user.userId]);
 
   return (
-    <Box position={['relative', 'relative', 'absolute', 'absolute']}>
+    <Box
+      boxShadow="md"
+      position={['relative', 'relative', 'absolute', 'absolute']}
+    >
       <Slide
         style={{ position: 'relative', top: '0', zIndex: 10 }}
         position="relative"

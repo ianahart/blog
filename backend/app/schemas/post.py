@@ -1,4 +1,4 @@
-from typing import Optional, List, Dict, Tuple
+from typing import Optional, List, Dict, Tuple, Union
 from pydantic import BaseModel, validator
 import datetime
 import json
@@ -17,6 +17,8 @@ class PostBase(BaseModel):
     content: Optional[str] = None
     read_time: Optional[str] = None
 
+class PostRankOut(BaseModel):
+    result: Optional[Dict] = None
 
 class GetPostOutChild(BaseModel):
     author: dict

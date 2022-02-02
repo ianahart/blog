@@ -12,6 +12,26 @@ from app.schemas.tag import AddTag
 
 router = APIRouter()
 
+# responsemodel
+@router.get('/{post_id}/admin/rank/', dependencies=[Depends(JWTBearer())],
+            response_model=schemas.PostRankOut)
+def get_ranking(*, post_id: int,
+                db: Session = Depends(deps.get_db),
+                authorization: str = Header(None)
+                ):
+
+    data = CRUDPost.retrieve_ranking(post_id, db, authorization)
+    print(data)
+    if isinstance(data, dict):
+        if 'error' in data:
+
+            detail = data['error']
+            raise HTTPException(status_code=404, detail=detail)
+        return {
+                'status': 'success',
+                'result': data,
+        }
+
 @router.get('/',
             response_model=schemas.PostPreviewOut)
 def get_posts(*, db: Session = Depends(deps.get_db),

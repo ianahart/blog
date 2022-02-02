@@ -18,6 +18,64 @@ import datetime
 
 class CRUDPost:
 
+    def retrieve_ranking(self, post_id: int, db: Session, authorization: str) -> Optional[Dict]:
+        try:
+            access_token = authorization.split('Bearer ')[1]
+
+            claims = jwt.decode(access_token,
+                                config.settings.JWT_SECRET,
+                                config.settings.ALGORITHM,
+                                options={'verify_aud': False}
+                                )
+
+            posts = db.scalars(
+                select(Post)
+                .where(Post.author_id == int(claims['sub']))
+                .outerjoin(Like)
+                .group_by(Post.id)
+                .order_by(
+                    func.count(Like.id).desc())
+            )
+
+            ranking = None
+            for index, post in enumerate(posts):
+                if post.id == post_id and len(post.likes):
+                    ranking = index + 1
+                    break
+
+            if ranking is None:
+
+                return {
+                        'ranking': 'This post has not been liked yet.',
+                        'post_id': post_id,
+                        'has_likes': False,
+                }
+            else:
+                single = ranking % 10
+                double = ranking % 100
+                fmt_rank = str(ranking)
+
+                if single == 1 and double != 11:
+                    fmt_rank += 'st'
+                elif single == 2 and double != 12:
+                    fmt_rank += 'nd'
+                elif single == 3 and double != 13:
+                    fmt_rank += 'rd'
+                else:
+                    fmt_rank += 'th'
+
+                return {
+                        'ranking': fmt_rank,
+                        'post_id': post_id,
+                        'has_likes': True,
+                }
+        except Exception as e:
+            print(e)
+            return {
+                'error': 'Cannot get the posts current ranking.',
+                'status': 500
+            }
+
     def retrieve_all_posts(self, db: Session, q_str: schemas.PostPreviewIn) -> Dict:
 
         try:
