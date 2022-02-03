@@ -1,11 +1,15 @@
-import { Box, Text, Icon } from '@chakra-ui/react';
 import {
-  BsSuitHeart,
-  BsHeartFill,
-  BsBookmark,
-  BsThreeDots,
-} from 'react-icons/bs';
-
+  Box,
+  Text,
+  Icon,
+  Menu,
+  MenuButton,
+  MenuList,
+  MenuItem,
+} from '@chakra-ui/react';
+import { BiCopy } from 'react-icons/bi';
+import { BsThreeDots, BsSuitHeart, BsHeartFill } from 'react-icons/bs';
+import { FiSend } from 'react-icons/fi';
 const PrimaryReaderActions = ({
   userHasLiked,
   likeCount,
@@ -15,6 +19,10 @@ const PrimaryReaderActions = ({
   const handleOnLikeClick = async () => {
     const action = userHasLiked ? 'unlike' : 'like';
     await reactToPost(action);
+  };
+
+  const handleOnCopyClick = () => {
+    navigator.clipboard.writeText(window.location.href);
   };
   return (
     <Box
@@ -58,14 +66,45 @@ const PrimaryReaderActions = ({
           _hover={{ color: '#16DB93' }}
           layerStyle="iconBtn"
           color="dark.secondary"
-          as={BsBookmark}
+          as={FiSend}
         />
       </Box>
       <Box
         _hover={{ backgroundColor: 'rgba(128, 127, 128, 0.2)' }}
         layerStyle="iconContainer"
       >
-        <Icon layerStyle="iconBtn" color="dark.secondary" as={BsThreeDots} />
+        <Menu>
+          <MenuButton
+            aria-label="Options"
+            _hover={{ backgroundColor: 'transparent' }}
+            role="button"
+            as={Box}
+          >
+            <Icon
+              _hover={{ backgroundColor: 'transparent' }}
+              color="dark.secondary"
+              layerStyle="iconBtn"
+              as={BsThreeDots}
+            ></Icon>
+          </MenuButton>
+          <MenuList minH="250px">
+            <MenuItem
+              onClick={handleOnCopyClick}
+              display="flex"
+              justifyContent="space-between"
+            >
+              <Text fontWeight="bold" color="dark.secondary">
+                Copy link
+              </Text>
+              <Icon
+                height="20px"
+                color="blue.primary"
+                width="20px"
+                as={BiCopy}
+              />
+            </MenuItem>
+          </MenuList>
+        </Menu>
       </Box>
     </Box>
   );

@@ -12,7 +12,21 @@ from app.schemas.tag import AddTag
 
 router = APIRouter()
 
-# responsemodel
+# response model
+@router.get('/random/')
+def get_random_post(*, size: int, postid: int, user: int, db: Session = Depends(deps.get_db)):
+    data = CRUDPost.retrieve_random(size, postid, user, db)
+    if isinstance(data, dict):
+        if 'error' in data:
+
+            detail = data['error']
+            raise HTTPException(status_code=404, detail=detail)
+        return {
+                'status': 'success',
+                'result': data,
+        }
+
+
 @router.get('/{post_id}/admin/rank/', dependencies=[Depends(JWTBearer())],
             response_model=schemas.PostRankOut)
 def get_ranking(*, post_id: int,
@@ -21,7 +35,6 @@ def get_ranking(*, post_id: int,
                 ):
 
     data = CRUDPost.retrieve_ranking(post_id, db, authorization)
-    print(data)
     if isinstance(data, dict):
         if 'error' in data:
 

@@ -13,7 +13,7 @@ const Previews = () => {
     start: 0,
     total: 0,
     limit: 3,
-    direction: 'initial_load'
+    direction: 'initial_load',
   });
   const [fetchError, setFetchError] = useState(null);
   const [curPreviewTab, setCurPreviewTab] = useState('latest');
@@ -31,34 +31,32 @@ const Previews = () => {
     setPagination((prevPagination) => {
       return {
         ...prevPagination,
-                    page: 0,
+        page: 0,
         start: 'fuck',
         total: 0,
         limit: 3,
-        direction: 'initial_load'
-      }
-    })
+        direction: 'initial_load',
+      };
+    });
     await fetchPreviews(newTab, 'initial_load');
   };
 
   useEffect(() => {
     if (pagination.direction === 'initial_load') {
-          setPagination((prevPagination) => {
-      return {
-        ...prevPagination,
-                    page: 0,
-        start: 0,
-        total: 0,
-        limit: 3,
-        direction: 'initial_load'
-      }
-    })
+      setPagination((prevPagination) => {
+        return {
+          ...prevPagination,
+          page: 0,
+          start: 0,
+          total: 0,
+          limit: 3,
+          direction: 'initial_load',
+        };
+      });
     }
-  }, [pagination.direction])
-
+  }, [pagination.direction]);
 
   const handleFetchErrors = ({ data, status }) => {
-    console.log(data);
     setIsLoading(false);
     if (Array.isArray(data.detail)) {
       return;
@@ -68,7 +66,6 @@ const Previews = () => {
 
   const fetchPreviews = async (newTab, direction) => {
     try {
-      console.log('fetchPreviews()', newTab, direction)
       setFetchError('');
 
       const queryString = `tab=${newTab}&start=${pagination.start}&total=${pagination.total}&direction=${direction}&page=${pagination.page}&limit=${pagination.limit}`;
@@ -79,7 +76,6 @@ const Previews = () => {
         handleFetchErrors,
         null
       );
-      console.log(response);
       if (response.status === 200) {
         const { pagination, posts } = response.data;
         setPreviewData((prevData) => [...prevData, ...posts]);
@@ -125,7 +121,10 @@ const Previews = () => {
 
   const paginate = (tab, direction) => {
     setPreviewData([]);
-    if (direction === 'next' && pagination.start + pagination.limit < pagination.total) {
+    if (
+      direction === 'next' &&
+      pagination.start + pagination.limit < pagination.total
+    ) {
       fetchPreviews(tab, direction);
     } else if (direction === 'prev' && pagination.start > 0) {
       fetchPreviews(tab, direction);
@@ -183,4 +182,3 @@ const Previews = () => {
 };
 
 export default Previews;
-

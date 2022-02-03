@@ -212,7 +212,11 @@ const Post = () => {
               size="35%"
             >
               {post && (
-                <SecondaryReaderActions firstName={post.author.first_name} />
+                <SecondaryReaderActions
+                  authorId={post.author.id}
+                  firstName={post.author.first_name}
+                  postId={post.id}
+                />
               )}
             </PostSidebar>
           </>

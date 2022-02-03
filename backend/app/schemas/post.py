@@ -17,6 +17,12 @@ class PostBase(BaseModel):
     content: Optional[str] = None
     read_time: Optional[str] = None
 
+
+class RandomPostOut(BaseModel):
+    size: Optional[int] = None
+    user: Optional[int] = None
+
+
 class PostRankOut(BaseModel):
     result: Optional[Dict] = None
 

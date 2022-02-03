@@ -1,6 +1,6 @@
 import uuid
 from sqlalchemy import select, func, update, delete
-from sqlalchemy.orm import load_only, joinedload
+from sqlalchemy.orm import load_only, joinedload, subqueryload
 from typing import Dict, Any, Optional, List
 from sqlalchemy.orm.session import Session
 from app.models.post import Post
@@ -17,6 +17,52 @@ import datetime
 
 
 class CRUDPost:
+
+    def retrieve_random(self, size: int, post_id: int, user_id: int,
+                        db: Session) -> Optional[Dict]:
+
+        try:
+            rows = db.scalars(
+                select(Post)
+                .outerjoin(Post.tag)
+                .options(
+                    load_only(Post.id, Post.slug, Post.title))
+                .where(Post.author_id == user_id)
+                .where(Post.id != post_id)
+                .order_by(func.random()).limit(size)
+            )
+
+            posts = []
+
+            for row in rows:
+
+                if row.tag is not None:
+                    tags = [f'#{tag}' for tag in row.tag.text.split('|')]
+
+                    posts.append({
+                        'title': row.title,
+                        'tags': tags if len(tags) else [],
+                        'slug': f'{row.slug}-{row.id}',
+                        'tag_id': row.tag.id,
+                        'id': row.id
+                    })
+
+            if len(posts) == 0:
+                return {
+                    'error': 'This author does not have any more blog posts currently.',
+                    'status': 404
+                }
+
+            return {
+                    'posts': posts,
+                    'msg': 'random posts recieved'
+            }
+        except Exception as e:
+            print(e)
+            return {
+                'error': 'Something went wrong fetching more posts.',
+                'status': 500,
+            }
 
     def retrieve_ranking(self, post_id: int, db: Session, authorization: str) -> Optional[Dict]:
         try:
