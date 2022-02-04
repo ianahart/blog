@@ -19,6 +19,12 @@ class Post(Base):  # type: ignore
     content = Column(MutableDict.as_mutable(JSON))
     read_time = Column(String(64), nullable=True)
     author = relationship('User', back_populates='posts')
+    messages = relationship(
+        'Message',
+        cascade="all,delete-orphan",
+        primaryjoin="Post.id == Message.post_id",
+        back_populates="post"
+    )
     tag = relationship(
         'Tag',
         cascade="all,delete-orphan",

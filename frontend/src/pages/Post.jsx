@@ -9,6 +9,8 @@ import Contents from '../components/Posts/Contents.jsx';
 import PostSidebar from '../components/Posts/PostSidebar.jsx';
 import PrimaryReaderActions from '../components/Posts/PrimaryReaderActions.jsx';
 import SecondaryReaderActions from '../components/Posts/SecondaryReaderActions.jsx';
+import Modal from '../components/Mixed/Modal.jsx';
+import Form from '../components/Messages/Form.jsx';
 
 const Post = () => {
   const params = useParams();
@@ -17,14 +19,20 @@ const Post = () => {
   const [likeError, setLikeError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [editorValue, setEditorValue] = useState([]);
+  const [modalOpen, setModalOpen] = useState(false);
+
   const handleEditorChange = (newValue) => setEditorValue(newValue);
+  const openModal = () => setModalOpen(true);
+  const closeModal = () => setModalOpen(false);
+  const submitForm = () => {
+    setModalOpen(false);
+    console.log('Form submitted');
+  };
 
   const handleUpdate = (user_has_liked, action) => {
     setPost((prevState) => {
       const like_count =
-        action === 'increment'
-          ? prevState.like_count + 1
-          : prevState.like_count - 1;
+        action === 'increment' ? prevState.like_count + 1 : prevState.like_count - 1;
       return {
         ...prevState,
         like_count,
@@ -113,7 +121,20 @@ const Post = () => {
   }, [params]);
 
   return (
-    <Box minHeight="100vh" height="100%" backgroundColor="light.primary">
+    <Box position="relative" minHeight="100vh" height="100%" backgroundColor="light.primary">
+      {post && (
+        <Modal isOpen={modalOpen} rgba="rgba(0, 0, 0, 0.85)">
+          <Box borderRadius={8} boxShadow="md" backgroundColor="#FFF">
+            <Form
+              postId={post.id}
+              authorId={post.author.id}
+              closeModal={closeModal}
+              submitForm={submitForm}
+              firstName={post.author.first_name !== null ? post.author.first_name : 'Anonymous'}
+            />
+          </Box>
+        </Modal>
+      )}
       {error && (
         <Box
           margin="0 1.5rem 1.5rem 1.5rem"
@@ -132,12 +153,7 @@ const Post = () => {
             backgroundColor="#f3ebeb"
             margin="0 auto"
           >
-            <Icon
-              as={BiErrorCircle}
-              height="24px"
-              width="24px"
-              color="#950606"
-            />
+            <Icon as={BiErrorCircle} height="24px" width="24px" color="#950606" />
             <Text width="100%" textAlign="center" color="dark.secondary">
               {error}
             </Text>
@@ -145,11 +161,7 @@ const Post = () => {
         </Box>
       )}
       <Box position="relative">
-        <BackLink
-          icon={AiOutlineArrowLeft}
-          text="Back to Posts"
-          path="/posts"
-        />
+        <BackLink icon={AiOutlineArrowLeft} text="Back to Posts" path="/posts" />
         {likeError?.length ? (
           <Box
             margin="1.5rem auto"
@@ -183,26 +195,19 @@ const Post = () => {
       >
         {!error?.length ? (
           <>
-            <PostSidebar
-              bgColor="transparent"
-              border="none"
-              maxHeight="100%"
-              size="25%"
-            >
+            <PostSidebar bgColor="transparent" border="none" maxHeight="100%" size="25%">
               {post && (
                 <PrimaryReaderActions
                   userHasLiked={post.user_has_liked}
                   likeCount={post.like_count}
                   loading={loading}
+                  authorId={post.author.id}
                   reactToPost={reactToPost}
+                  openModal={openModal}
                 />
               )}
             </PostSidebar>
-            <Contents
-              handleEditorChange={handleEditorChange}
-              post={post}
-              value={editorValue}
-            />
+            <Contents handleEditorChange={handleEditorChange} post={post} value={editorValue} />
             <PostSidebar
               bgColor="#FFF"
               boxShadow="md"
@@ -214,7 +219,7 @@ const Post = () => {
               {post && (
                 <SecondaryReaderActions
                   authorId={post.author.id}
-                  firstName={post.author.first_name}
+                  firstName={post.author.first_name !== null ? post.author.first_name : 'Anonymous'}
                   postId={post.id}
                 />
               )}

@@ -5,3 +5,4 @@ from .tag import AddTag, UpdateTag
 from .auth import AuthLogin
 from .token import Token
 from .like import LikeCreate, LikeCreateOut
+from .message import MessageBase, MessagePostIn, MessagePostOut

@@ -7,15 +7,20 @@ import {
   MenuList,
   MenuItem,
 } from '@chakra-ui/react';
+import { useContext } from 'react';
 import { BiCopy } from 'react-icons/bi';
 import { BsThreeDots, BsSuitHeart, BsHeartFill } from 'react-icons/bs';
 import { FiSend } from 'react-icons/fi';
+import { AuthContext } from '../../contexts/AuthContext.js';
 const PrimaryReaderActions = ({
   userHasLiked,
   likeCount,
   reactToPost,
   loading,
+  openModal,
+  authorId,
 }) => {
+  const { user } = useContext(AuthContext);
   const handleOnLikeClick = async () => {
     const action = userHasLiked ? 'unlike' : 'like';
     await reactToPost(action);
@@ -58,17 +63,20 @@ const PrimaryReaderActions = ({
           {likeCount === 0 ? '' : likeCount}
         </Text>
       </Box>
-      <Box
-        _hover={{ backgroundColor: 'rgba(22,219,147,0.2)' }}
-        layerStyle="iconContainer"
-      >
-        <Icon
-          _hover={{ color: '#16DB93' }}
-          layerStyle="iconBtn"
-          color="dark.secondary"
-          as={FiSend}
-        />
-      </Box>
+      {user.userId !== authorId && (
+        <Box
+          onClick={openModal}
+          _hover={{ backgroundColor: 'rgba(22,219,147,0.2)' }}
+          layerStyle="iconContainer"
+        >
+          <Icon
+            _hover={{ color: '#16DB93' }}
+            layerStyle="iconBtn"
+            color="dark.secondary"
+            as={FiSend}
+          />
+        </Box>
+      )}
       <Box
         _hover={{ backgroundColor: 'rgba(128, 127, 128, 0.2)' }}
         layerStyle="iconContainer"

@@ -1,6 +1,6 @@
 import { Box, ScaleFade } from '@chakra-ui/react';
 
-const Modal = ({ children, isOpen }) => {
+const Modal = ({ children, isOpen, rgba }) => {
   return (
     <>
       <ScaleFade initialScale={0.5} in={isOpen}>
@@ -15,7 +15,7 @@ const Modal = ({ children, isOpen }) => {
           left="0"
           width="100%"
           height="100%"
-          backgroundColor="rgba(0,0,0,0.7)"
+          backgroundColor={rgba}
         >
           {children}
         </Box>

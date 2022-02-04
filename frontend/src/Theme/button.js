@@ -2,7 +2,7 @@ const Button = {
   variants: {
     main: {
       backgroundColor: '#048BA8',
-      minWidth: ['120px', '200px'],
+      minWidth: ['120px', '120px', '200px'],
       transition: 'all 0.5s ease-in-out',
       textTransform: 'uppercase',
       color: '#fff',
@@ -17,6 +17,12 @@ const Button = {
       _hover: {
         backgroundColor: '#048ba8',
       },
+    },
+    cancelBtn: {
+      textTransform: 'uppercase',
+      minWidth: ['120px', '120px', '200px'],
+      backgroundColor: '#e3e2e2',
+      color: '#686D76',
     },
     linkBtn: {
       _focus: { boxShadow: 'none', outline: 'none' },

@@ -161,7 +161,7 @@ const AdminPost = () => {
         </Box>
       )}
       <Box position="relative">
-        <Modal isOpen={isOpen}>
+        <Modal rgba="rgba(0, 0,0,0.7)" isOpen={isOpen}>
           <InnerModal
             closeModal={closeModal}
             secondaryText={editMsg}

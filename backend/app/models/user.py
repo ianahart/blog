@@ -24,6 +24,12 @@ class User(Base):
     slug = Column(String(256), nullable=True)
     last_login = Column(DateTime, nullable=True)
     is_logged_in = Column(Boolean, nullable=True, default=0)
+    messages = relationship(
+        'Message',
+        cascade="all,delete-orphan",
+        back_populates="recipient",
+        primaryjoin="User.id == Message.recipient_user_id"
+    )
     token = relationship(
         'Token', cascade='all,delete-orphan',
         back_populates='user')
