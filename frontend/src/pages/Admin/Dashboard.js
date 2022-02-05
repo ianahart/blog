@@ -5,6 +5,7 @@ import Sidebar from '../../components/Admin/Dashboard/Sidebar/index.jsx';
 import MainView from '../../components/Admin/Dashboard/MainView.jsx';
 import BlogEditor from '../../components/Admin/Dashboard/Editor/index.jsx';
 import AdminPreviews from '../../components/Admin/Dashboard/Posts/Previews/index.jsx';
+import Messages from '../../components/Admin/Messages/index.jsx';
 import Settings from '../../components/Admin/Dashboard/Settings/index.jsx';
 import { DashboardContext } from '../../contexts/DashboardContext';
 
@@ -12,8 +13,7 @@ const Dashboard = () => {
   const { handleActiveComp, activeComp } = useContext(DashboardContext);
   const [isSidebarVisible, setIsSidebarVisible] = useState(true);
   const [curWindowWidth, setCurWindowWidth] = useState(window.innerWidth);
-  const dashboardPos =
-    isSidebarVisible && curWindowWidth <= 768 ? 'row-reverse' : 'row';
+  const dashboardPos = isSidebarVisible && curWindowWidth <= 768 ? 'row-reverse' : 'row';
 
   const handleSidebarToggle = () => {
     setIsSidebarVisible(!isSidebarVisible);
@@ -43,6 +43,8 @@ const Dashboard = () => {
         return <BlogEditor handleActiveComp={handleActiveComp} />;
       case 'Settings':
         return <Settings />;
+      case 'Messages':
+        return <Messages />;
       default:
         return <MainView />;
     }
@@ -50,10 +52,7 @@ const Dashboard = () => {
 
   return (
     <Box minHeight="100vh" height="100%" backgroundColor="light.primary">
-      <Header
-        isSidebarVisible={isSidebarVisible}
-        handleSidebarToggle={handleSidebarToggle}
-      />
+      <Header isSidebarVisible={isSidebarVisible} handleSidebarToggle={handleSidebarToggle} />
       <Box
         display="flex"
         flexDirection={[dashboardPos, dashboardPos, 'row']}

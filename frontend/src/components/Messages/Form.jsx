@@ -22,7 +22,6 @@ const Form = ({ postId, authorId, firstName, closeModal, submitForm }) => {
   const [contact, setContact] = useState(initialContact);
   const [message, setMessage] = useState(initialMessage);
   const [contactSelection, setContactSelection] = useState(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState([]);
 
   const applyErrors = (result) => {
@@ -39,7 +38,6 @@ const Form = ({ postId, authorId, firstName, closeModal, submitForm }) => {
       if (!validated()) {
         return;
       }
-      setIsLoading(true);
 
       const response = await axios({
         method: 'POST',
@@ -55,7 +53,6 @@ const Form = ({ postId, authorId, firstName, closeModal, submitForm }) => {
       });
 
       if (response.status === 201) {
-        setIsLoading(false);
         setName(initialName);
         setMessage(initialMessage);
         setContact(initialContact);
@@ -64,13 +61,11 @@ const Form = ({ postId, authorId, firstName, closeModal, submitForm }) => {
         closeModal();
       }
     } catch (e) {
-      setIsLoading(false);
       if (e.response.status === 422) {
         applyErrors(e.response.data.detail);
       } else {
         applyErrors([{ msg: e.response.data.detail }]);
       }
-      setIsLoading(false);
     }
   };
 

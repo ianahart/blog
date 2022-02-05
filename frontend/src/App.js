@@ -38,10 +38,7 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/admin/login" element={<Login />} />
               <Route path="/posts/:slug" element={<Post />} />
-              <Route
-                path="/admin/forgot-password"
-                element={<ForgotPassword />}
-              />
+              <Route path="/admin/forgot-password" element={<ForgotPassword />} />
               <Route
                 path="/admin/:userId/dashboard"
                 element={
@@ -60,6 +57,14 @@ const App = () => {
               />
               <Route
                 path="/admin/:userId/editor"
+                element={
+                  <RequireAuth>
+                    <Dashboard />
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/admin/:userId/messages"
                 element={
                   <RequireAuth>
                     <Dashboard />

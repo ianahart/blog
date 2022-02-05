@@ -1,6 +1,7 @@
 import { Box, Icon, Image, Text, Slide } from '@chakra-ui/react';
 import { BiUserCircle } from 'react-icons/bi';
 import { BsFillBookmarkCheckFill } from 'react-icons/bs';
+import { FiMail } from 'react-icons/fi';
 import { useContext, useRef, useEffect } from 'react';
 import { AuthContext } from '../../../../contexts/AuthContext';
 import DashLink from './DashLink';
@@ -47,6 +48,12 @@ const Sidebar = ({
       icon: FiEdit,
       comp: 'BlogEditor',
     },
+    {
+      to: `/admin/${user.userId}/messages`,
+      label: 'Messages',
+      icon: FiMail,
+      comp: 'Messages',
+    },
   ];
 
   useEffect(() => {
@@ -54,10 +61,7 @@ const Sidebar = ({
   }, [user.userId]);
 
   return (
-    <Box
-      boxShadow="md"
-      position={['relative', 'relative', 'absolute', 'absolute']}
-    >
+    <Box boxShadow="md" position={['relative', 'relative', 'absolute', 'absolute']}>
       <Slide
         style={{ position: 'relative', top: '0', zIndex: 10 }}
         position="relative"
@@ -77,12 +81,7 @@ const Sidebar = ({
           display="flex"
           flexDirection="column"
         >
-          <Box
-            pt={10}
-            display="flex"
-            justifyContent="space-evenly"
-            alignItems="center"
-          >
+          <Box pt={10} display="flex" justifyContent="space-evenly" alignItems="center">
             {user.avatarUrl ? (
               <Box borderRadius="50%" height="50px" width="50px">
                 <Image
@@ -123,11 +122,7 @@ const Sidebar = ({
                 </Box>
               )}
             </Box>
-            <Icon
-              fill="green.primary"
-              color="green.primary"
-              as={BsFillBookmarkCheckFill}
-            ></Icon>
+            <Icon fill="green.primary" color="green.primary" as={BsFillBookmarkCheckFill}></Icon>
           </Box>
           <Box mt={10}>
             {dashLinks.map((link, index) => {

@@ -1,7 +1,8 @@
 import datetime
 import re
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 from pydantic import BaseModel, validator
+
 
 class MessageBase(BaseModel):
     id: Optional[int] = None
@@ -13,6 +14,54 @@ class MessageBase(BaseModel):
     sender: Optional[str] = None
     contact: Optional[str] = None
     type_contact: Optional[str] = None
+
+
+class AllMessagesOutPost(BaseModel):
+    id: int
+    author_id: Optional[str] = None
+    title: Optional[str] = None
+    slug: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class AllMessagesOutMessage(BaseModel):
+    id: int
+    contact: Optional[str] = None
+    ip_address: Optional[str] = None
+    message: str
+    post_id: int
+    post: AllMessagesOutPost
+    post_link: Optional[str] = None
+    read: Optional[bool] = None
+    recipient_user_id: int
+    sender: Optional[str] = None
+    type_contact: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
+    readable_date: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class AllMessagesOutChild(BaseModel):
+    messages: List[AllMessagesOutMessage]
+    q_str: dict
+
+    class Config:
+        orm_mode = True
+
+class AllMessagesOut(BaseModel):
+    status: Optional[str] = None
+    result: AllMessagesOutChild
+
+    class Config:
+        orm_mode = True
+
+class AllMessagesIn(BaseModel):
+    size: int
+    offset: int
+    page: int
 
 
 class MessagePostOut(BaseModel):
