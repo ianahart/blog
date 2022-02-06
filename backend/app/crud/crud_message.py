@@ -1,9 +1,8 @@
 from typing import Optional, Dict
-
 from fastapi.param_functions import Header
 from sqlalchemy.orm import joinedload
 from app.models import Message
-from sqlalchemy import select, delete, func
+from sqlalchemy import select, delete, func, update
 from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
 from app import schemas
@@ -12,8 +11,128 @@ from app.core import config
 from jose import jwt
 import datetime
 import pytz
+import json
 
 class CRUDMessage(CRUDBase):
+
+    def delete_message(self, message_id: int, db: Session) -> Optional[Dict]:
+        try:
+            stmt = delete(Message) \
+                .where(Message.id == message_id) \
+                .execution_options(synchronize_session="fetch")
+
+            result = db.execute(stmt)
+
+            if result.rowcount != 1:
+                return {
+                        'error': 'Could not find specified message to delete',
+                        'status': 404
+                       }
+
+            db.commit()
+            return {
+                'status': 'deleted',
+                'deleted_count': result.rowcount,
+                'msg': 'message has been deleted'
+            }
+        except Exception:
+            return {
+                'error': 'Unable to delete message',
+                'status': 500}
+
+    def update_message(self, message_id: int,
+                       db: Session, body: schemas.MessageUpdateIn
+                       ) -> Optional[Dict]:
+        try:
+            stmt = select(Message) \
+                .where(Message.id == message_id) \
+                .where(Message.recipient_user_id == body.user_id) \
+                .limit(1)
+
+            row = db.scalars(stmt)
+            row = row.first()
+
+            if row is None:
+                return {
+                    'error': 'The  specified message does not exist',
+                    'status': 404,
+                }
+
+            result = db.execute(
+                update(Message)
+                .where(Message.id == row.id)
+                .values(read=body.action)
+                .execution_options(synchronize_session="evaluate"))
+
+            if (result.rowcount == 0):
+                raise Exception
+
+            db.commit()
+            return {'status': 'updated',
+                    'updated_count': result.rowcount}
+
+        except Exception:
+            return {
+                'error': 'Unable to update message',
+                'status': 500,
+            }
+
+    def delete_messages(self, db: Session, q_str) -> Optional[Dict]:
+
+        try:
+            ids = [int(id) for id in json.loads(q_str.ids)]
+
+            stmt = delete(Message) \
+                .where(Message.id.in_(ids)) \
+                .execution_options(synchronize_session="fetch")
+
+            result = db.execute(stmt)
+
+            if result.rowcount == 0:
+                return {
+                    'error': 'The specified message(s) do not exist',
+                    'status': 404}
+
+            db.commit()
+
+            return {
+                'status': 'deleted',
+                'deleted_count': result.rowcount
+            }
+
+        except Exception:
+            return {
+                'error': 'Unable to delete specified messages(s)',
+                'status': 500}
+
+    def update_messages(self, db: Session, data: schemas.MessagesUpdateIn) -> Optional[Dict]:
+
+        try:
+            stmt = update(Message) \
+                .where(Message.id.in_(data.ids)) \
+                .where(Message.recipient_user_id == int(data.user_id)) \
+                .values(read=True) \
+                .execution_options(synchronize_session="evaluate")
+
+            result = db.execute(stmt)
+
+            if result.rowcount == 0:
+                return {
+                    'error': 'The specified message(s) do not exist',
+                    'status': 404
+                }
+
+            db.commit()
+            return {
+                'status': 'updated',
+                'updated_count': result.rowcount
+            }
+        except Exception:
+            return {
+                'error': 'Unable to mark specified messages as read',
+                'status': 500
+            }
+
     def create_message(self, db: Session, form_data: schemas.MessagePostIn) -> Optional[Dict]:
         try:
 
@@ -55,8 +174,7 @@ class CRUDMessage(CRUDBase):
 
             return {'msg': 'success'}
 
-        except Exception as e:
-            print(e)
+        except Exception:
             return {
                 'error': 'Unable to submit message',
                 'status': 500

@@ -15,6 +15,10 @@ const Messages = () => {
   const [offset, setOffset] = useState(0);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [searchFilter, setSearchFilter] = useState('');
+
+  const filterSender = (value) => setSearchFilter(value);
+  const resetFilter = () => setSearchFilter('');
 
   const handleFetch = (response) => {
     if (response.status === 200) {
@@ -23,6 +27,16 @@ const Messages = () => {
       setPage(result.q_str.page);
       setOffset(result.q_str.offset);
     }
+  };
+
+  const readMessages = (ids) => {
+    const items = [...messages].map((message) => {
+      if (ids.includes(message.id)) {
+        return { ...message, is_checked: false, read: true };
+      }
+      return { ...message };
+    });
+    setMessages(items);
   };
 
   const massAction = (action) => {
@@ -34,21 +48,63 @@ const Messages = () => {
     }
   };
 
-  const markAsReadAll = (ids) => {
-    const readMessages = [...messages].map((message) => {
-      if (ids.includes(message.id)) {
-        return { ...message, is_checked: false, read: true };
+  const noCheckedMessages = () => messages.every((message) => !message.is_checked);
+
+  const markAsReadAll = async (ids) => {
+    try {
+      if (noCheckedMessages()) {
+        return;
       }
-      return { ...message };
-    });
-    setMessages(readMessages);
+      await axios({
+        url: `/api/v1/messages/admin/`,
+        method: 'POST',
+        data: { ids, user_id: user.userId },
+      });
+      readMessages(ids);
+    } catch (e) {
+      if (e.response.status !== 500) {
+        setError(e.response.data.detail);
+      }
+    }
   };
 
-  const deleteAll = (ids) => {
-    const items = [...messages].filter((item) => {
-      return !ids.includes(item.id) ? item : false;
-    });
-    setMessages(items);
+  const deleteAll = async (ids) => {
+    try {
+      setError(null);
+      if (ids.length > 15) {
+        setError('Max limit of 15 deletions at a time');
+        return;
+      }
+      await axios({
+        method: 'DELETE',
+        url: `/api/v1/messages/admin/?ids=${encodeURIComponent(JSON.stringify(ids))}`,
+      });
+      const items = [...messages].filter((item) => {
+        return !ids.includes(item.id) ? item : false;
+      });
+      setMessages(items);
+    } catch (e) {
+      if (e.response.status !== 500) {
+        setError(e.response.data.detail);
+      }
+    }
+  };
+
+  const deleteMessage = async (messageId) => {
+    try {
+      await axios({
+        method: 'DELETE',
+        url: `/api/v1/messages/${messageId}/admin/`,
+      });
+      const items = [...messages].filter((item) => {
+        return item.id === messageId ? false : item;
+      });
+      setMessages(items);
+    } catch (e) {
+      if (e.response.status !== 500) {
+        setError(e.response.data.detail);
+      }
+    }
   };
 
   const updateMessage = (item, id, prop, value) => {
@@ -62,18 +118,34 @@ const Messages = () => {
     setMessages(items);
   };
 
-  const markAsRead = (messageId) => {
-    const items = [...messages].map((item) => {
-      return updateMessage(item, messageId, 'read', true);
-    });
-    setMessages(items);
+  const markMessage = async (action, messageId) => {
+    try {
+      await axios({
+        method: 'PATCH',
+        url: `/api/v1/messages/${messageId}/admin/`,
+        data: { user_id: user.userId, action },
+      });
+      const items = [...messages].map((item) => {
+        return updateMessage(item, messageId, 'read', action);
+      });
+      setMessages(items);
+    } catch (e) {
+      if (e.response.status !== 500) {
+        setError(e.response.data.detail);
+      }
+    }
   };
 
-  const markAsUnread = (messageId) => {
-    const items = [...messages].map((item) => {
-      return updateMessage(item, messageId, 'read', false);
-    });
-    setMessages(items);
+  const markAsRead = async (messageId) => {
+    try {
+      await markMessage(true, messageId);
+    } catch (e) {}
+  };
+
+  const markAsUnread = async (messageId) => {
+    try {
+      await markMessage(false, messageId);
+    } catch (e) {}
   };
 
   const loadMessages = useCallback(async () => {
@@ -84,7 +156,6 @@ const Messages = () => {
         url: `/api/v1/messages/admin/?size=4&page=1&offset=0`,
         headers: { Authorization: `Bearer ${user.accessToken}` },
       });
-      console.log(response);
       handleFetch(response);
     } catch (e) {
       if (e.response.status === 404) {
@@ -99,7 +170,7 @@ const Messages = () => {
 
   const paginate = async () => {
     try {
-      console.log('paginate');
+      resetFilter();
       setIsLoading(true);
       const response = await axios({
         method: 'GET',
@@ -131,7 +202,12 @@ const Messages = () => {
         <Heading ml={1.5} color="dark.secondary" as="h3">
           {user?.firstName ? user.firstName : 'Admin'}
         </Heading>
-        <Actions massAction={massAction} />
+        <Actions
+          resetFilter={resetFilter}
+          searchFilter={searchFilter}
+          filterSender={filterSender}
+          massAction={massAction}
+        />
       </Box>
       <Divider orientation="horizontal" mb={3} />
       <Divider />
@@ -149,9 +225,11 @@ const Messages = () => {
       )}
       {isLoading && <Spinner size={100} msg="Loading more messages..." loading={isLoading} />}
       <MessageList
+        deleteMessage={deleteMessage}
         markAsRead={markAsRead}
         markAsUnread={markAsUnread}
         handleCheckedMessages={handleCheckedMessages}
+        searchFilter={searchFilter}
         messages={messages}
       />
     </Box>

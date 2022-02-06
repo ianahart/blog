@@ -4,7 +4,14 @@ import Message from './Message.jsx';
 import Modal from '../../Mixed/Modal';
 import MessageView from './MessageView.jsx';
 
-const MessageList = ({ markAsUnread, markAsRead, handleCheckedMessages, messages }) => {
+const MessageList = ({
+  deleteMessage,
+  searchFilter,
+  markAsUnread,
+  markAsRead,
+  handleCheckedMessages,
+  messages,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [messageToView, setMessageToView] = useState(null);
 
@@ -31,6 +38,8 @@ const MessageList = ({ markAsUnread, markAsRead, handleCheckedMessages, messages
           return (
             <Message
               handleCheckedMessages={handleCheckedMessages}
+              deleteMessage={deleteMessage}
+              searchFilter={searchFilter}
               markAsUnread={markAsUnread}
               openModal={openModal}
               key={message.id}

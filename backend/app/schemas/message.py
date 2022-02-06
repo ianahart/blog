@@ -15,6 +15,34 @@ class MessageBase(BaseModel):
     contact: Optional[str] = None
     type_contact: Optional[str] = None
 
+class MessageUpdateOut(BaseModel):
+    status: Optional[str] = None
+    updated_count: int
+
+class MessageUpdateIn(BaseModel):
+    user_id: int
+    action: bool
+
+
+class MessageDeleteOut(BaseModel):
+    status: Optional[str] = None
+    deleted_count: int
+    msg: Optional[str] = None
+
+class MessagesDeleteOut(BaseModel):
+    status: Optional[str] = None
+    deleted_count: int
+
+class MessagesDeleteIn(BaseModel):
+    ids: str
+
+class MessagesUpdateOut(BaseModel):
+    status: Optional[str] = None
+    updated_count: int
+
+class MessagesUpdateIn(BaseModel):
+    ids: List[int]
+    user_id: int
 
 class AllMessagesOutPost(BaseModel):
     id: int
