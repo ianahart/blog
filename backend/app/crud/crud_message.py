@@ -100,21 +100,34 @@ class CRUDMessage(CRUDBase):
 
             q_str.offset = q_str.offset + q_str.size
             q_str.page = q_str.page + 1
+
             for message in messages:
+                message.ellipses = f"{' '.join(message.message.split(' ')[0:8])}..." \
+                    if len(message.message.split(' ')) > 8 else message.message
+                message.is_checked = False
+
                 td = datetime.datetime.utcnow()
                 one_day = 86400
                 time_passed = int(abs(message.created_at.timestamp() - td.timestamp()))
+                fmt = '%d|%-I:%M %p'
 
                 if time_passed < one_day:
-                    time = message.created_at.strftime('%I:%M %p')
-                    est_time = datetime.datetime.strptime(time, "%I:%M %p").replace(
-                        tzinfo=pytz.utc).astimezone(pytz.timezone('EST')).strftime("%I:%M %p")
-                    message.readable_date = f'Today at {est_time}'
-                else:
-                    message.readable_date = message.created_at.strftime("%b %d %Y")
-                message.post_link = f'{message.post.slug}-{str(message.post.author_id)}'
+                    time = message.created_at.strftime(fmt)
 
+                    est_time = datetime.datetime.strptime(time, "%d|%I:%M %p").replace(
+                        tzinfo=pytz.utc).astimezone(pytz.timezone('EST')).strftime(fmt)
+                    now_est_time = datetime.datetime.now(pytz.timezone('EST')).strftime(fmt)
+
+                    prefix = 'Yesterday' if est_time.split('|')[0] != now_est_time.split('|')[0] else 'Today'
+                    message.readable_date = f"{prefix} at {est_time.split('|')[1]}"
+                else:
+                    message.readable_date = message.created_at.strftime('%b %d %Y')
+
+                message.post_link = f"{message.post.slug}-{str(message.post.id)}"
             return {'messages': messages, 'q_str': q_str}
-        except Exception as e:
-            print(e)
+        except Exception:
+            return {
+                'error': 'Unable to retrieve admin messages',
+                'status': 500
+            }
 message = CRUDMessage(Message)

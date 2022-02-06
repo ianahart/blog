@@ -30,7 +30,9 @@ class AllMessagesOutMessage(BaseModel):
     contact: Optional[str] = None
     ip_address: Optional[str] = None
     message: str
+    ellipses: str
     post_id: int
+    is_checked: bool
     post: AllMessagesOutPost
     post_link: Optional[str] = None
     read: Optional[bool] = None

@@ -14,4 +14,8 @@ export const layerStyles = {
     width: '30px',
     height: '30px',
   },
+  iconSm: {
+    width: '20px',
+    height: '20px',
+  },
 };

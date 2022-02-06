@@ -1,7 +1,7 @@
-import { Box, Icon, Tooltip, Button } from '@chakra-ui/react';
+import { Box, Icon, Tooltip } from '@chakra-ui/react';
 import { BsCheckSquare, BsTrash, BsSearch } from 'react-icons/bs';
 
-const Actions = () => {
+const Actions = ({ massAction }) => {
   return (
     <Box display="flex" justifyContent="flex-end" alignItems="center">
       <Tooltip
@@ -9,7 +9,7 @@ const Actions = () => {
         label="Mark as read"
         aria-label="mark as read tooltip"
       >
-        <Box mx={2} cursor="pointer" as="span">
+        <Box onClick={() => massAction('mark_as_read')} mx={2} cursor="pointer" as="span">
           <Icon layerStyle="iconBtn" color="dark.secondary" as={BsCheckSquare} />
         </Box>
       </Tooltip>
@@ -25,10 +25,10 @@ const Actions = () => {
 
       <Tooltip
         backgroundColor="green.primary"
-        label="Delete message"
+        label="Delete messages"
         aria-label="delete message tooltip"
       >
-        <Box mx={2} cursor="pointer" as="span">
+        <Box onClick={() => massAction('delete')} mx={2} cursor="pointer" as="span">
           <Icon layerStyle="iconBtn" color="dark.secondary" as={BsTrash} />
         </Box>
       </Tooltip>

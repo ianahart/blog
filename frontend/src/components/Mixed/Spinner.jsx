@@ -3,6 +3,7 @@ import { Box, Text } from '@chakra-ui/react';
 const Spinner = ({
   loading,
   position = 'relative',
+  msg = 'Loading...',
   values = { top: 0, right: 0 },
   size,
 }) => {
@@ -47,17 +48,11 @@ const Spinner = ({
           ></animateTransform>
         </circle>
       </svg>
-      <Text
-        fontWeight="bold"
-        textAlign="center"
-        fontSize="18px"
-        color="dark.secondary"
-      >
-        Loading...
+      <Text fontWeight="bold" textAlign="center" fontSize="18px" color="dark.secondary">
+        {msg}
       </Text>
     </Box>
   );
 };
 
 export default Spinner;
-
