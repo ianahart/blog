@@ -58,7 +58,6 @@ class CRUDPost:
                     'msg': 'random posts recieved'
             }
         except Exception as e:
-            print(e)
             return {
                 'error': 'Something went wrong fetching more posts.',
                 'status': 500,
@@ -115,8 +114,7 @@ class CRUDPost:
                         'post_id': post_id,
                         'has_likes': True,
                 }
-        except Exception as e:
-            print(e)
+        except Exception:
             return {
                 'error': 'Cannot get the posts current ranking.',
                 'status': 500
@@ -138,8 +136,6 @@ class CRUDPost:
 
             q_str = self.paginate(q_str, db)
 
-            print(q_str)
-
             if q_str.tab == 'top':
                 query = query.outerjoin(Like) \
                     .group_by(Post.id) \
@@ -160,7 +156,6 @@ class CRUDPost:
             previews = self.create_previews(rows)
             return {'posts': previews, 'pagination': q_str}
         except Exception as e:
-            print(e)
             e_detail = str(e)
             return {'error': e_detail}
 
@@ -192,7 +187,7 @@ class CRUDPost:
             if row.tag is not None:
                 if row.tag.text.count('|') > 0:
                     tags = row.tag.text.split('|')
-                    row.tag.text = [tag.title() for tag in tags]
+                    row.tag.text = [tag for tag in tags]
                 else:
                     row.tag.text = [row.tag.text.title()]
             row = row.__dict__
@@ -208,7 +203,6 @@ class CRUDPost:
 
         values = jsonable_encoder(q_str)
         missing_values = any(el is None for el in values.values())
-        print(q_str)
 
         if q_str.direction == 'initial_load':
             try:
@@ -366,8 +360,7 @@ class CRUDPost:
                     post.like_id = has_liked['id']
             return {'post': post}
 
-        except Exception as e:
-            print(e)
+        except Exception:
             return {
                 'error': 'Unable to complete request',
                 'status': 500
@@ -391,8 +384,7 @@ class CRUDPost:
 
             cur_post = jsonable_encoder(cur_post)
 
-        except Exception as e:
-            print(e)
+        except Exception:
             return {'error': 'You provided the wrong post', 'status': 400}
 
         title = form['title'].replace('"', '').lower().split(' ')
@@ -472,7 +464,6 @@ class CRUDPost:
                 try:
                     if col == 'cover_image_filename':
                         aws.delete_file('', post[col])
-                        print(col)
                 except Exception:
                     return {'error': 'aws service is unavailable right now.', 'status': 503}
 
@@ -490,7 +481,6 @@ class CRUDPost:
             db.commit()
             return {'result': 'Post deleted'}
         except Exception as exception:
-            print(exception)
             if exception:
                 return {'error': 'Unable to delete post', 'status': 500}
 
