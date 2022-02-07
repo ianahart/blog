@@ -21,7 +21,11 @@ const PrivacyPolicy = () => {
         We use Your Personal data to provide and improve the Service. By using the Service, You
         agree to the collection and use of information in accordance with this Privacy Policy. This
         Privacy Policy has been created with the help of the{' '}
-        <a href="https://www.privacypolicies.com/blog/privacy-policy-template/" target="_blank">
+        <a
+          rel="noreferrer"
+          href="https://www.privacypolicies.com/blog/privacy-policy-template/"
+          target="_blank"
+        >
           Privacy Policy Template
         </a>
         .
@@ -96,7 +100,11 @@ const PrivacyPolicy = () => {
         <li>
           <p>
             <strong>Website</strong> refers to ian blog, accessible from{' '}
-            <a href="https://www.ianhartblog.com" rel="external nofollow noopener" target="_blank">
+            <a
+              href="https://www.ianhartblog.com"
+              rel="external noreferrer nofollow noopener"
+              target="_blank"
+            >
               https://www.ianhartblog.com
             </a>
           </p>
@@ -174,7 +182,7 @@ const PrivacyPolicy = () => {
           objects?&quot; available at{' '}
           <a
             href="https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html#main_Where_can_I_change_the_settings_for_disabling__or_deleting_local_shared_objects_"
-            rel="external nofollow noopener"
+            rel="external nofollow noreferrer noopener"
             target="_blank"
           >
             https://helpx.adobe.com/flash-player/kb/disable-local-shared-objects-flash.html#main_Where_can_I_change_the_settings_for_disabling__or_deleting_local_shared_objects_
@@ -196,6 +204,7 @@ const PrivacyPolicy = () => {
         <a
           href="https://www.privacypolicies.com/blog/privacy-policy-template/#Use_Of_Cookies_Log_Files_And_Tracking"
           target="_blank"
+          rel="noreferrer"
         >
           Cookies by PrivacyPolicies Generator
         </a>

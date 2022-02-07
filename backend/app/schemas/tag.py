@@ -10,6 +10,54 @@ class TagBase(BaseModel):
     text: str
     category: Optional[str] = None
 
+class RetrieveTagsIn(BaseModel):
+    offset: int
+    limit: int
+
+
+class RetrieveTagsOutGreatGrandChild(BaseModel):
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+    portrait_url: Optional[str] = None
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class RetrieveTagsOutGrandChild(BaseModel):
+    created_at: Optional[datetime.datetime] = None
+    id: int
+    slug: str
+    title: str
+    readable_date: str
+    author: RetrieveTagsOutGreatGrandChild
+
+    class Config:
+        orm_mode = True
+
+
+class RetrieveTagsOutChild(BaseModel):
+    category: Optional[str] = None
+    created_at: Optional[datetime.datetime] = None
+    id: Optional[int] = None
+    post: RetrieveTagsOutGrandChild
+    post_id: int
+    text: List[str]
+
+    class Config:
+        orm_mode = True
+
+
+class RetrieveTagsOut(BaseModel):
+    q_str: Optional[str] = None
+    status: str
+    tags: List[RetrieveTagsOutChild]
+
+    class Config:
+        orm_mode = True
+
+
 class AddTagChild(BaseModel):
     id: str
     value: str

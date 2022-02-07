@@ -1,4 +1,4 @@
-import { Heading, Image, Link } from '@chakra-ui/react';
+import { Image, Link } from '@chakra-ui/react';
 import notFoundImage from '../images/not_found.svg';
 import { Link as RouterLink } from 'react-router-dom';
 
@@ -23,4 +23,3 @@ const NotFound = () => {
   );
 };
 export default NotFound;
-

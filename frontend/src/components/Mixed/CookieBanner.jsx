@@ -1,6 +1,12 @@
 import { Box, Text, Heading, Button, Slide, Link } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 const CookieBanner = ({ cookieBannerShowing, closeCookieBanner }) => {
+  const handleOnClick = (e) => {
+    e.stopPropagation();
+    e.preventDefault();
+    closeCookieBanner();
+  };
+
   return (
     <Slide direction="bottom" in={cookieBannerShowing} style={{ zIndex: 10 }}>
       <Box
@@ -38,7 +44,7 @@ const CookieBanner = ({ cookieBannerShowing, closeCookieBanner }) => {
             display="inline-block"
             width="120px"
             mx={3}
-            onClick={() => closeCookieBanner()}
+            onClick={handleOnClick}
           >
             Ok
           </Button>

@@ -11,6 +11,7 @@ import Login from './pages/Admin/Login';
 import ForgotPassword from './pages/Admin/ForgotPassword';
 import Dashboard from './pages/Admin/Dashboard';
 import NotFound from './pages/NotFound';
+import Tags from './pages/Tags';
 import CookiePolicy from './pages/CookiePolicy.jsx';
 import PrivacyPolicy from './pages/PrivacyPolicy.jsx';
 import AdminPost from './pages/Admin/AdminPost';
@@ -46,6 +47,7 @@ const App = () => {
               <Route path="/about" element={<About />} />
               <Route path="/admin/login" element={<Login />} />
               <Route path="/posts/:slug" element={<Post />} />
+              <Route path="/tags/:tag" element={<Tags />} />
               <Route path="/admin/forgot-password" element={<ForgotPassword />} />
               <Route
                 path="/admin/:userId/dashboard"

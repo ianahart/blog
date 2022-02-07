@@ -17,9 +17,7 @@ const Preview = ({ previewData, previewLink }) => {
     to { transform: translateX(0px)}
     `;
   const animation = prefersReducedMotion ? undefined : `${fade} 1s`;
-  const author = previewData?.author_name
-    ? previewData.author_name
-    : 'Anonymous';
+  const author = previewData?.author_name ? previewData.author_name : 'Anonymous';
 
   return (
     <Box
@@ -52,18 +50,8 @@ const Preview = ({ previewData, previewLink }) => {
         </Box>
       </Box>
       <Box width={['98%', '80%', '80%']} margin="1rem auto">
-        <Link
-          as={RouterLink}
-          _hover={{ textDecoration: 'none' }}
-          to={previewLink}
-        >
-          <Box
-            borderRadius={8}
-            margin="0 auto"
-            width="70%"
-            height="200px"
-            position="relative"
-          >
+        <Link as={RouterLink} _hover={{ textDecoration: 'none' }} to={previewLink}>
+          <Box borderRadius={8} margin="0 auto" width="70%" height="200px" position="relative">
             <Heading
               style={{ textShadow: '2px 1px 2px #0E0F0F' }}
               position="absolute"
@@ -99,18 +87,23 @@ const Preview = ({ previewData, previewLink }) => {
         {previewData.tag?.text?.length
           ? previewData.tag.text.map((text, index) => {
               return (
-                <Box
+                <Link
                   key={index}
-                  as="span"
-                  color="dark.secondary"
-                  _hover={{ color: 'gray.600' }}
-                  display="inline-block"
-                  my={[0.5, 2, 2]}
-                  mx={(0.5, 2, 2)}
-                  cursor="pointer"
+                  as={RouterLink}
+                  to={`/tags/${text.toLowerCase()}?offset=0&limit=3`}
                 >
-                  #{text}
-                </Box>
+                  <Box
+                    as="span"
+                    color="dark.secondary"
+                    _hover={{ color: 'gray.600' }}
+                    display="inline-block"
+                    my={[0.5, 2, 2]}
+                    mx={(0.5, 2, 2)}
+                    cursor="pointer"
+                  >
+                    #{text}
+                  </Box>
+                </Link>
               );
             })
           : ''}

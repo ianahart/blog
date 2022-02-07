@@ -7,6 +7,20 @@ from app.api import deps
 
 router = APIRouter()
 
+# response model RetrieveTagsOut
+@router.get('/{tag}/', response_model=schemas.RetrieveTagsOut, status_code=200)
+def get_tags(*, tag: str, q_str: schemas.RetrieveTagsIn = Depends(),
+             db: Session = Depends(deps.get_db)):
+    data = crud.tag.retrieve_tags(tag, db, q_str)
+
+    if isinstance(data, dict):
+        if 'error' in data:
+            detail = data['error']
+            status_code = data['status']
+
+            raise HTTPException(status_code=status_code, detail=detail)
+    return data
+
 
 @router.post('/admin', dependencies=[Depends(JWTBearer())], status_code=201)
 def create_tags(*, db: Session = Depends(deps.get_db), data: schemas.AddTag):

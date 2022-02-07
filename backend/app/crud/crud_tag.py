@@ -1,5 +1,9 @@
+from typing import Optional, Dict
+
+from sqlalchemy.orm import joinedload, load_only, subqueryload
 from app.models import Tag
-from sqlalchemy import update
+from app.models import Post
+from sqlalchemy import update, select
 from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
 from app import schemas
@@ -18,7 +22,7 @@ class CRUDTag(CRUDBase):
                         tags += inner[index].value
         try:
             tag_obj = Tag(
-                    text=tags,
+                    text=tags.lower(),
                     post_id=data.post_id,
                     created_at=datetime.datetime.now()
             )
@@ -31,6 +35,56 @@ class CRUDTag(CRUDBase):
             e_detail = str(e)
 
             return {'error': e_detail, 'status': 500}
+
+    def retrieve_tags(self, tag_text: str, db: Session,
+                      q_str: schemas.RetrieveTagsIn) -> Optional[Dict]:
+
+        try:
+            if q_str.limit < 0 or q_str.offset < 0:
+                raise Exception('Malformed url string.')
+
+            stmt = select(Tag) \
+                .options(
+                    joinedload(Tag.post)
+                    .load_only('slug', 'title', 'created_at', 'id')
+                .joinedload(Post.author)
+                    .load_only('first_name', 'last_name', 'portrait_url')) \
+                .where(
+                    Tag.text.contains(tag_text) | Tag.text.contains(
+                        tag_text.replace(' ', ''))) \
+                .offset(q_str.offset) \
+                .limit(q_str.limit)
+
+            result = db.scalars((stmt)).all()
+
+            if len(result) == 0:
+                return {
+                    'error': 'All tags have been loaded.',
+                    'status': 400,
+                }
+
+            q_str.offset = q_str.offset + q_str.limit
+
+            for row in result:
+                row.post.title = row.post.title.title()
+                row.text = row.text.split('|')
+                row.post.readable_date = row.post.created_at.strftime("%b %d %y")
+
+            updated_q_str = ''
+            for index, query_p in enumerate(q_str):
+                k_v = f'{query_p[0]}={query_p[1]}'
+                updated_q_str += f'&{k_v}' if index > 0 else f'?{k_v}'
+
+            return {
+                'status': 'tags retrieved',
+                'tags': result,
+                'q_str': updated_q_str
+                    }
+        except Exception:
+            return {
+                'error': 'Unable to retrieve tags. Something went wrong.',
+                'status': 500,
+            }
 
     def update_tags(self, tag_id: int, db: Session, data: schemas.UpdateTag):
         try:
@@ -48,7 +102,7 @@ class CRUDTag(CRUDBase):
                 .values(
                     post_id=int(data.post_id),
                     created_at=datetime.datetime.utcnow(),
-                    text=text
+                    text=text.lower()
                 )
                 .execution_options(synchronize_session="fetch"))
             db.commit()
