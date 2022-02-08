@@ -1,4 +1,5 @@
-import { Box, Icon, Text, Image, Heading } from '@chakra-ui/react';
+import { Box, Link, Icon, Text, Image, Heading } from '@chakra-ui/react';
+import { Link as RouterLink } from 'react-router-dom';
 import { AiOutlineCalendar } from 'react-icons/ai';
 
 const PostHeader = ({ post }) => {
@@ -30,19 +31,8 @@ const PostHeader = ({ post }) => {
           <Heading color="dark.secondary" fontSize="22px" as="h3">
             {post.author.first_name} {post.author.last_name}
           </Heading>
-          <Text
-            fontSize="12px"
-            display="flex"
-            alignItems="center"
-            color="#8b8787"
-          >
-            <Icon
-              mr={2}
-              height="24px"
-              width="24px"
-              color="gray.text"
-              as={AiOutlineCalendar}
-            />
+          <Text fontSize="12px" display="flex" alignItems="center" color="#8b8787">
+            <Icon mr={2} height="24px" width="24px" color="gray.text" as={AiOutlineCalendar} />
             {post.created_at}
           </Text>
           {post.is_edited ? (
@@ -64,17 +54,18 @@ const PostHeader = ({ post }) => {
           <Box>
             {post.tags?.map((tag, index) => {
               return (
-                <Box
-                  cursor="pointer"
-                  key={index}
-                  display="inline-block"
-                  mx={2}
-                  my={2}
-                  color="dark.secondary"
-                  as="span"
-                >
-                  #{tag}
-                </Box>
+                <Link as={RouterLink} key={index} to={`/tags/${tag}?offset=2&limit=2`}>
+                  <Box
+                    cursor="pointer"
+                    display="inline-block"
+                    mx={2}
+                    my={2}
+                    color="dark.secondary"
+                    as="span"
+                  >
+                    #{tag}
+                  </Box>
+                </Link>
               );
             })}
           </Box>
