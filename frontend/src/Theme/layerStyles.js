@@ -18,4 +18,13 @@ export const layerStyles = {
     width: '20px',
     height: '20px',
   },
+  iconArrow: {
+    position: 'absolute',
+    color: '#d8d8f',
+    role: 'button',
+    cursor: 'pointer',
+    top: '30%',
+    height: '35px',
+    width: '35px',
+  },
 };
