@@ -1,4 +1,5 @@
 import uuid
+from botocore.utils import merge_dicts
 from sqlalchemy import select, func, update, delete
 from sqlalchemy.orm import load_only, joinedload, subqueryload
 from typing import Dict, Any, Optional, List
@@ -14,9 +15,82 @@ from app.services import aws, auth
 from jose import jwt
 import json
 import datetime
+import re
 
 
 class CRUDPost:
+
+    def search_post(self, q_str: schemas.SearchPostIn, authorization: str, db: Session) -> Optional[Dict]:
+
+        try:
+            bearerToken = authorization.split(' ')[1]
+            decoded_token = jwt.decode(
+                                       bearerToken,
+                                       config.settings.JWT_SECRET,
+                                       config.settings.ALGORITHM,
+                                       options={'verify_aud': False}
+                                      )
+
+        except Exception:
+            return {
+                'error': 'This user is forbidden from seeing this post',
+                'status': 403}
+
+        try:
+            pattern = re.compile(r"^[a-zA-Z0-9,\s+.]*$")
+            matched = re.fullmatch(pattern, q_str.q)
+
+            if not matched:
+                raise Exception('Search term may not include special chars.')
+
+        except Exception as e:
+            print(e)
+            return {
+                'error': str(e),
+                'status': 422
+            }
+
+        try:
+            stmt = select(Post).options(
+                load_only('title', 'slug', 'cover_image_path')) \
+                .options(
+                    joinedload(Post.tag).load_only('text')) \
+                .where(Post.author_id == int(decoded_token['sub'])) \
+                .where(
+                    Post.title.ilike(f'%{q_str.q}%')) \
+                .limit(10)
+
+            rows = db.scalars(stmt).all()
+
+            if len(rows) == 0:
+                return {
+                    'error': f'No posts found by title similar to {q_str.q}',
+                    'status': 404,
+                }
+
+            posts = []
+            for row in rows:
+                row.tag.text = row.tag.text.split('|')
+                row.slug = f'{row.slug}-{row.id}'
+                post = jsonable_encoder(row)
+                alter_post = {'post': {}}
+
+                for col in ['id', 'cover_image_path', 'slug', 'title']:
+                    alter_post['post'][col] = post[col]
+                alter_post['id'] = post['tag']['id']
+                alter_post['text'] = post['tag']['text']
+
+                tag = dict(zip(post['tag'].keys(), post['tag'].values()))
+                merge_dicts(alter_post, tag)
+                posts.append(alter_post)
+
+            return {'results': posts}
+
+        except Exception:
+            return {
+                'error': 'Unable to retrieve results for title search.',
+                'status': 500,
+            }
 
     def retrieve_random(self, size: int, post_id: int, user_id: int,
                         db: Session) -> Optional[Dict]:

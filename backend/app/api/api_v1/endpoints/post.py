@@ -12,7 +12,24 @@ from app.schemas.tag import AddTag
 
 router = APIRouter()
 
-# response model
+@router.get('/admin/search/',
+            dependencies=[Depends(JWTBearer())],
+            response_model=schemas.SearchPostOut,
+            status_code=200)
+def search_post(*, q: schemas.SearchPostIn = Depends(),
+                authorization: str = Header(None),
+                db: Session = Depends(deps.get_db)):
+
+    data = CRUDPost.search_post(q, authorization, db)
+    if isinstance(data, dict):
+        if 'error' in data:
+
+            detail = data['error']
+            status_code = data['status']
+            raise HTTPException(status_code=status_code, detail=detail)
+        return {'results': data['results']}
+
+
 @router.get('/random/')
 def get_random_post(*, size: int, postid: int, user: int, db: Session = Depends(deps.get_db)):
     data = CRUDPost.retrieve_random(size, postid, user, db)

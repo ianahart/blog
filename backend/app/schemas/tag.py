@@ -1,4 +1,5 @@
 import datetime
+import re
 from typing import Dict, Optional, List
 from pydantic import BaseModel, validator
 
@@ -9,6 +10,37 @@ class TagBase(BaseModel):
     created_at: Optional[datetime.datetime]
     text: str
     category: Optional[str] = None
+
+
+class TagSearchOutGrandChild(BaseModel):
+    id: int
+    title: str
+    slug: str
+    cover_image_path: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+class TagSearchOutChild(BaseModel):
+    created_at: Optional[datetime.datetime] = None
+    id: int
+    post: TagSearchOutGrandChild
+    text: List[str]
+
+    class Config:
+        orm_mode = True
+
+class TagSearchOut(BaseModel):
+    results: List
+    offset: Optional[int] = None
+
+    class Config:
+        orm_mode = True
+
+class TagSearchIn(BaseModel):
+    q: str
+    limit: int
+    offset: Optional[int] = None
 
 class RetrieveTagsIn(BaseModel):
     offset: int

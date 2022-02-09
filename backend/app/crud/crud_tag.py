@@ -8,8 +8,64 @@ from sqlalchemy.orm.session import Session
 from app.crud.base import CRUDBase
 from app import schemas
 import datetime
+import re
 
 class CRUDTag(CRUDBase):
+    def search_tags(self, q_str: schemas.TagSearchIn, db: Session) -> Optional[Dict]:
+
+        try:
+            pattern = re.compile(r"^[a-zA-Z0-9,\s+.]*$")
+            matched = re.fullmatch(pattern, q_str.q)
+
+            if not matched:
+                raise Exception('Search term may not include special chars.')
+
+        except Exception as e:
+            error = str(e)
+            return {
+                'error': error,
+                'status': 422
+            }
+        try:
+            q_str.q = q_str.q.strip().lower()
+
+            query = select(Tag).options(
+                    joinedload(Tag.post)
+                    .load_only('cover_image_path', 'title', 'slug')) \
+                .where(Tag.text.contains(q_str.q)) \
+                .order_by(Tag.id) \
+                .offset(q_str.offset).limit(q_str.limit)
+
+            rows = db.scalars(query).all()
+
+            if len(rows) == 0 and q_str.offset:
+                return {
+                    'error': f'All posts loaded that are related to {q_str.q}',
+                    'status': 404,
+                }
+
+            if len(rows) == 0:
+                return {
+                    'error': f'Did not find any results for {q_str.q}',
+                    'status': 404
+                }
+
+            for row in rows:
+                row.text = row.text.split('|')
+                row.post.slug = f'{row.post.slug}-{row.post.id}'
+
+            return {
+                'results': rows,
+                'offset': q_str.limit + q_str.offset
+                if q_str.offset is not None else q_str.limit
+            }
+
+        except Exception:
+            return {
+                'error': 'Unable to retrieve search results',
+                'status': 500
+            }
+
     def create_tags(self, db: Session, data):
         tags = ''
 

@@ -5,7 +5,6 @@ import Navbar from './components/Navbar';
 import RefreshCatcher from './components/Mixed/RefreshCatcher';
 import Home from './pages/Home';
 import Posts from './pages/Posts';
-import Categories from './pages/Categories';
 import About from './pages/About';
 import Login from './pages/Admin/Login';
 import ForgotPassword from './pages/Admin/ForgotPassword';
@@ -43,7 +42,6 @@ const App = () => {
               <Route path="/posts" element={<Posts />} />
               <Route path="/cookie-policy" element={<CookiePolicy />} />
               <Route path="/privacy-policy" element={<PrivacyPolicy />} />
-              <Route path="/categories" element={<Categories />} />
               <Route path="/about" element={<About />} />
               <Route path="/admin/login" element={<Login />} />
               <Route path="/posts/:slug" element={<Post />} />

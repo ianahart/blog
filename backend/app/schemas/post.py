@@ -6,6 +6,7 @@ import re
 
 from pydantic.typing import NoneType
 
+
 class PostBase(BaseModel):
     id: Optional[int] = None
     author_id: Optional[int] = None
@@ -17,6 +18,32 @@ class PostBase(BaseModel):
     content: Optional[str] = None
     read_time: Optional[str] = None
 
+class SearchPostOutGrandChild(BaseModel):
+    id: int
+    title: str
+    slug: str
+    cover_image_path: Optional[str] = None
+
+    class Config:
+        orm_mode = True
+
+
+class SearchPostOutChild(BaseModel):
+    id: int
+    post: SearchPostOutGrandChild
+    text: List[str]
+
+    class Config:
+        orm_mode = True
+
+class SearchPostOut(BaseModel):
+    results: List[SearchPostOutChild]
+
+    class Config:
+        orm_mode = True
+
+class SearchPostIn(BaseModel):
+    q: str
 
 class RandomPostOut(BaseModel):
     size: Optional[int] = None
