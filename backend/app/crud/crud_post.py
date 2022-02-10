@@ -20,6 +20,54 @@ import re
 
 class CRUDPost:
 
+    def latest_post(self, q: schemas.LatestPostIn, db: Session) -> Optional[Dict]:
+        try:
+            stmt = select(Post) \
+                .options(
+                    load_only(
+                        Post.id,
+                        Post.created_at,
+                        Post.slug,
+                        Post.cover_image_path,
+                        Post.title,
+                        Post.content))\
+                .order_by(Post.created_at.desc()) \
+                .order_by(Post.id) \
+                .limit(1)
+
+            result = db.scalars(stmt).first()
+
+            if result is None:
+                return {
+                    'error': 'No latest posts found.',
+                    'status': 404
+                }
+            row = jsonable_encoder(result)
+            doc_tree = row['content']['post']
+            segment = ''
+
+            for node in doc_tree:
+                if node['type'] == 'paragraph':
+                    w_limit = 17
+                    text = node['children'][0]['text']
+                    words = text.split(' ')
+                    if len(words) > w_limit:
+                        text = f"{' '.join(words[0:w_limit])}..."
+                        segment = text
+                        break
+
+            row['content'] = segment
+            return {
+                'status': 'success',
+                'latest_post': row
+            }
+
+        except Exception:
+            return {
+                'error': 'Unable to retrieve latest post.',
+                'status': 500
+            }
+
     def search_post(self, q_str: schemas.SearchPostIn, authorization: str, db: Session) -> Optional[Dict]:
 
         try:

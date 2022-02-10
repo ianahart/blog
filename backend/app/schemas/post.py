@@ -18,6 +18,29 @@ class PostBase(BaseModel):
     content: Optional[str] = None
     read_time: Optional[str] = None
 
+
+class LatestPostOutChild(BaseModel):
+    id: int
+    title: str
+    created_at: Optional[datetime.datetime] = None
+    cover_image_path: Optional[str] = None
+    content: str
+    slug: str
+
+    class Config:
+        orm_mode = True
+
+
+class LatestPostOut(BaseModel):
+    status: Optional[str] = None
+    latest_post: LatestPostOutChild
+
+    class Config:
+        orm_mode = True
+
+class LatestPostIn(BaseModel):
+    size: int
+
 class SearchPostOutGrandChild(BaseModel):
     id: int
     title: str

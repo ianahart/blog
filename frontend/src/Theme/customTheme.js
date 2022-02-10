@@ -35,6 +35,7 @@ const customTheme = extendTheme({
 
     green: {
       primary: '#16DB93',
+      secondary: '#0f9564',
     },
     pink: {
       primary: '#A4036F',

@@ -1,6 +1,7 @@
 from .user import User, UserExists, UserCreate, UserVerify, UserUpdateInfo
 from .post import NewPost, PostPreviewIn, PostPreviewOut, AdminPostPreviewIn, GetPostIn, \
-    GetPostOut, PostUpdate, PostRankOut, RandomPostOut, SearchPostIn, SearchPostOut
+    GetPostOut, PostUpdate, PostRankOut, RandomPostOut, SearchPostIn, SearchPostOut, \
+    LatestPostIn, LatestPostOut
 from .tag import AddTag, UpdateTag, RetrieveTagsIn, RetrieveTagsOut, TagSearchIn, \
     TagSearchOut
 from .auth import AuthLogin

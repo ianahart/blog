@@ -12,6 +12,22 @@ from app.schemas.tag import AddTag
 
 router = APIRouter()
 
+@router.get('/latest/', response_model=schemas.LatestPostOut, status_code=200)
+def latest_post(*, q: schemas.LatestPostIn = Depends(), db: Session = Depends(deps.get_db)):
+
+    data = CRUDPost.latest_post(q, db)
+
+    if isinstance(data, dict):
+        if 'error' in data:
+
+            detail = data['error']
+            raise HTTPException(status_code=404, detail=detail)
+        return {
+                'status': 'success',
+                'latest_post': data['latest_post'],
+        }
+
+
 @router.get('/admin/search/',
             dependencies=[Depends(JWTBearer())],
             response_model=schemas.SearchPostOut,
