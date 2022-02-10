@@ -57,7 +57,6 @@ const Dashboard = () => {
         display="flex"
         flexDirection={[dashboardPos, dashboardPos, 'row']}
         minHeight="100%"
-        width="100%"
         height="100%"
       >
         <Sidebar

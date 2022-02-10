@@ -5,7 +5,7 @@ import axios from 'axios';
 import SearchBar from '../../../Search/SearchBar.jsx';
 import useDebounce from '../../../../hooks/useDebounce.jsx';
 import Results from '../../../Search/Results.jsx';
-
+import Widgets from './Widgets.jsx';
 const Search = ({ handleSidebarToggle }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [results, setResults] = useState([]);
@@ -71,6 +71,7 @@ const Search = ({ handleSidebarToggle }) => {
         display={['none', 'none', 'flex']}
         focus={{ border: 'none' }}
         border="none"
+        role="admin"
         placeHolder="Search Posts"
       />
       {error && (
@@ -94,6 +95,7 @@ const Search = ({ handleSidebarToggle }) => {
       ) : (
         <></>
       )}
+      <Widgets />
     </Box>
   );
 };

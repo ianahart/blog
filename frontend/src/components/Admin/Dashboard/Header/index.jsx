@@ -1,14 +1,13 @@
 import { Box, Heading } from '@chakra-ui/react';
 import MainLogo from '../../../Logos/MainLogo';
 import Search from './Search';
-import Widgets from './Widgets';
 import '@fontsource/caveat-brush/400.css';
-
 const Header = ({ handleSidebarToggle, isSidebarVisible }) => {
   return (
     <Box
       py={1}
       px={3}
+      height="100%"
       display="flex"
       backgroundColor="#FFF"
       flexDirection="row"
@@ -32,8 +31,11 @@ const Header = ({ handleSidebarToggle, isSidebarVisible }) => {
         display="flex"
         flexDirection={['row-reverse', 'row-reverse', 'row']}
       >
-        <Search isSidebarVisible={isSidebarVisible} handleSidebarToggle={handleSidebarToggle} />
-        <Widgets />
+        <Search
+          role="admin"
+          isSidebarVisible={isSidebarVisible}
+          handleSidebarToggle={handleSidebarToggle}
+        />
       </Box>
     </Box>
   );
