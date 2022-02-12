@@ -10,3 +10,5 @@ from .like import LikeCreate, LikeCreateOut
 from .message import MessageBase, MessagePostIn, MessagePostOut, AllMessagesIn,\
     AllMessagesOut, MessagesUpdateIn, MessagesUpdateOut, MessagesDeleteIn, MessagesDeleteOut, \
     MessageUpdateIn, MessageUpdateOut, MessageDeleteOut
+
+from .metric import MetricOut

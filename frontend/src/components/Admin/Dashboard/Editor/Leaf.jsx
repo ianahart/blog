@@ -1,4 +1,4 @@
-import { Box } from '@chakra-ui/react';
+import { Box, Code } from '@chakra-ui/react';
 
 const Leaf = ({ attributes, children, leaf }) => {
   if (leaf.bold) {
@@ -6,11 +6,14 @@ const Leaf = ({ attributes, children, leaf }) => {
   }
   if (leaf.code) {
     children = (
-      <Box p={1} backgroundColor="light.primary">
-        <code>{children}</code>
+      <Box display="block" bg="light.primary" as="span">
+        <Code bg="light.primary" p={1}>
+          <Box bg="light.primary" display="inline-block" width="100%" as="span">
+            {children}
+          </Box>
+        </Code>
       </Box>
     );
-    //children = <code>{children}</code>
   }
   if (leaf.italic) {
     children = <em>{children}</em>;
@@ -28,4 +31,3 @@ const Leaf = ({ attributes, children, leaf }) => {
   );
 };
 export default Leaf;
-

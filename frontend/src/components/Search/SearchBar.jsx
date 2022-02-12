@@ -10,7 +10,6 @@ const SearchBar = ({
   focus,
   border,
 }) => {
-  console.log(role);
   return (
     <>
       <InputGroup

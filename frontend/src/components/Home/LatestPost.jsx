@@ -1,4 +1,4 @@
-import { Box, Link, Text, Image, Icon } from '@chakra-ui/react';
+import { Box, Link, Text, Image } from '@chakra-ui/react';
 import { Link as RouterLink } from 'react-router-dom';
 import { useState } from 'react';
 
@@ -36,7 +36,6 @@ const LatestPost = ({ post }) => {
           <Text
             color={isHovered ? '' : '#FFF'}
             bgGradient={isHovered ? 'linear-gradient(to right, #16db93, #3583c2)' : ''}
-            textFillColor={isHovered ? 'transparent' : ''}
             backgroundClip={isHovered ? 'text' : ''}
             fontWeight="bold"
             mb={1}
