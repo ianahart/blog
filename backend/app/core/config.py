@@ -20,9 +20,9 @@ class Settings(BaseSettings):
     POSTGRES_USER: str
     POSTGRES_PASSWORD: str
     POSTGRES_DB: str
-    DATABASE_URL: Optional[PostgresDsn] = None
+    SQLALCHEMY_DATABASE_URI: Optional[PostgresDsn] = None
 
-    @validator("DATABASE_URL", pre=True)
+    @validator("SQLALCHEMY_DATABASE_URI", pre=True)
     def assemble_db_connection(cls, v: Optional[str], values: Dict[str, Any]) -> Any:  # noqa E501
         if isinstance(v, str):
             return v
@@ -43,7 +43,7 @@ class Settings(BaseSettings):
         raise ValueError(v)
 
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
-    DATABASE_URL: str
+    SQLALCHEMY_DATABASE_URI: str
 
     SMTP_TLS: bool = True
     SMTP_PORT: Optional[int] = None
