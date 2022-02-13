@@ -1,8 +1,7 @@
 {
   "name": "frontend",
   "version": "0.1.0",
-  "private": true,
-  "proxy": "http://localhost:8000",
+  "proxy": "https://ian-blog.herokuapp.com",
   "dependencies": {
     "@chakra-ui/react": "^1.7.2",
     "@emotion/react": "^11",
