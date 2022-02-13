@@ -18,5 +18,5 @@ commands.txt
 dist/
 build/
 *.egg-info/
-
-frontend
+/frontend
+frontend/
