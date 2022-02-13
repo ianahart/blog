@@ -38,10 +38,7 @@ def get_url():
     password = os.getenv("POSTGRES_PASSWORD", "")
     server = os.getenv("POSTGRES_SERVER", 'localhost')
     db = os.getenv("POSTGRES_DB", "blog")
-    uri = os.getenv("DATABASE_URL")
-    if uri.startswith("postgres://"):
-        uri = uri.replace("postgres://", "postgresql://", 1)
-    return f"{uri}://{user}:{password}@{server}/{db}"
+    return f"postgresql://{user}:{password}@{server}/{db}"
 
 
 def run_migrations_offline():

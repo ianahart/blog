@@ -14,7 +14,11 @@ class Settings(BaseSettings):
     JWT_SECRET: str = secrets.token_urlsafe(32)
     # pyright: reportGeneralTypeIssues=false
     ALGORITHM: str = os.getenv('ALGORITHM')
-    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
+    BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
+        'https://ianhart-blog.herokuapp.com/',
+        'http://localhost:3000',
+        'http://localhost:8001',
+    ]
 
     POSTGRES_SERVER: str
     POSTGRES_USER: str
