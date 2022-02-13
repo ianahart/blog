@@ -36,7 +36,7 @@ class Validator:
 
         passed = all(check for check in checks.values())
 
-        return '' if passed and len(password) > 12 else 'Password must be greater than 12 characters, include 1 uppercase, 1 lowercase, 1 digit, and 1 special character.' # noqa E501
+        return '' if passed and len(password) >= 12 else 'Password must be at least 12 characters, include 1 uppercase, 1 lowercase, 1 digit, and 1 special character.' # noqa E501
 
 
 validate = Validator()
