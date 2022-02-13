@@ -6,12 +6,10 @@ from app.core.config import settings
 import os
 
 load_dotenv()
-url = None
-if os.getenv('ENV') == 'production':
-    url = os.getenv('DATABASE_URL')
-    url = url.replace('postgres://', 'postgresql://') + "?sslmode=require"
-else:
-    url = settings.SQLALCHEMY_DATABASE_URI
+
+url = os.getenv('DATABASE_URL')
+url = url.replace('postgres://', 'postgresql://') + "?sslmode=require"
+
 
 engine = create_engine(url, future=True)
 
