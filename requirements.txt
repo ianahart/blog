@@ -22,6 +22,7 @@ fastapi==0.70.0
 filelock==3.4.0
 flake8==4.0.1
 greenlet==1.1.2
+gunicorn==20.1.0
 h11==0.12.0
 html5lib==1.1
 httptools==0.3.0
@@ -59,6 +60,7 @@ python-dateutil==2.8.2
 python-dotenv==0.19.2
 python-jose==3.3.0
 python-multipart==0.0.5
+pytz==2021.3
 PyYAML==6.0
 requests==2.26.0
 requests-toolbelt==0.9.1
