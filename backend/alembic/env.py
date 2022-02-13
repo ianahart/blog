@@ -41,7 +41,7 @@ def get_url():
     uri = os.getenv("DATABASE_URL")
     if uri.startswith("postgres://"):
         uri = uri.replace("postgres://", "postgresql://", 1)
-    return f"postgresql://{user}:{password}@{server}/{db}"
+    return f"{uri}://{user}:{password}@{server}/{db}"
 
 
 def run_migrations_offline():
