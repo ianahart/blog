@@ -16,6 +16,7 @@ class Settings(BaseSettings):
     ALGORITHM: str = os.getenv('ALGORITHM')
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = [
         'https://ianhart-blog.herokuapp.com/',
+        'https://ianhart-blog.netlify.app/',
         'http://localhost:3000',
         'http://localhost:8001',
     ]
