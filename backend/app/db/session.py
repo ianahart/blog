@@ -9,7 +9,7 @@ load_dotenv()
 url = None
 if os.getenv('ENV') == 'production':
     url = os.getenv('DATABASE_URL')
-    url = url.replace('postgres://', 'postgresql://')
+    url = url.replace('postgres://', 'postgresql://') + "?sslmode=require"
 else:
     url = settings.SQLALCHEMY_DATABASE_URI
 
